@@ -31,10 +31,12 @@
     }
     .work-clock-globe { position: relative; }
     #rotatingGlobe {
-      width: 380px; height: 380px;
-      background: #e4ecf7; border-radius: 50%;
-      box-shadow: 0 0 30px #68d3f7 inset;
-      margin-bottom: 12px;
+      display: block;
+      margin: 0 auto 18px auto;
+      width: 420px; height: 420px;
+      background: #e4ecf7;
+      border-radius: 50%;
+      box-shadow: 0 0 50px #68d3f7 inset, 0 0 30px #167690;
     }
     .clocks { display: flex; justify-content: center; margin-bottom: 18px; }
     .clock { background: #fff; box-shadow: 0 1px 8px #e2e2e2; border-radius: 10px; padding: 14px 34px; margin: 0 10px;}
@@ -48,10 +50,12 @@
       max-width: 440px;
     }
     .brain-img {
-      width: 230px;
+      width: 260px;
       border-radius: 16px;
       box-shadow: 0 0 32px #39d1c4, 0 0 16px #f4e285;
       animation: glowPulse 2s infinite;
+      display: block;
+      margin: 0 auto 18px auto;
     }
     @keyframes glowPulse {
       0% { box-shadow: 0 0 32px #39d1c4, 0 0 16px #f4e285; }
@@ -92,7 +96,7 @@
 
   <section class="hero">
     <div class="work-clock-globe">
-      <canvas id="rotatingGlobe"></canvas>
+      anvas id="rotatingGlobe" width="420" height="420"></canvas>
       <div class="clocks">
         <div class="clock">
           <div class="clock-title">Chennai</div>
@@ -200,27 +204,42 @@
     fetchWeather('chennai', 'weather-india');
     fetchWeather('vancouver', 'weather-canada');
 
-    // Placeholder for rotating globe
+    // Draw the interactive/dynamic globe
     const globeCanvas = document.getElementById('rotatingGlobe');
     const ctx = globeCanvas.getContext('2d');
     function drawGlobe() {
       ctx.clearRect(0,0,globeCanvas.width,globeCanvas.height);
       ctx.save();
       ctx.translate(globeCanvas.width/2, globeCanvas.height/2);
+
+      // Main globe
       ctx.beginPath();
-      ctx.arc(0, 0, 140, 0, 2 * Math.PI, false);
+      ctx.arc(0, 0, 180, 0, 2 * Math.PI, false);
       ctx.fillStyle = "#39d1c4";
-      ctx.globalAlpha = 0.12;
+      ctx.globalAlpha = 0.18;
       ctx.fill();
       ctx.globalAlpha = 1;
-      ctx.lineWidth = 5;
+      ctx.lineWidth = 8;
       ctx.strokeStyle = "#167690";
       ctx.stroke();
-      ctx.restore();
-      ctx.font = "20px Nunito";
+
+      // Longitude/latitude lines
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "#ffffff99";
+      for(let i=0; i<360; i+=30) {
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.arc(0, 0, 180, i * Math.PI/180, (i+1) * Math.PI/180);
+        ctx.stroke();
+      }
+
+      // Center text
+      ctx.font = "bold 22px Nunito";
       ctx.fillStyle = "#167690";
-      ctx.fillText("Interactive Globe", globeCanvas.width/2-90, globeCanvas.height/2+6);
-      // Future: Animate rotation, highlight nations, add interactive features
+      ctx.textAlign = "center";
+      ctx.fillText("Interactive Globe", 0, 8);
+
+      ctx.restore();
     }
     drawGlobe();
   </script>
