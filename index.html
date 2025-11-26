@@ -22,6 +22,7 @@
     }
     .logo { font-size: 2rem; font-weight: 700; color: #167690; }
     .nav a { margin: 0 18px; text-decoration: none; color: #167690; font-weight: 600; }
+
     .image-overlay-hero {
       position: relative;
       width: 100vw;
@@ -72,6 +73,7 @@
     .overlay-text p {
       font-size: 1.1rem;
     }
+
     .conference-overview {
       margin:38px auto; max-width:820px;
     }
@@ -84,6 +86,7 @@
       background:#f7f9ff; border-left:6px solid #128fa7;
       font-size:1.18rem; color:#265057;
     }
+
     #globe-container {
       width: 100%;
       max-width: 700px;
@@ -93,16 +96,20 @@
       box-shadow: 0 0 30px #97d8fc36;
       background: #e1f5fa;
     }
+
     .clocks { display: flex; justify-content: center; margin-bottom: 18px; }
     .clock { background: #fff; box-shadow: 0 1px 8px #e2e2e2; border-radius: 10px; padding: 14px 34px; margin: 0 10px;}
     .clock-title { font-size: 1rem; color: #06709c; font-weight: bold; }
     .clock-time { font-size: 2rem; color: #265057; }
+
     .weather-bar {display: flex; justify-content: center; margin-bottom: 16px;}
     .weather-card {background: #fffbe6; margin: 0 10px; padding: 16px 22px; border-radius: 8px; box-shadow: 0 1px 6px #e1e0c4;}
+
     .agenda, .countries, .innovation, .brochure, .contact {margin: 30px;}
     .agenda-table {width: 100%;border-collapse: collapse;}
     .agenda-table th, .agenda-table td {padding: 11px 18px; border-bottom: 1px solid #e4ecf7;}
     .agenda-table th {background: #e4ecf7;}
+
     .download-btn {
       padding: 14px 34px;
       background: #128fa7;
@@ -115,6 +122,7 @@
       display: inline-block;
       margin: 10px 0;
     }
+
     .flags {display: flex; flex-wrap: wrap; gap: 12px;}
     .flag { width: 48px; height: 32px; border-radius:5px; border:1px solid #c9e1ea; }
   </style>
@@ -133,8 +141,7 @@
 
   <!-- HERO Section with neural network overlay -->
   <div class="image-overlay-hero">
-  <img src="humanintelligence.png" alt="Human-AI Brain Conference Hero" class="brain-full-img"/>
-
+    <img src="humanintelligence.png" alt="Human-AI Brain Conference Hero" class="brain-full-img"/>
     anvas id="neuralCanvas"></canvas>
     <div class="overlay-text">
       <h1>11th Annual Leadership Conference</h1>
@@ -169,10 +176,8 @@
     </blockquote>
   </section>
 
-  <!-- Globe Section with 3D interactive globe placeholder -->
-  <section id="globe-container">
-    <!-- 3D Globe inserted here via three.js/globe.gl -->
-  </section>
+  <!-- Globe Section -->
+  <section id="globe-container"></section>
 
   <!-- Clocks and Weather -->
   <div class="clocks">
@@ -190,6 +195,7 @@
     <div class="weather-card" id="weather-canada"></div>
   </div>
 
+  <!-- Agenda -->
   <section class="agenda" id="agenda">
     <h2>Conference Agenda Snapshot</h2>
     <table class="agenda-table">
@@ -208,6 +214,7 @@
     </table>
   </section>
 
+  <!-- Countries -->
   <section class="countries" id="countries">
     <h2>Key Nations & Regions</h2>
     <div class="flags">
@@ -225,13 +232,14 @@
     </div>
   </section>
 
+  <!-- Innovation -->
   <section class="innovation" id="innovation">
     <h2>Innovation & Tech Gallery</h2>
     <p>Interactive 3D Globe: Explore participating nations. <br>
     Digital “brain” lighting up the future of leadership.</p>
-    <!-- 3D Globe and tech will appear above -->
   </section>
 
+  <!-- Brochure -->
   <section class="brochure" id="brochure">
     <h2>Brochure Download</h2>
     <a class="download-btn" href="GLOB-SMC-Leadership-Conference-2025_Brochure_Final5.pdf" download>
@@ -240,6 +248,7 @@
     <embed src="GLOB-SMC-Leadership-Conference-2025_Brochure_Final5.pdf" width="320" height="250" type="application/pdf"/>
   </section>
 
+  <!-- Contact -->
   <section class="contact" id="contact">
     <h2>Contact & Live Updates</h2>
     <p>For conference help, registration queries, or speaker information:<br>
@@ -264,7 +273,6 @@
         const py = Math.random()*neuralCanvas.height*0.7 + neuralCanvas.height*0.15;
         points.push({x: px, y: py});
       }
-      // Draw orbs
       for(const pt of points) {
         nctx.beginPath();
         nctx.arc(pt.x, pt.y, 19, 0, 2*Math.PI);
@@ -274,7 +282,6 @@
         nctx.fill();
         nctx.closePath();
       }
-      // Connect orbs
       nctx.shadowBlur = 0;
       nctx.lineWidth = 4;
       nctx.strokeStyle = "#39d1c4";
@@ -291,7 +298,7 @@
     }
     drawNeuralNetwork();
 
-    // Simple clocks for Chennai + Canada
+    // Clocks
     function updateClocks() {
       const indiaTime = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
       const canadaTime = new Date(new Date().toLocaleString("en-US", {timeZone: "America/Vancouver"}));
@@ -300,7 +307,7 @@
     }
     setInterval(updateClocks, 1000); updateClocks();
 
-    // Weather Widget
+    // Weather
     async function fetchWeather(city, elId) {
       let geo = {chennai: [13.0827, 80.2707], vancouver: [49.2827, -123.1207]};
       let [lat, lon] = geo[city];
@@ -314,21 +321,23 @@
     fetchWeather('chennai', 'weather-india');
     fetchWeather('vancouver', 'weather-canada');
 
-    // 3D Globe integration (with globe.gl)
+    // 3D Globe
     const globeElem = document.getElementById('globe-container');
     const myGlobe = Globe()
-      .globeImageUrl('//unpkg.com/globe.gl@2.30.2/example/img/earth-dark.jpg')
+      .globeImageUrl('//unpkg.com/globe.gl@2.30.2/example/img/earth-dark.jpg') [web:11]
       .width(700)
       .height(410)
       .showAtmosphere(true)
       .atmosphereColor("#489dcc")
       .atmosphereAltitude(0.28)
       (globeElem);
+
     myGlobe.pointOfView({ lat: 22, lng: 79, altitude: 1.65});
+
     myGlobe
       .markersData([
-        { lat: 13.0827, lng: 80.2707, size: 0.18, color: '#39d1c4', label: 'Chennai, India' },
-        { lat: 49.2827, lng: -123.1207, size: 0.18, color: '#128fa7', label: 'Vancouver, Canada' }
+        { lat: 13.08, lng: 80.27, size: 0.18, color: '#fbbf24', label: 'Stella Amaris, Chennai (India)' } [web:17][web:26]
+        ,{ lat: 49.28, lng: -123.12, size: 0.18, color: '#38bdf8', label: 'Trinity Western University (Canada)' } [web:20][web:23]
       ])
       .markerLabel('label')
       .markerColor('color')
