@@ -72,7 +72,18 @@
     .overlay-text p {
       font-size: 1.1rem;
     }
-    /* Globe container for 3D globe */
+    .conference-overview {
+      margin:38px auto; max-width:820px;
+    }
+    .conference-overview h2 { font-size:2.2rem; color:#167690; }
+    .conference-overview h3 { font-size:1.35rem; color:#265057; }
+    .conference-overview ul { font-size:1.07rem; margin-top:8px; margin-bottom:12px;}
+    .conference-overview li { margin-bottom:9px;}
+    .conference-overview blockquote {
+      margin:22px 0 12px 0; padding:18px;
+      background:#f7f9ff; border-left:6px solid #128fa7;
+      font-size:1.18rem; color:#265057;
+    }
     #globe-container {
       width: 100%;
       max-width: 700px;
@@ -130,6 +141,32 @@
       <p><b>January 19, 2026 &bull; Stella Amaris × Trinity Western University</b></p>
     </div>
   </div>
+
+  <!-- Conference Overview and Topics -->
+  <section class="conference-overview">
+    <h2>Conference Overview</h2>
+    <h3>Integrating the Human Factor in the Age of AI</h3>
+    <p>
+      How do we take back the human mind?<br>
+      This conference explores how higher-order human thinking, critical consciousness, and emotional intelligence can steer the development and deployment of AI. 
+      Rather than allowing technology to dictate the terms of human experience, we emphasize reclaiming our unique faculties—curiosity, transparency, accountability, and relationship-building—as the foundation for trustworthy, reliable AI systems.
+    </p>
+
+    <h3 style="font-size:1.18rem; color:#167690; margin-top:28px; margin-bottom:12px;">Topic Breakdown</h3>
+    <ul style="font-size:1.07rem;">
+      <li><b>Emotional Intelligence in Technology Leadership</b>: The role of empathy, self-awareness, and social skills in building trustworthy AI and digital platforms. How emotional intelligence in leadership helps ensure technology aligns with real human needs.</li>
+      <li><b>Truth, Transparency, and Accountability: Pillars of Reliable AI</b>: Building AI systems that are explainable and auditable. Human-driven oversight to reinforce truthfulness and prevent bias or misuse.</li>
+      <li><b>Critical Thinking & Higher-Order Consciousness</b>: Strategies to foster curiosity, creativity, and independent analysis instead of offloading judgment to machines. How education and personal development cultivate higher-order beings who guide technology for society’s good.</li>
+      <li><b>Relationship-Centered AI</b>: Ways technology can strengthen (not weaken) trust and relationships. Setting boundaries for AI in personal, professional, and societal spheres.</li>
+      <li><b>Human Oversight: Defining AI Quality</b>: Human values and conscious decisions as the final arbiters of AI quality and impact. Collaborative models where AI augments but does not replace human expertise.</li>
+      <li><b>Building Trustworthy AI for Global Good</b>: International perspectives on ethical AI; case studies of human-centered AI in action across cultures and industries.</li>
+    </ul>
+
+    <blockquote>
+      <b>Key Message:</b> AI feeds information and amplifies capabilities, but it is human sensitivity, higher order thinking, and ethical grounding that must always lead the way.<br>
+      Our opportunity is to ensure technology strengthens humanity and fosters a more truthful, transparent, and relational future.
+    </blockquote>
+  </section>
 
   <!-- Globe Section with 3D interactive globe placeholder -->
   <section id="globe-container">
@@ -287,7 +324,6 @@
       .atmosphereAltitude(0.28)
       (globeElem);
     myGlobe.pointOfView({ lat: 22, lng: 79, altitude: 1.65});
-    // Example highlighted markers (India and Canada), add more as needed
     myGlobe
       .markersData([
         { lat: 13.0827, lng: 80.2707, size: 0.18, color: '#39d1c4', label: 'Chennai, India' },
@@ -300,4 +336,3 @@
   </script>
 </body>
 </html>
-
