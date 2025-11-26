@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>11th Annual Leadership Conference - Stella Amaris x TWU</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css?family=Nunito:400,700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(120deg, #f4f7fa, #c7e4eb);
+      font-family: 'Nunito', sans-serif;
+      margin: 0;
+      color: #19323c;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 48px;
+      background: #fff;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+    }
+    .logo { font-size: 2rem; font-weight: 700; color: #167690; }
+    .nav a { margin: 0 18px; text-decoration: none; color: #167690; font-weight: 600; }
+    .hero {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-around;
+      padding: 50px 0 32px 0;
+    }
+    .work-clock-globe { position: relative; }
+    #rotatingGlobe {
+      width: 380px; height: 380px;
+      background: #e4ecf7; border-radius: 50%;
+      box-shadow: 0 0 30px #68d3f7 inset;
+      margin-bottom: 12px;
+    }
+    .clocks { display: flex; justify-content: center; margin-bottom: 18px; }
+    .clock { background: #fff; box-shadow: 0 1px 8px #e2e2e2; border-radius: 10px; padding: 14px 34px; margin: 0 10px;}
+    .clock-title { font-size: 1rem; color: #06709c; font-weight: bold; }
+    .clock-time { font-size: 2rem; color: #265057; }
+    .weather-bar {display: flex; justify-content: center; margin-bottom: 16px;}
+    .weather-card {background: #fffbe6; margin: 0 10px; padding: 16px 22px; border-radius: 8px; box-shadow: 0 1px 6px #e1e0c4;}
+    .book-highlight {
+      text-align: center;
+      margin-left: 30px;
+      max-width: 440px;
+    }
+    .brain-img {
+      width: 230px;
+      border-radius: 16px;
+      box-shadow: 0 0 32px #39d1c4, 0 0 16px #f4e285;
+      animation: glowPulse 2s infinite;
+    }
+    @keyframes glowPulse {
+      0% { box-shadow: 0 0 32px #39d1c4, 0 0 16px #f4e285; }
+      50% { box-shadow: 0 0 64px #f4e285, 0 0 32px #39d1c4;}
+      100% { box-shadow: 0 0 32px #39d1c4, 0 0 16px #f4e285;}
+    }
+    .agenda, .countries, .innovation, .brochure, .contact {margin: 30px;}
+    .agenda-table {width: 100%;border-collapse: collapse;}
+    .agenda-table th, .agenda-table td {padding: 11px 18px; border-bottom: 1px solid #e4ecf7;}
+    .agenda-table th {background: #e4ecf7;}
+    .download-btn {
+      padding: 14px 34px;
+      background: #128fa7;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1.2rem;
+      box-shadow: 0 2px 10px #68d3f7af;
+      display: inline-block;
+      margin: 10px 0;
+    }
+    .flags {display: flex; flex-wrap: wrap; gap: 12px;}
+    .flag { width: 48px; height: 32px; border-radius:5px; border:1px solid #c9e1ea; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">Stella Amaris × TWU</div>
+    <nav class="nav">
+      <a href="#agenda">Program</a>
+      <a href="#countries">Nations</a>
+      <a href="#innovation">Innovation</a>
+      <a href="#brochure">Brochure</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </div>
+
+  <section class="hero">
+    <div class="work-clock-globe">
+      <canvas id="rotatingGlobe"></canvas>
+      <div class="clocks">
+        <div class="clock">
+          <div class="clock-title">Chennai</div>
+          <div id="time-india" class="clock-time"></div>
+        </div>
+        <div class="clock">
+          <div class="clock-title">Canada</div>
+          <div id="time-canada" class="clock-time"></div>
+        </div>
+      </div>
+      <div class="weather-bar">
+        <div class="weather-card" id="weather-india"></div>
+        <div class="weather-card" id="weather-canada"></div>
+      </div>
+    </div>
+    <div class="book-highlight">
+      <img src="IMG_7472.jpeg" alt="The Fifth Intelligence Book" class="brain-img"/>
+      <h1>11th Annual Leadership Conference</h1>
+      <h2>Integrating the Human Factor in the Age of AI</h2>
+      <p><b>January 19, 2026 &bull; Stella Amaris × Trinity Western University</b></p>
+    </div>
+  </section>
+
+  <section class="agenda" id="agenda">
+    <h2>Conference Agenda Snapshot</h2>
+    <table class="agenda-table">
+      <tr><th>Time</th><th>Activity</th></tr>
+      <tr><td>10:00 AM</td><td>Welcome & Opening</td></tr>
+      <tr><td>10:15 AM</td><td>Conference Overview / Book Launch</td></tr>
+      <tr><td>10:30 AM</td><td>Keynote: "The Fifth Intelligence"</td></tr>
+      <tr><td>11:15 AM</td><td>Workshop: AI, Data Analytics & Human Integration</td></tr>
+      <tr><td>12:00 PM</td><td>Networking Break</td></tr>
+      <tr><td>12:30 PM</td><td>Roundtable: Future of FAR Centre</td></tr>
+      <tr><td>1:00 PM</td><td>Lunch</td></tr>
+      <tr><td>2:00 PM</td><td>Industry Panel: Bridging Labour Gaps</td></tr>
+      <tr><td>2:45 PM</td><td>Opportunities: Experiential Learning</td></tr>
+      <tr><td>3:15 PM</td><td>Closing Announcements</td></tr>
+      <tr><td>3:30 PM</td><td>Book Signing & Networking</td></tr>
+    </table>
+  </section>
+
+  <section class="countries" id="countries">
+    <h2>Key Nations & Regions</h2>
+    <div class="flags">
+      <img src="https://flagcdn.com/in.svg" alt="India" class="flag"/>
+      <img src="https://flagcdn.com/ca.svg" alt="Canada" class="flag"/>
+      <img src="https://flagcdn.com/ir.svg" alt="Iran" class="flag"/>
+      <img src="https://flagcdn.com/ng.svg" alt="Nigeria" class="flag"/>
+      <img src="https://flagcdn.com/cn.svg" alt="China" class="flag"/>
+      <img src="https://flagcdn.com/za.svg" alt="South Africa" class="flag"/>
+      <img src="https://flagcdn.com/ke.svg" alt="Kenya" class="flag"/>
+      <img src="https://flagcdn.com/ug.svg" alt="Uganda" class="flag"/>
+      <img src="https://flagcdn.com/rw.svg" alt="Rwanda" class="flag"/>
+      <img src="https://flagcdn.com/hk.svg" alt="Hong Kong" class="flag"/>
+      <img src="https://flagcdn.com/th.svg" alt="Thailand" class="flag"/>
+    </div>
+  </section>
+
+  <section class="innovation" id="innovation">
+    <h2>Innovation & Tech Gallery</h2>
+    <p>Interactive 3D Globe: Explore participating nations. <br>
+    Digital “brain” lighting up the future of leadership.</p>
+    <!-- Future: embed Three.js/Cesium globe here -->
+  </section>
+
+  <section class="brochure" id="brochure">
+    <h2>Brochure Download</h2>
+    <a class="download-btn" href="GLOB-SMC-Leadership-Conference-2025_Brochure_Final5.pdf" download>
+      Download Conference Brochure
+    </a>
+    <embed src="GLOB-SMC-Leadership-Conference-2025_Brochure_Final5.pdf" width="320" height="250" type="application/pdf"/>
+  </section>
+
+  <section class="contact" id="contact">
+    <h2>Contact & Live Updates</h2>
+    <p>For conference help, registration queries, or speaker information:<br>
+      Email: info@stellamaris-twu-conference.org
+    </p>
+    <p>Live weather and time for Chennai & Canada always visible above.<br>
+      Feedback and registration forms available soon!</p>
+  </section>
+
+  <script>
+    // Simple clocks for Chennai + Canada
+    function updateClocks() {
+      const indiaTime = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
+      const canadaTime = new Date(new Date().toLocaleString("en-US", {timeZone: "America/Vancouver"}));
+      document.getElementById('time-india').innerText = indiaTime.toLocaleTimeString('en-IN', {hour: '2-digit', minute:'2-digit'});
+      document.getElementById('time-canada').innerText = canadaTime.toLocaleTimeString('en-CA', {hour: '2-digit', minute:'2-digit'});
+    }
+    setInterval(updateClocks, 1000); updateClocks();
+
+    // Simple Weather API (replace with your actual API keys if going live)
+    async function fetchWeather(city, elId) {
+      // Example: Open-Meteo free API; customize for production
+      let geo = {chennai: [13.0827, 80.2707], vancouver: [49.2827, -123.1207]};
+      let [lat, lon] = geo[city];
+      let resp = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+      let data = await resp.json();
+      let weather = data.current_weather;
+      document.getElementById(elId).innerHTML = `${city.charAt(0).toUpperCase()+city.slice(1)}<br>
+        <b>${weather.temperature}°C</b> <br>
+        <img src="https://cdn-icons-png.flaticon.com/128/1163/1163661.png" alt="Weather" width="36"/>`;
+    }
+    fetchWeather('chennai', 'weather-india');
+    fetchWeather('vancouver', 'weather-canada');
+
+    // Placeholder for rotating globe
+    const globeCanvas = document.getElementById('rotatingGlobe');
+    const ctx = globeCanvas.getContext('2d');
+    function drawGlobe() {
+      ctx.clearRect(0,0,globeCanvas.width,globeCanvas.height);
+      ctx.save();
+      ctx.translate(globeCanvas.width/2, globeCanvas.height/2);
+      ctx.beginPath();
+      ctx.arc(0, 0, 140, 0, 2 * Math.PI, false);
+      ctx.fillStyle = "#39d1c4";
+      ctx.globalAlpha = 0.12;
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.lineWidth = 5;
+      ctx.strokeStyle = "#167690";
+      ctx.stroke();
+      ctx.restore();
+      ctx.font = "20px Nunito";
+      ctx.fillStyle = "#167690";
+      ctx.fillText("Interactive Globe", globeCanvas.width/2-90, globeCanvas.height/2+6);
+      // Future: Animate rotation, highlight nations, add interactive features
+    }
+    drawGlobe();
+  </script>
+</body>
+</html>
