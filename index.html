@@ -93,12 +93,20 @@
     .hero h2 { font-size: clamp(1.4rem, 4vw, 2.2rem); font-weight: 700; color: white; margin: 0 0 25px 0; text-shadow: 0 0 30px rgba(0,0,0,0.8); }
     .hero p { font-size: clamp(1.1rem, 3vw, 1.5rem); font-weight: 700; color: white; margin: 0; text-shadow: 0 0 20px rgba(0,0,0,0.8); }
 
-    /* GLOBE - FULL WINDOW CENTERED */
+    /* GLOBE - DEAD CENTER IN WINDOW */
     .globe-section {
-      padding: 80px 20px;
+      padding: 60px 20px;
       text-align: center;
-      position: relative;
-      min-height: 800px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .globe-container {
+      width: 100%;
+      max-width: 1200px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -116,8 +124,6 @@
       border-radius: 50px;
       box-shadow: 0 40px 140px rgba(0,0,0,0.3);
       border: 3px solid rgba(255,255,255,0.95);
-      position: relative;
-      z-index: 10;
     }
     
     .globe-header h2 {
@@ -131,19 +137,16 @@
     }
     
     #globeViz {
-      width: 90vw;
-      max-width: 1100px;
-      height: 70vh;
-      max-height: 650px;
-      margin: 0 auto !important;
+      width: 100%;
+      height: 650px;
+      max-width: 1200px;
+      max-height: 70vh;
       border-radius: 60px;
       box-shadow: 0 60px 200px rgba(22,118,144,0.7);
       background: radial-gradient(circle at center, rgba(227,242,253,0.98) 0%, rgba(187,222,251,0.95) 80%);
       overflow: hidden;
-      display: block !important;
-      position: relative !important;
-      left: 50% !important;
-      transform: translateX(-50%) !important;
+      display: block;
+      margin: 0 auto;
     }
 
     /* TIME & WEATHER */
@@ -342,11 +345,7 @@
     }
 
     @media (max-width: 768px) {
-      .time-weather-row, .flags-grid { flex-direction: column; gap: 40px; align-items: center; }
-      #globeViz { 
-        width: 95vw; 
-        height: 60vh; 
-      }
+      #globeViz { height: 500px; }
       .time-display { font-size: 4rem; }
       .pdf-preview { height: 400px; }
     }
@@ -374,16 +373,18 @@
     </div>
   </section>
 
-  <!-- GLOBE FULL WINDOW CENTERED -->
+  <!-- GLOBE DEAD CENTER -->
   <section class="globe-section" id="globe">
-    <div class="globe-header">
-      <svg width="50" height="50" viewBox="0 0 24 24" fill="#167690">
-        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-      </svg>
-      <h2>🌍 Global Collaboration</h2>
+    <div class="globe-container">
+      <div class="globe-header">
+        <svg width="50" height="50" viewBox="0 0 24 24" fill="#167690">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+        </svg>
+        <h2>🌍 Global Collaboration</h2>
+      </div>
+      
+      <div id="globeViz">Loading Interactive 3D Globe... (CUBE READY)</div>
     </div>
-    
-    <div id="globeViz">Loading Interactive 3D Globe... (CUBE READY)</div>
     
     <div class="time-weather-row">
       <div class="time-card">
@@ -546,14 +547,13 @@
     fieryNeural();
     setInterval(fieryNeural, 1300);
 
-    // FULL WINDOW CENTERED GLOBE
+    // DEAD CENTER GLOBE
     function initGlobe() {
       const globeEl = document.getElementById('globeViz');
       
-      // CUBE DATA
       const cubeData = [
-        { lat: 13.08, lng: 80.27, size: 0.12, color: '#ff6b35' },  // 🇮🇳 India
-        { lat: 49.28, lng: -123.12, size: 0.12, color: '#4ecdc4' }  // 🇨🇦 Canada
+        { lat: 13.08, lng: 80.27, size: 0.12, color: '#ff6b35' },
+        { lat: 49.28, lng: -123.12, size: 0.12, color: '#4ecdc4' }
       ];
       
       const globe = Globe()
@@ -574,7 +574,6 @@
         .pointOfView({ lat: 20, lng: 80, altitude: 1.2 }, 3000);
     }
 
-    // Live clocks
     function updateClocks() {
       const now = new Date();
       document.getElementById('time-india').textContent = 
