@@ -92,10 +92,11 @@
       width: 100%;
       max-width: 700px;
       height: 410px;
-      margin: 0 auto 35px auto;
+      margin: 35px auto;
       border-radius: 18px;
       box-shadow: 0 0 30px #97d8fc36;
       background: #e1f5fa;
+      position: relative;
     }
 
     .clocks { display: flex; justify-content: center; margin-bottom: 18px; }
@@ -140,17 +141,16 @@
     </nav>
   </div>
 
-  <!-- HERO Section with neural network overlay (Fully Corrected) -->
-<div class="image-overlay-hero">
-  <img src="humanintelligence.png" alt="Human-AI Brain Conference Hero" class="brain-full-img"/>
-  anvas id="neuralCanvas"></canvas>
-  <div class="overlay-text">
-    <h1>11th Annual Leadership Conference</h1>
-    <h2>Integrating the Human Factor in the Age of AI</h2>
-    <p><b>January 19, 2026 &bull; Stella Amaris × Trinity Western University</b></p>
+  <!-- HERO Section - FIXED canvas tag -->
+  <div class="image-overlay-hero">
+    <img src="humanintelligence.png" alt="Human-AI Brain Conference Hero" class="brain-full-img"/>
+    <canvas id="neuralCanvas"></canvas>
+    <div class="overlay-text">
+      <h1>11th Annual Leadership Conference</h1>
+      <h2>Integrating the Human Factor in the Age of AI</h2>
+      <p><b>January 19, 2026 &bull; Stella Amaris × Trinity Western University</b></p>
+    </div>
   </div>
-</div>
-
 
   <!-- Conference Overview and Topics -->
   <section class="conference-overview">
@@ -177,8 +177,8 @@
     </blockquote>
   </section>
 
-  <!-- Globe Section -->
-  <section id="globe-container"></section>
+  <!-- Globe Section - FIXED: Changed section to div -->
+  <div id="globe-container"></div>
 
   <div class="clocks">
     <div class="clock">
@@ -233,7 +233,7 @@
   <section class="innovation" id="innovation">
     <h2>Innovation & Tech Gallery</h2>
     <p>Interactive 3D Globe: Explore participating nations. <br>
-    Digital “brain” lighting up the future of leadership.</p>
+    Digital "brain" lighting up the future of leadership.</p>
   </section>
 
   <section class="brochure" id="brochure">
@@ -247,7 +247,7 @@
   <section class="contact" id="contact">
     <h2>Contact & Live Updates</h2>
     <p>For conference help, registration queries, or speaker information:<br>
-      Email: info@stellamaris-twu-conference.org
+      <a href="mailto:info@stellamaris-twu-conference.org">info@stellamaris-twu-conference.org</a>
     </p>
     <p>Live weather and time for Chennai & Canada always visible above.<br>
       Feedback and registration forms available soon!</p>
@@ -256,86 +256,106 @@
   <script src="https://unpkg.com/three@0.152.2/build/three.min.js"></script>
   <script src="https://unpkg.com/globe.gl@2.30.2"></script>
   <script>
-    // Neural Network Overlay
-    const neuralCanvas = document.getElementById('neuralCanvas');
-    const nctx = neuralCanvas.getContext('2d');
-    neuralCanvas.width = window.innerWidth;
-    neuralCanvas.height = 380;
-    function drawNeuralNetwork() {
-      const points = [];
-      for(let i=0; i<14; i++) {
-        const px = Math.random()*neuralCanvas.width*0.72 + neuralCanvas.width*0.12;
-        const py = Math.random()*neuralCanvas.height*0.7 + neuralCanvas.height*0.15;
-        points.push({x: px, y: py});
+    // Wait for DOM to load
+    window.addEventListener('load', function() {
+      
+      // Neural Network Overlay - FIXED null check
+      const neuralCanvas = document.getElementById('neuralCanvas');
+      if (neuralCanvas) {
+        const nctx = neuralCanvas.getContext('2d');
+        neuralCanvas.width = window.innerWidth;
+        neuralCanvas.height = 380;
+        
+        function drawNeuralNetwork() {
+          nctx.clearRect(0, 0, neuralCanvas.width, neuralCanvas.height);
+          const points = [];
+          for(let i = 0; i < 14; i++) {
+            const px = Math.random() * neuralCanvas.width * 0.72 + neuralCanvas.width * 0.12;
+            const py = Math.random() * neuralCanvas.height * 0.7 + neuralCanvas.height * 0.15;
+            points.push({x: px, y: py});
+          }
+          for(const pt of points) {
+            nctx.beginPath();
+            nctx.arc(pt.x, pt.y, 19, 0, 2 * Math.PI);
+            nctx.fillStyle = "rgba(80,220,220,0.32)";
+            nctx.shadowColor = "#f4e285";
+            nctx.shadowBlur = 20;
+            nctx.fill();
+            nctx.closePath();
+          }
+          nctx.shadowBlur = 0;
+          nctx.lineWidth = 4;
+          nctx.strokeStyle = "#39d1c4";
+          for(let i = 0; i < points.length; i++) {
+            for(let j = i + 1; j < points.length; j++) {
+              if(Math.random() > 0.8) continue;
+              nctx.beginPath();
+              nctx.moveTo(points[i].x, points[i].y);
+              nctx.lineTo(points[j].x, points[j].y);
+              nctx.stroke();
+              nctx.closePath();
+            }
+          }
+        }
+        drawNeuralNetwork();
       }
-      for(const pt of points) {
-        nctx.beginPath();
-        nctx.arc(pt.x, pt.y, 19, 0, 2*Math.PI);
-        nctx.fillStyle = "rgba(80,220,220,0.32)";
-        nctx.shadowColor = "#f4e285";
-        nctx.shadowBlur = 20;
-        nctx.fill();
-        nctx.closePath();
+
+      // Clocks
+      function updateClocks() {
+        const indiaTime = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
+        const canadaTime = new Date(new Date().toLocaleString("en-US", {timeZone: "America/Vancouver"}));
+        document.getElementById('time-india').innerText = indiaTime.toLocaleTimeString('en-IN', {hour: '2-digit', minute:'2-digit'});
+        document.getElementById('time-canada').innerText = canadaTime.toLocaleTimeString('en-CA', {hour: '2-digit', minute:'2-digit'});
       }
-      nctx.shadowBlur = 0;
-      nctx.lineWidth = 4;
-      nctx.strokeStyle = "#39d1c4";
-      for(let i=0; i<points.length; i++) {
-        for(let j=i+1; j<points.length; j++) {
-          if(Math.random() > 0.8) continue;
-          nctx.beginPath();
-          nctx.moveTo(points[i].x, points[i].y);
-          nctx.lineTo(points[j].x, points[j].y);
-          nctx.stroke();
-          nctx.closePath();
+      setInterval(updateClocks, 1000);
+      updateClocks();
+
+      // Weather
+      async function fetchWeather(city, elId) {
+        try {
+          let geo = {chennai: [13.0827, 80.2707], vancouver: [49.2827, -123.1207]};
+          let [lat, lon] = geo[city];
+          let resp = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+          let data = await resp.json();
+          let weather = data.current_weather;
+          document.getElementById(elId).innerHTML = `${city.charAt(0).toUpperCase()+city.slice(1)}<br>
+            <b>${weather.temperature}°C</b> <br>
+            <img src="https://cdn-icons-png.flaticon.com/128/1163/1163661.png" alt="Weather" width="36"/>`;
+        } catch(e) {
+          console.error('Weather fetch failed:', e);
         }
       }
-    }
-    drawNeuralNetwork();
+      fetchWeather('chennai', 'weather-india');
+      fetchWeather('vancouver', 'weather-canada');
 
-    function updateClocks() {
-      const indiaTime = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
-      const canadaTime = new Date(new Date().toLocaleString("en-US", {timeZone: "America/Vancouver"}));
-      document.getElementById('time-india').innerText = indiaTime.toLocaleTimeString('en-IN', {hour: '2-digit', minute:'2-digit'});
-      document.getElementById('time-canada').innerText = canadaTime.toLocaleTimeString('en-CA', {hour: '2-digit', minute:'2-digit'});
-    }
-    setInterval(updateClocks, 1000); updateClocks();
+      // 3D Globe - FIXED globe URL and error handling
+      const globeElem = document.getElementById('globe-container');
+      if (globeElem && typeof Globe !== 'undefined') {
+        const myGlobe = Globe()
+          .globeImageUrl('https://unpkg.com/globe.gl/example/img/earth-blue-marble.jpg')
+          .width(700)
+          .height(410)
+          .showAtmosphere(true)
+          .atmosphereColor("#489dcc")
+          .atmosphereAltitude(0.28)
+          (globeElem);
 
-    async function fetchWeather(city, elId) {
-      let geo = {chennai: [13.0827, 80.2707], vancouver: [49.2827, -123.1207]};
-      let [lat, lon] = geo[city];
-      let resp = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
-      let data = await resp.json();
-      let weather = data.current_weather;
-      document.getElementById(elId).innerHTML = `${city.charAt(0).toUpperCase()+city.slice(1)}<br>
-        <b>${weather.temperature}°C</b> <br>
-        <img src="https://cdn-icons-png.flaticon.com/128/1163/1163661.png" alt="Weather" width="36"/>`;
-    }
-    fetchWeather('chennai', 'weather-india');
-    fetchWeather('vancouver', 'weather-canada');
+        myGlobe.pointOfView({ lat: 22, lng: 79, altitude: 1.65 });
 
-    // 3D Globe
-    const globeElem = document.getElementById('globe-container');
-    const myGlobe = Globe()
-      .globeImageUrl('//unpkg.com/globe.gl@2.30.2/example/img/earth-dark.jpg')
-      .width(700)
-      .height(410)
-      .showAtmosphere(true)
-      .atmosphereColor("#489dcc")
-      .atmosphereAltitude(0.28)
-      (globeElem);
+        myGlobe
+          .markersData([
+            { lat: 13.08, lng: 80.27, size: 0.18, color: '#fbbf24', label: 'Stella Amaris, Chennai (India)' },
+            { lat: 49.28, lng: -123.12, size: 0.18, color: '#38bdf8', label: 'Trinity Western University (Canada)' }
+          ])
+          .markerLabel('label')
+          .markerColor('color')
+          .markerAltitude(0.037)
+          .markerRadius('size');
+      } else {
+        globeElem.innerHTML = '<p style="text-align:center;padding:100px;color:#666;">Loading 3D Globe...</p>';
+      }
 
-    myGlobe.pointOfView({ lat: 22, lng: 79, altitude: 1.65 });
-
-    myGlobe
-      .markersData([
-        { lat: 13.08, lng: 80.27, size: 0.18, color: '#fbbf24', label: 'Stella Amaris, Chennai (India)' },
-        { lat: 49.28, lng: -123.12, size: 0.18, color: '#38bdf8', label: 'Trinity Western University (Canada)' }
-      ])
-      .markerLabel('label')
-      .markerColor('color')
-      .markerAltitude(0.037)
-      .markerRadius('size');
+    });
   </script>
 </body>
 </html>
