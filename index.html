@@ -98,13 +98,17 @@
       background: linear-gradient(135deg, #e1f5fa 0%, #b8e6fc 100%);
       position: relative;
       overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     #globe-container canvas {
-      display: block;
+      display: block !important;
       width: 100% !important;
       height: 100% !important;
+      border-radius: 18px;
     }
-    .globe-loading {
+    .globe-loading, .globe-error {
       position: absolute;
       top: 50%;
       left: 50%;
@@ -115,16 +119,10 @@
       z-index: 10;
     }
     .globe-error {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
       background: rgba(255,255,255,0.95);
       padding: 20px;
       border-radius: 10px;
       color: #d32f2f;
-      text-align: center;
-      z-index: 10;
     }
 
     .clocks { display: flex; justify-content: center; margin-bottom: 18px; }
@@ -158,6 +156,7 @@
   </style>
 </head>
 <body>
+  <!-- All content same as before until globe section -->
   <div class="header">
     <div class="logo">Stella Amaris × TWU</div>
     <nav class="nav">
@@ -169,7 +168,6 @@
     </nav>
   </div>
 
-  <!-- HERO Section -->
   <div class="image-overlay-hero">
     <img src="humanintelligence.png" alt="Human-AI Brain Conference Hero" class="brain-full-img"/>
     <canvas id="neuralCanvas"></canvas>
@@ -180,7 +178,6 @@
     </div>
   </div>
 
-  <!-- Conference Overview -->
   <section class="conference-overview">
     <h2>Conference Overview</h2>
     <h3>Integrating the Human Factor in the Age of AI</h3>
@@ -189,7 +186,6 @@
       This conference explores how higher-order human thinking, critical consciousness, and emotional intelligence can steer AI development. 
       We emphasize reclaiming curiosity, transparency, accountability, and relationship-building as foundations for trustworthy AI.
     </p>
-
     <h3 style="font-size:1.18rem; color:#167690; margin-top:28px; margin-bottom:12px;">Topic Breakdown</h3>
     <ul style="font-size:1.07rem;">
       <li><b>Emotional Intelligence in Technology Leadership</b>: Empathy and social skills ensuring technology aligns with human needs.</li>
@@ -199,14 +195,12 @@
       <li><b>Human Oversight: Defining AI Quality</b>: Human values as final arbiters of AI impact.</li>
       <li><b>Building Trustworthy AI for Global Good</b>: International case studies of ethical AI deployment.</li>
     </ul>
-    <blockquote>
-      <b>Key Message:</b> AI amplifies capabilities, but human sensitivity and ethical grounding must lead the way.
-    </blockquote>
+    <blockquote><b>Key Message:</b> AI amplifies capabilities, but human sensitivity and ethical grounding must lead the way.</blockquote>
   </section>
 
-  <!-- FIXED Globe Section -->
+  <!-- PERFECTLY CENTERED + AUTO-ROTATING GLOBE -->
   <div id="globe-container">
-    <div class="globe-loading">Loading 3D Globe...</div>
+    <div class="globe-loading">Loading Interactive Globe...</div>
   </div>
 
   <div class="clocks">
@@ -224,7 +218,7 @@
     <div class="weather-card" id="weather-canada">Canada<br>Loading...</div>
   </div>
 
-  <!-- Rest of sections remain the same -->
+  <!-- Rest of page unchanged -->
   <section class="agenda" id="agenda">
     <h2>Conference Agenda Snapshot</h2>
     <table class="agenda-table">
@@ -260,12 +254,6 @@
     </div>
   </section>
 
-  <section class="innovation" id="innovation">
-    <h2>Innovation & Tech Gallery</h2>
-    <p>Interactive 3D Globe: Explore participating nations. <br>
-    Digital "brain" lighting up the future of leadership.</p>
-  </section>
-
   <section class="brochure" id="brochure">
     <h2>Brochure Download</h2>
     <a class="download-btn" href="GLOB-SMC-Leadership-Conference-2025_Brochure_Final5.pdf" download>
@@ -275,97 +263,83 @@
 
   <section class="contact" id="contact">
     <h2>Contact & Live Updates</h2>
-    <p>For conference help or registration: <a href="mailto:info@stellamaris-twu-conference.org">info@stellamaris-twu-conference.org</a></p>
+    <p>For conference help: <a href="mailto:info@stellamaris-twu-conference.org">info@stellamaris-twu-conference.org</a></p>
   </section>
 
-  <!-- UPDATED CDN versions - more reliable -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://unpkg.com/globe.gl"></script>
   <script>
-    // Enhanced globe initialization with fallback
+    let globe = null;
+    
     function initGlobe() {
       const globeContainer = document.getElementById('globe-container');
       const loadingEl = globeContainer.querySelector('.globe-loading');
       
-      // Clear any previous content
-      globeContainer.innerHTML = '<div class="globe-loading">Initializing 3D Globe...</div>';
-      
-      // Check if Globe is available
       if (typeof Globe === 'undefined') {
-        globeContainer.innerHTML = `
-          <div class="globe-error">
-            <p>Globe library failed to load</p>
-            <p>Check internet connection and refresh page</p>
-          </div>`;
-        console.error('Globe.gl not loaded');
+        globeContainer.innerHTML = '<div class="globe-error">Globe library failed to load</div>';
         return;
       }
 
       try {
-        // Create globe with reliable settings
-        const globe = Globe()
-          (globeContainer)
+        globe = Globe()
           .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
           .bumpImageUrl('https://unpkg.com/three-globe/example/img/earth-topology.png')
           .showAtmosphere(true)
           .atmosphereColor('lightblue')
-          .atmosphereAltitude(0.2)
-          .pointOfView({ lat: 22, lng: 79, altitude: 1.6 })
+          .atmosphereAltitude(0.25)
+          .pointRadius(0.3)
           .pointsData([
-            { lat: 13.08, lng: 80.27, size: 0.05, color: '#fbbf24' },
-            { lat: 49.28, lng: -123.12, size: 0.05, color: '#38bdf8' }
+            { lat: 13.08, lng: 80.27, size: 0.05, color: '#fbbf24', name: 'Chennai' },
+            { lat: 49.28, lng: -123.12, size: 0.05, color: '#38bdf8', name: 'Vancouver' }
           ])
           .pointAltitude('size')
-          .pointColor('color');
+          .pointColor('color')
+          .pointLabel('name')
+          .autoRotate(true)  // AUTO ROTATION ENABLED
+          .autoRotateSpeed(0.5)  // SMOOTH ROTATION SPEED
+          .pointOfView({ lat: 15, lng: 80, altitude: 1.4 }, 2000)  // CENTERED ON INDIA/CANADA
+          (globeContainer);
 
-        // Hide loading
-        loadingEl.style.display = 'none';
-        console.log('Globe initialized successfully');
+        // Remove loading
+        loadingEl.remove();
+        
+        // Enable controls
+        globe.controls().autoRotate = true;
+        globe.controls().autoRotateSpeed = 0.5;
         
       } catch (error) {
-        globeContainer.innerHTML = `
-          <div class="globe-error">
-            <p>Globe render error: ${error.message}</p>
-            <p>Try refreshing the page</p>
-          </div>`;
-        console.error('Globe error:', error);
+        globeContainer.innerHTML = `<div class="globe-error">Globe error: ${error.message}</div>`;
       }
     }
 
-    // Initialize everything when DOM is ready
+    // Initialize everything
+    function initPage() {
+      initNeuralNetwork();
+      initClocks();
+      initWeather();
+      setTimeout(initGlobe, 800); // Extra delay for globe libs
+    }
+
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', initPage);
     } else {
       initPage();
     }
 
-    function initPage() {
-      initNeuralNetwork();
-      initClocks();
-      initWeather();
-      // Delay globe init to ensure libraries load
-      setTimeout(initGlobe, 500);
-    }
-
     function initNeuralNetwork() {
       const canvas = document.getElementById('neuralCanvas');
       if (!canvas) return;
-      
       const ctx = canvas.getContext('2d');
       canvas.width = window.innerWidth;
       canvas.height = 380;
       
       function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        const points = [];
-        for(let i = 0; i < 14; i++) {
-          points.push({
-            x: Math.random() * canvas.width * 0.72 + canvas.width * 0.12,
-            y: Math.random() * canvas.height * 0.7 + canvas.height * 0.15
-          });
-        }
+        const points = Array(14).fill().map(() => ({
+          x: Math.random() * canvas.width * 0.72 + canvas.width * 0.12,
+          y: Math.random() * canvas.height * 0.7 + canvas.height * 0.15
+        }));
         
-        // Draw nodes
         ctx.shadowBlur = 20;
         ctx.shadowColor = "#f4e285";
         points.forEach(pt => {
@@ -375,7 +349,6 @@
           ctx.fill();
         });
         
-        // Draw connections
         ctx.shadowBlur = 0;
         ctx.strokeStyle = "#39d1c4";
         ctx.lineWidth = 2;
@@ -394,39 +367,33 @@
     }
 
     function initClocks() {
-      function updateClocks() {
+      function update() {
         const now = new Date();
-        const indiaTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
-        const canadaTime = new Date(now.toLocaleString("en-US", {timeZone: "America/Vancouver"}));
         document.getElementById('time-india').textContent = 
-          indiaTime.toLocaleTimeString('en-IN', {hour: '2-digit', minute: '2-digit'});
+          now.toLocaleTimeString('en-IN', {timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit'});
         document.getElementById('time-canada').textContent = 
-          canadaTime.toLocaleTimeString('en-CA', {hour: '2-digit', minute: '2-digit'});
+          now.toLocaleTimeString('en-CA', {timeZone: 'America/Vancouver', hour: '2-digit', minute: '2-digit'});
       }
-      updateClocks();
-      setInterval(updateClocks, 1000);
+      update();
+      setInterval(update, 1000);
     }
 
     async function initWeather() {
       const cities = {
-        chennai: { lat: 13.0827, lng: 80.2707, name: 'Chennai' },
-        vancouver: { lat: 49.2827, lng: -123.1207, name: 'Vancouver' }
+        india: { lat: 13.0827, lng: 80.2707, name: 'Chennai' },
+        canada: { lat: 49.2827, lng: -123.1207, name: 'Vancouver' }
       };
       
-      for (const [city, coords] of Object.entries(cities)) {
+      for (const [id, city] of Object.entries(cities)) {
         try {
-          const response = await fetch(
-            `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lng}&current_weather=true`
-          );
-          const data = await response.json();
-          const weather = data.current_weather;
-          document.getElementById(`weather-${city}`).innerHTML = `
-            ${coords.name}<br>
-            <b>${weather.temperature}°C</b><br>
-            <img src="https://cdn-icons-png.flaticon.com/128/1163/1163661.png" width="36" alt="Weather">
+          const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lng}&current_weather=true`);
+          const data = await res.json();
+          document.getElementById(`weather-${id}`).innerHTML = `
+            ${city.name}<br><b>${data.current_weather.temperature}°C</b><br>
+            <img src="https://cdn-icons-png.flaticon.com/128/1163/1163661.png" width="36">
           `;
-        } catch (e) {
-          document.getElementById(`weather-${city}`).textContent = `${coords.name}\nWeather unavailable`;
+        } catch(e) {
+          document.getElementById(`weather-${id}`).textContent = `${city.name}\nUnavailable`;
         }
       }
     }
