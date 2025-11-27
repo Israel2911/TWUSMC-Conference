@@ -117,15 +117,15 @@
       margin: 0;
     }
 
-    /* ULTRA-COMPACT VERTICAL STACKED CLOCK */
-    .world-clock-section {
-      max-width: 500px;
+    /* GLOBE WORLD CLOCK */
+    .globe-clock-section {
+      max-width: 800px;
       margin: 60px auto;
       padding: 0 20px;
       text-align: center;
     }
     
-    .clock-header {
+    .globe-header {
       font-size: 2.2rem;
       background: linear-gradient(135deg, #167690, #128fa7);
       -webkit-background-clip: text;
@@ -134,69 +134,22 @@
       font-weight: 900;
     }
     
-    .world-clock-widget {
-      background: rgba(255,255,255,0.95);
-      backdrop-filter: blur(40px);
-      padding: 30px 25px;
+    #globeCanvas {
+      width: 100%;
+      max-width: 700px;
+      height: 500px;
       border-radius: 30px;
       box-shadow: 0 30px 100px rgba(0,0,0,0.2);
       border: 2px solid rgba(255,255,255,0.95);
-      max-width: 450px;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(40px);
+      cursor: grab;
+      display: block;
       margin: 0 auto;
     }
     
-    .clock-stack {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    
-    .clock-item {
-      display: flex;
-      align-items: center;
-      padding: 8px 12px;
-      background: transparent;
-      border-radius: 15px;
-      transition: all 0.3s ease;
-      font-weight: 700;
-      font-size: 0.95rem;
-    }
-    
-    .clock-item:hover {
-      background: rgba(255,255,255,0.6);
-      transform: scale(1.02);
-    }
-    
-    .clock-item.live {
-      background: linear-gradient(135deg, #ff6b35, #ff8e53);
-      color: white;
-      box-shadow: 0 5px 20px rgba(255,107,53,0.4);
-    }
-    
-    .clock-flag { 
-      font-size: 1.6rem; 
-      margin-right: 10px;
-      flex-shrink: 0;
-    }
-    
-    .clock-timezone {
-      flex: 1;
-      font-size: 0.9rem;
-      font-weight: 600;
-    }
-    
-    .clock-time {
-      font-size: 1.4rem;
-      font-family: 'Courier New', monospace;
-      font-weight: 900;
-      color: #1a365d;
-      min-width: 60px;
-      text-align: right;
-    }
-    
-    .clock-item.live .clock-time {
-      color: #ffd700;
-      text-shadow: 0 0 10px rgba(255,215,0,0.8);
+    #globeCanvas:active {
+      cursor: grabbing;
     }
 
     /* SYNOPSIS */
@@ -445,11 +398,7 @@
 
     @media (max-width: 768px) {
       .cards-grid { grid-template-columns: 1fr; gap: 40px; }
-      .world-clock-section { margin: 40px auto; padding: 0 15px; }
-      .world-clock-widget { padding: 20px 15px; }
-      .clock-item { padding: 6px 8px; font-size: 0.85rem; }
-      .clock-flag { font-size: 1.4rem; }
-      .clock-time { font-size: 1.2rem; }
+      #globeCanvas { height: 350px; }
       .hero-meta { padding: 20px 40px; }
       .synopsis-content { padding: 40px 30px; font-size: 1.1rem; }
       .pdf-preview { height: 500px; }
@@ -461,7 +410,7 @@
   <header class="header">
     <div class="logo">TWU-SMC × Leadership</div>
     <nav class="nav">
-      <a href="#worldclock">World Clock</a>
+      <a href="#globeclock">🌍 Globe Clock</a>
       <a href="#synopsis">Overview</a>
       <a href="#agenda">Agenda</a>
       <a href="#register">Register</a>
@@ -482,12 +431,10 @@
     </div>
   </section>
 
-  <!-- ULTRA-COMPACT VERTICAL WORLD CLOCK -->
-  <section class="world-clock-section" id="worldclock">
-    <h2 class="clock-header">🌍 Live World Clock</h2>
-    <div class="world-clock-widget">
-      <div class="clock-stack" id="clockStack"></div>
-    </div>
+  <!-- INTERACTIVE GLOBE WORLD CLOCK -->
+  <section class="globe-clock-section" id="globeclock">
+    <h2 class="globe-header">🌍 Interactive Globe Clock</h2>
+    <canvas id="globeCanvas"></canvas>
   </section>
 
   <!-- SYNOPSIS -->
@@ -533,11 +480,10 @@
     </table>
   </section>
 
-  <!-- REGISTRATION CARDS - REPLACES PARTNERS -->
+  <!-- REGISTRATION CARDS -->
   <section class="registration-section" id="register">
     <h2 class="registration-header">🎫 Registration</h2>
     <div class="cards-grid">
-      <!-- CONFERENCE REGISTRATION -->
       <div class="reg-card">
         <div class="card-icon">📺</div>
         <div class="card-title">Live Conference Access</div>
@@ -545,7 +491,6 @@
         <a href="#conference-registration" class="reg-btn">Register Now</a>
       </div>
       
-      <!-- BOOK SIGNING - LIMITED SEATS -->
       <div class="reg-card book-card">
         <div class="card-icon">📖✨</div>
         <div class="card-title">VIP Book Signing</div>
@@ -575,40 +520,40 @@
 
   <script>
     // Hero neural network animation
-    const canvas = document.getElementById('heroCanvas');
-    const ctx = canvas.getContext('2d');
+    const heroCanvas = document.getElementById('heroCanvas');
+    const heroCtx = heroCanvas.getContext('2d');
     
-    function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+    function resizeHeroCanvas() {
+      heroCanvas.width = window.innerWidth;
+      heroCanvas.height = window.innerHeight;
     }
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
+    resizeHeroCanvas();
+    window.addEventListener('resize', resizeHeroCanvas);
     
     function fieryNeural() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      heroCtx.clearRect(0, 0, heroCanvas.width, heroCanvas.height);
       const points = Array(35).fill().map(() => ({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height * 0.85,
+        x: Math.random() * heroCanvas.width,
+        y: Math.random() * heroCanvas.height * 0.85,
         brightness: 0.7 + Math.random() * 0.3
       }));
       
-      ctx.shadowBlur = 90; ctx.shadowColor = '#ffd700';
+      heroCtx.shadowBlur = 90; heroCtx.shadowColor = '#ffd700';
       points.forEach(p => {
-        ctx.save(); ctx.translate(p.x, p.y); ctx.globalAlpha = p.brightness;
-        ctx.beginPath(); ctx.arc(0, 0, 30 + p.brightness * 20, 0, Math.PI*2);
-        ctx.fillStyle = `rgba(255, 215, 0, ${p.brightness * 0.5})`; ctx.fill();
-        ctx.shadowBlur = 45; ctx.beginPath(); ctx.arc(0, 0, 12, 0, Math.PI*2);
-        ctx.fillStyle = `rgba(255, 255, 100, ${p.brightness})`; ctx.fill(); ctx.restore();
+        heroCtx.save(); heroCtx.translate(p.x, p.y); heroCtx.globalAlpha = p.brightness;
+        heroCtx.beginPath(); heroCtx.arc(0, 0, 30 + p.brightness * 20, 0, Math.PI*2);
+        heroCtx.fillStyle = `rgba(255, 215, 0, ${p.brightness * 0.5})`; heroCtx.fill();
+        heroCtx.shadowBlur = 45; heroCtx.beginPath(); heroCtx.arc(0, 0, 12, 0, Math.PI*2);
+        heroCtx.fillStyle = `rgba(255, 255, 100, ${p.brightness})`; heroCtx.fill(); heroCtx.restore();
       });
       
-      ctx.shadowBlur = 55; ctx.shadowColor = '#ffaa00'; ctx.strokeStyle = 'rgba(255, 193, 7, 0.85)'; ctx.lineWidth = 3.5;
+      heroCtx.shadowBlur = 55; heroCtx.shadowColor = '#ffaa00'; heroCtx.strokeStyle = 'rgba(255, 193, 7, 0.85)'; heroCtx.lineWidth = 3.5;
       points.forEach((p1, i) => {
         points.slice(i+1).forEach(p2 => {
           const dist = Math.hypot(p1.x - p2.x, p1.y - p2.y);
           if (dist < 320) {
-            ctx.globalAlpha = 1 - dist / 320;
-            ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+            heroCtx.globalAlpha = 1 - dist / 320;
+            heroCtx.beginPath(); heroCtx.moveTo(p1.x, p1.y); heroCtx.lineTo(p2.x, p2.y); heroCtx.stroke();
           }
         });
       });
@@ -616,50 +561,151 @@
     fieryNeural();
     setInterval(fieryNeural, 1300);
 
-    // ULTRA-COMPACT VERTICAL CLOCK STACK
-    const timezones = [
-      { name: 'India IST', flag: '🇮🇳', tz: 'Asia/Kolkata' },
-      { name: 'Canada PST', flag: '🇨🇦', tz: 'America/Vancouver' },
-      { name: 'Iran IRST', flag: '🇮🇷', tz: 'Asia/Tehran' },
-      { name: 'Thailand ICT', flag: '🇹🇭', tz: 'Asia/Bangkok' },
-      { name: 'Nigeria WAT', flag: '🇳🇬', tz: 'Africa/Lagos' },
-      { name: 'China CST', flag: '🇨🇳', tz: 'Asia/Shanghai' },
-      { name: 'S.Africa SAST', flag: '🇿🇦', tz: 'Africa/Johannesburg' },
-      { name: 'Kenya EAT', flag: '🇰🇪', tz: 'Africa/Nairobi' },
-      { name: 'Rwanda CAT', flag: '🇷🇼', tz: 'Africa/Kigali' }
+    // INTERACTIVE GLOBE CLOCK WITH COUNTRY COORDINATES
+    const globeCanvas = document.getElementById('globeCanvas');
+    const globeCtx = globeCanvas.getContext('2d');
+    
+    let globeRotation = 0;
+    let isDragging = false;
+    let lastMouseX = 0;
+    
+    // Country coordinates (lat, lng) and flags
+    const countries = [
+      { name: 'India IST', flag: '🇮🇳', lat: 20.5937, lng: 78.9629, tz: 'Asia/Kolkata', color: '#ff6b35' },
+      { name: 'Canada PST', flag: '🇨🇦', lat: 56.1304, lng: -106.3468, tz: 'America/Vancouver', color: '#167690' },
+      { name: 'Iran IRST', flag: '🇮🇷', lat: 32.4279, lng: 53.6880, tz: 'Asia/Tehran', color: '#ff8e53' },
+      { name: 'Thailand ICT', flag: '🇹🇭', lat: 15.8700, lng: 100.9925, tz: 'Asia/Bangkok', color: '#128fa7' },
+      { name: 'Nigeria WAT', flag: '🇳🇬', lat: 9.0820, lng: 8.6753, tz: 'Africa/Lagos', color: '#ffd700' },
+      { name: 'China CST', flag: '🇨🇳', lat: 35.8617, lng: 104.1954, tz: 'Asia/Shanghai', color: '#ff4444' }
     ];
-
-    function createVerticalClock() {
-      const stack = document.getElementById('clockStack');
-      timezones.forEach((tz, index) => {
-        const item = document.createElement('div');
-        item.className = `clock-item ${tz.name.includes('India') ? 'live' : ''}`;
-        item.innerHTML = `
-          <span class="clock-flag">${tz.flag}</span>
-          <span class="clock-timezone">${tz.name}</span>
-          <span class="clock-time" id="time-${index}">--:--</span>
-        `;
-        stack.appendChild(item);
-      });
+    
+    function resizeGlobeCanvas() {
+      const rect = globeCanvas.getBoundingClientRect();
+      globeCanvas.width = rect.width;
+      globeCanvas.height = 500;
     }
-
-    function updateVerticalClock() {
+    
+    globeCanvas.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      lastMouseX = e.clientX;
+    });
+    
+    globeCanvas.addEventListener('mousemove', (e) => {
+      if (isDragging) {
+        const deltaX = e.clientX - lastMouseX;
+        globeRotation += deltaX * 0.01;
+        lastMouseX = e.clientX;
+      }
+    });
+    
+    globeCanvas.addEventListener('mouseup', () => {
+      isDragging = false;
+    });
+    
+    globeCanvas.addEventListener('mouseleave', () => {
+      isDragging = false;
+    });
+    
+    function drawGlobe() {
+      const cw = globeCanvas.width;
+      const ch = globeCanvas.height;
+      const cx = cw / 2;
+      const cy = ch / 2;
+      const r = Math.min(cx, cy) * 0.7;
+      
+      globeCtx.clearRect(0, 0, cw, ch);
+      
+      // Draw globe background
+      const gradient = globeCtx.createRadialGradient(cx, cy, 0, cx, cy, r);
+      gradient.addColorStop(0, '#4a90e2');
+      gradient.addColorStop(0.6, '#2c5aa0');
+      gradient.addColorStop(1, '#1a365d');
+      globeCtx.fillStyle = gradient;
+      globeCtx.beginPath();
+      globeCtx.arc(cx, cy, r, 0, Math.PI * 2);
+      globeCtx.fill();
+      
+      // Draw continents (simplified)
+      globeCtx.strokeStyle = '#1a365d';
+      globeCtx.lineWidth = 2;
+      globeCtx.strokeStyle = '#0f2440';
+      
+      // Draw country markers and live clocks
       const now = new Date();
-      timezones.forEach((tz, index) => {
-        const timeEl = document.getElementById(`time-${index}`);
-        timeEl.textContent = now.toLocaleTimeString('en-GB', { 
-          timeZone: tz.tz, 
-          hour: '2-digit', 
-          minute: '2-digit',
-          hour12: false 
-        });
+      countries.forEach((country, i) => {
+        // Convert lat/lng to canvas coordinates
+        const phi = (90 - country.lat) * Math.PI / 180;
+        const theta = (country.lng + globeRotation * 180 / Math.PI) * Math.PI / 180;
+        
+        const x = cx + r * Math.cos(phi) * Math.sin(theta);
+        const y = cy + (r * Math.sin(phi)) * 0.6; // Flatten globe
+        
+        if (y > cy - r && y < cy + r) { // Only draw visible markers
+          // Live time
+          const timeStr = now.toLocaleTimeString('en-GB', { 
+            timeZone: country.tz, 
+            hour: '2-digit', 
+            minute: '2-digit',
+            hour12: false 
+          });
+          
+          // Glow effect
+          globeCtx.shadowColor = country.color;
+          globeCtx.shadowBlur = 25;
+          
+          // Flag marker
+          globeCtx.fillStyle = country.color;
+          globeCtx.beginPath();
+          globeCtx.arc(x, y, 12, 0, Math.PI * 2);
+          globeCtx.fill();
+          
+          // Flag emoji
+          globeCtx.shadowBlur = 0;
+          globeCtx.font = 'bold 20px Arial';
+          globeCtx.fillStyle = 'white';
+          globeCtx.textAlign = 'center';
+          globeCtx.textBaseline = 'middle';
+          globeCtx.fillText(country.flag, x, y - 25);
+          
+          // Time label
+          globeCtx.font = 'bold 14px Courier New';
+          globeCtx.fillStyle = 'white';
+          globeCtx.shadowBlur = 10;
+          globeCtx.shadowColor = 'rgba(0,0,0,0.8)';
+          globeCtx.fillText(timeStr, x, y + 8);
+        }
       });
+      
+      // Continents grid
+      globeCtx.strokeStyle = 'rgba(255,255,255,0.1)';
+      globeCtx.lineWidth = 1;
+      for (let lat = -80; lat <= 80; lat += 20) {
+        const phi = (90 - lat) * Math.PI / 180;
+        globeCtx.beginPath();
+        for (let i = 0; i <= 360; i += 5) {
+          const theta = i * Math.PI / 180;
+          const x = cx + r * Math.cos(phi) * Math.sin(theta);
+          const y = cy + (r * Math.sin(phi)) * 0.6;
+          if (i === 0) globeCtx.moveTo(x, y);
+          else globeCtx.lineTo(x, y);
+        }
+        globeCtx.stroke();
+      }
     }
+    
+    // Initialize globe
+    resizeGlobeCanvas();
+    window.addEventListener('resize', resizeGlobeCanvas);
+    setInterval(drawGlobe, 1000);
+    globeCanvas.addEventListener('wheel', (e) => e.preventDefault());
 
-    // Initialize
-    createVerticalClock();
-    updateVerticalClock();
-    setInterval(updateVerticalClock, 1000);
+    // Registration buttons
+    document.querySelectorAll('.reg-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        alert('Registration form coming soon!');
+      });
+    });
   </script>
 </body>
 </html>
