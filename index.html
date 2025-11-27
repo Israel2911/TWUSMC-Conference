@@ -93,14 +93,11 @@
     .hero h2 { font-size: clamp(1.4rem, 4vw, 2.2rem); font-weight: 700; color: white; margin: 0 0 25px 0; text-shadow: 0 0 30px rgba(0,0,0,0.8); }
     .hero p { font-size: clamp(1.1rem, 3vw, 1.5rem); font-weight: 700; color: white; margin: 0; text-shadow: 0 0 20px rgba(0,0,0,0.8); }
 
-    /* PERFECTLY CENTERED GLOBE */
+    /* GLOBE - GLOBE ITSELF CENTERED INSIDE CONTAINER */
     .globe-section {
       max-width: 1400px;
       margin: 80px auto;
-      padding: 0 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      padding: 80px 20px;
       text-align: center;
     }
     
@@ -131,15 +128,12 @@
       width: 100%;
       max-width: 1200px;
       height: 650px;
-      margin: 0 auto 100px auto !important;
-      display: block;
+      margin: 0 auto 100px !important;
       border-radius: 60px;
       box-shadow: 0 60px 200px rgba(22,118,144,0.7);
       background: radial-gradient(circle at center, rgba(227,242,253,0.98) 0%, rgba(187,222,251,0.95) 80%);
       overflow: hidden;
-      position: relative;
-      left: 50%;
-      transform: translateX(-50%);
+      display: block !important;
     }
 
     /* TIME & WEATHER */
@@ -149,8 +143,6 @@
       gap: 60px;
       flex-wrap: wrap;
       margin-bottom: 80px;
-      max-width: 1400px;
-      width: 100%;
     }
     
     .time-card, .weather-card {
@@ -163,8 +155,6 @@
       text-align: center;
       min-width: 350px;
       transition: all 0.7s cubic-bezier(0.25,0.46,0.45,0.94);
-      flex: 1;
-      max-width: 400px;
     }
     
     .time-card:hover, .weather-card:hover {
@@ -370,7 +360,7 @@
     </div>
   </section>
 
-  <!-- PERFECTLY CENTERED GLOBE -->
+  <!-- CLEAN GLOBE SECTION -->
   <section class="globe-section" id="globe">
     <div class="globe-header">
       <svg width="50" height="50" viewBox="0 0 24 24" fill="#167690">
@@ -542,8 +532,7 @@
     fieryNeural();
     setInterval(fieryNeural, 1300);
 
-    // CENTERED 3D GLOBE
-    let globe;
+    // 3D GLOBE - FORCES CENTER ALIGNMENT
     function initGlobe() {
       const globeEl = document.getElementById('globeViz');
       
@@ -553,7 +542,7 @@
         { lat: 49.28, lng: -123.12, size: 0.12, color: '#4ecdc4' }  // 🇨🇦 Canada
       ];
       
-      globe = Globe()
+      const globe = Globe()
         (globeEl)
         .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
         .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
@@ -582,12 +571,9 @@
     updateClocks();
     setInterval(updateClocks, 1000);
 
+    // Load globe
     window.addEventListener('load', () => {
-      setTimeout(() => {
-        if (typeof Globe !== 'undefined') {
-          initGlobe();
-        }
-      }, 1500);
+      setTimeout(initGlobe, 1000);
     });
   </script>
 </body>
