@@ -93,7 +93,7 @@
     .hero h2 { font-size: clamp(1.4rem, 4vw, 2.2rem); font-weight: 700; color: white; margin: 0 0 25px 0; text-shadow: 0 0 30px rgba(0,0,0,0.8); }
     .hero p { font-size: clamp(1.1rem, 3vw, 1.5rem); font-weight: 700; color: white; margin: 0; text-shadow: 0 0 20px rgba(0,0,0,0.8); }
 
-    /* FIXED GLOBE */
+    /* FIXED GLOBE - BULLETPROOF */
     .globe-section {
       max-width: 1400px;
       margin: 0 auto;
@@ -183,7 +183,7 @@
       margin-bottom: 35px;
     }
 
-    /* FIXED FLAGS - WORKING EMOJIS */
+    /* FLAGS */
     .flags-section {
       max-width: 1200px;
       margin: 0 auto 80px;
@@ -214,7 +214,6 @@
       box-shadow: 0 30px 100px rgba(0,0,0,0.25);
       border: 3px solid rgba(255,255,255,0.9);
       transition: all 0.6s ease;
-      font-size: 1.4rem;
     }
     
     .flag-item:hover {
@@ -234,7 +233,7 @@
       font-size: 1.2rem;
     }
 
-    /* ACTUAL BROCHURE PREVIEW WITH YOUR PDF */
+    /* BROCHURE */
     .brochure-section {
       max-width: 1200px;
       margin: 0 auto 100px;
@@ -260,13 +259,6 @@
       max-width: 1000px;
       margin-left: auto;
       margin-right: auto;
-    }
-    
-    .brochure-preview-container h3 {
-      color: #167690;
-      font-size: 1.8rem;
-      margin-bottom: 25px;
-      font-weight: 900;
     }
     
     .pdf-preview {
@@ -327,7 +319,7 @@
     </div>
   </section>
 
-  <!-- FIXED GLOBE - READY FOR CUBES -->
+  <!-- BULLETPROOF GLOBE -->
   <section class="globe-section" id="globe">
     <div class="globe-header">
       <svg width="50" height="50" viewBox="0 0 24 24" fill="#167690">
@@ -336,7 +328,7 @@
       <h2>🌍 Global Collaboration</h2>
     </div>
     
-    <div id="globeViz">Loading Interactive Globe... (READY FOR CUBES)</div>
+    <div id="globeViz">Loading Globe...</div>
     
     <div class="time-weather-row">
       <div class="time-card">
@@ -358,7 +350,7 @@
     </div>
   </section>
 
-  <!-- FIXED FLAGS - EMOJI VERSION -->
+  <!-- FLAGS -->
   <section class="flags-section" id="flags">
     <h2 class="flags-header">🌐 International Partners</h2>
     <div class="flags-grid">
@@ -402,16 +394,16 @@
     </table>
   </section>
 
-  <!-- ACTUAL BROCHURE PREVIEW WITH YOUR PDF -->
+  <!-- BROCHURE -->
   <section class="brochure-section" id="brochure">
     <h2 class="brochure-header">📄 Conference Brochure Preview</h2>
     
     <div class="brochure-preview-container">
-      <h3>👁️ Live PDF Preview (Your Actual File)</h3>
+      <h3>👁️ Live PDF Preview</h3>
       <iframe 
         src="GLOB SMC Leadership Conference 2025_Brochure_Final5.pdf#toolbar=0&navpanes=0&scrollbar=0&view=FitH" 
         class="pdf-preview"
-        title="GLOB SMC Leadership Conference 2025 Brochure">
+        title="Conference Brochure Preview">
       </iframe>
     </div>
     
@@ -420,10 +412,11 @@
     </a>
   </section>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/globe.gl@2.28.2/dist/globe.gl.min.js"></script>
+  <!-- BULLETPROOF GLOBE SCRIPTS -->
+  <script src="https://unpkg.com/three@0.134.0/build/three.min.js"></script>
+  <script src="https://cdn.skypack.dev/globe.gl"></script>
   <script>
-    // 🔥 HERO FIERY NEURAL NETWORK
+    // Hero neural network
     const canvas = document.getElementById('heroCanvas');
     const ctx = canvas.getContext('2d');
     
@@ -480,24 +473,27 @@
     fieryNeural();
     setInterval(fieryNeural, 1300);
 
-    // 🌍 PERFECT GLOBE - CUBE READY
+    // BULLETPROOF GLOBE
     function initGlobe() {
       const globeEl = document.getElementById('globeViz');
       
-      // 🧊 ADD YOUR CUBE COORDINATES HERE
+      // CUBE DATA READY
       const cubeData = [
-        { lat: 13.08, lng: 80.27, size: 0.08, color: '#ff6b35' },  // 🇮🇳 India
-        { lat: 49.28, lng: -123.12, size: 0.08, color: '#4ecdc4' }, // 🇨🇦 Canada
-        // { lat: XX.XX, lng: XX.XX, size: 0.08, color: '#ff0000' }, // Add more!
+        { lat: 13.08, lng: 80.27, size: 0.08, color: '#ff6b35' },  // India
+        { lat: 49.28, lng: -123.12, size: 0.08, color: '#4ecdc4' }  // Canada
       ];
       
       if (typeof Globe === 'undefined') {
-        globeEl.innerHTML = '<div style="padding:100px;color:#666;font-size:1.6rem;background:linear-gradient(45deg,#e3f2fd,#bbdefb);">🌍 Globe ready! Add cubes to cubeData array.</div>';
+        globeEl.innerHTML = '<div style="padding:100px;color:#666;font-size:1.6rem;background:linear-gradient(45deg,#e3f2fd,#bbdefb);">🔄 Globe loading... <br>Checking CDN...</div>';
+        setTimeout(initGlobe, 2000);
         return;
       }
       
-      const globe = Globe()(globeEl)
-        .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
+      globeEl.innerHTML = '';
+      
+      const globe = Globe()
+        (globeEl)
+        .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
         .showAtmosphere(true)
         .atmosphereColor('lightblue')
         .atmosphereAltitude(0.5)
@@ -508,9 +504,11 @@
         .pointColor('color')
         .pointAltitude(0.12)
         .pointOfView({ lat: 28, lng: 82, altitude: 1.1 }, 4000);
+      
+      console.log('🌍 Globe loaded successfully!');
     }
 
-    // 🕐 LIVE WORLD CLOCKS
+    // Live clocks
     function updateClocks() {
       const now = new Date();
       document.getElementById('time-india').textContent = 
@@ -521,7 +519,11 @@
     updateClocks();
     setInterval(updateClocks, 1000);
 
-    window.addEventListener('load', () => setTimeout(initGlobe, 1000));
+    // Load globe with retry
+    window.addEventListener('load', () => {
+      setTimeout(initGlobe, 500);
+      setTimeout(initGlobe, 3000);
+    });
   </script>
 </body>
 </html>
