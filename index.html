@@ -93,7 +93,7 @@
     .hero h2 { font-size: clamp(1.4rem, 4vw, 2.2rem); font-weight: 700; color: white; margin: 0 0 25px 0; text-shadow: 0 0 30px rgba(0,0,0,0.8); }
     .hero p { font-size: clamp(1.1rem, 3vw, 1.5rem); font-weight: 700; color: white; margin: 0; text-shadow: 0 0 20px rgba(0,0,0,0.8); }
 
-    /* SIMPLEST APPROACH - MAX WIDTH + AUTO MARGINS */
+    /* YOUR IFRAME GLOBE - PERFECTLY CENTERED */
     .globe-section {
       max-width: 1400px;
       margin: 80px auto;
@@ -124,15 +124,23 @@
       font-weight: 900;
     }
     
-    #globeViz {
+    .globe-iframe-container {
+      position: relative;
       width: 100%;
       max-width: 1200px;
       height: 650px;
-      margin: 0 auto !important;
+      margin: 0 auto 100px auto;
       border-radius: 60px;
       box-shadow: 0 60px 200px rgba(22,118,144,0.7);
       background: radial-gradient(circle at center, rgba(227,242,253,0.98) 0%, rgba(187,222,251,0.95) 80%);
       overflow: hidden;
+    }
+    
+    #globeIframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: 60px;
       display: block;
     }
 
@@ -142,7 +150,7 @@
       justify-content: center;
       gap: 60px;
       flex-wrap: wrap;
-      margin-top: 80px;
+      margin-bottom: 80px;
     }
     
     .time-card, .weather-card {
@@ -332,7 +340,7 @@
 
     @media (max-width: 768px) {
       .time-weather-row { flex-direction: column; gap: 40px; }
-      #globeViz { height: 550px; }
+      .globe-iframe-container { height: 550px; }
       .time-display { font-size: 4.5rem; }
     }
   </style>
@@ -359,7 +367,7 @@
     </div>
   </section>
 
-  <!-- BACK TO ORIGINAL SIMPLE WORKING VERSION -->
+  <!-- YOUR INTERACTIVE GLOBE WIDGET IFRAME -->
   <section class="globe-section" id="globe">
     <div class="globe-header">
       <svg width="50" height="50" viewBox="0 0 24 24" fill="#167690">
@@ -368,7 +376,15 @@
       <h2>🌍 Global Collaboration</h2>
     </div>
     
-    <div id="globeViz">Loading Interactive 3D Globe...</div>
+    <div class="globe-iframe-container">
+      <iframe 
+        src="https://interactive-globe-widget.onrender.com" 
+        id="globeIframe"
+        title="Interactive 3D Globe - Stella Amaris Global Partners"
+        frameborder="0"
+        allowfullscreen>
+      </iframe>
+    </div>
     
     <div class="time-weather-row">
       <div class="time-card">
@@ -470,8 +486,6 @@
     </a>
   </section>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/globe.gl"></script>
   <script>
     // Hero neural network
     const canvas = document.getElementById('heroCanvas');
@@ -530,31 +544,7 @@
     fieryNeural();
     setInterval(fieryNeural, 1300);
 
-    // ORIGINAL GLOBE
-    function initGlobe() {
-      const globeEl = document.getElementById('globeViz');
-      const cubeData = [
-        { lat: 13.08, lng: 80.27, size: 0.12, color: '#ff6b35' },
-        { lat: 49.28, lng: -123.12, size: 0.12, color: '#4ecdc4' }
-      ];
-      
-      Globe()(globeEl)
-        .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
-        .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
-        .showAtmosphere(true)
-        .atmosphereColor('lightblue')
-        .atmosphereAltitude(0.25)
-        .autoRotate(true)
-        .autoRotateSpeed(0.5)
-        .pointsData(cubeData)
-        .pointAltitude('size')
-        .pointRadius(0.4)
-        .pointColor('color')
-        .pointResolution(12)
-        .pointLightIntensity(2)
-        .pointOfView({ lat: 20, lng: 80, altitude: 1.2 }, 3000);
-    }
-
+    // Live clocks
     function updateClocks() {
       const now = new Date();
       document.getElementById('time-india').textContent = 
@@ -564,10 +554,6 @@
     }
     updateClocks();
     setInterval(updateClocks, 1000);
-
-    window.addEventListener('load', () => {
-      setTimeout(initGlobe, 1000);
-    });
   </script>
 </body>
 </html>
