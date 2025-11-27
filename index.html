@@ -12,6 +12,7 @@
       font-family: 'Nunito', sans-serif;
       color: #1a365d;
       overflow-x: hidden;
+      line-height: 1.6;
     }
     
     .header {
@@ -44,15 +45,17 @@
     }
     .nav a:hover { color: #128fa7; }
 
-    /* HERO */
+    /* HERO - CLEAN & FOCUSED */
     .hero {
       position: relative;
       height: 100vh;
-      min-height: 600px;
+      min-height: 700px;
       display: flex;
       align-items: center;
       justify-content: center;
       overflow: hidden;
+      text-align: center;
+      padding: 0 40px;
     }
     
     .hero img {
@@ -74,188 +77,90 @@
     .hero-content {
       position: relative;
       z-index: 4;
-      text-align: center;
-      max-width: 1000px;
-      padding: 0 40px;
+      max-width: 1200px;
     }
     
     .hero h1 {
-      font-size: clamp(3rem, 8vw, 5rem);
+      font-size: clamp(3.5rem, 9vw, 6rem);
       font-weight: 900;
       background: linear-gradient(45deg, #ffd700, #ffed4a);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      margin: 0 0 20px 0;
+      margin: 0 0 30px 0;
       text-shadow: 0 0 60px rgba(255,215,0,0.8);
     }
     
-    .hero h2 { font-size: clamp(1.4rem, 4vw, 2.2rem); font-weight: 700; color: white; margin: 0 0 25px 0; text-shadow: 0 0 30px rgba(0,0,0,0.8); }
-    .hero p { font-size: clamp(1.1rem, 3vw, 1.5rem); font-weight: 700; color: white; margin: 0; text-shadow: 0 0 20px rgba(0,0,0,0.8); }
-
-    /* YOUR IFRAME GLOBE - PERFECTLY CENTERED */
-    .globe-section {
-      max-width: 1400px;
-      margin: 80px auto;
-      padding: 80px 20px;
-      text-align: center;
+    .hero h2 { 
+      font-size: clamp(1.8rem, 4.5vw, 3rem); 
+      font-weight: 700; 
+      color: white; 
+      margin: 0 0 40px 0; 
+      text-shadow: 0 0 30px rgba(0,0,0,0.8);
     }
     
-    .globe-header {
-      display: inline-flex;
-      align-items: center;
-      gap: 25px;
-      margin-bottom: 60px;
-      background: rgba(255,255,255,0.98);
-      backdrop-filter: blur(40px);
-      padding: 35px 70px;
-      border-radius: 50px;
-      box-shadow: 0 40px 140px rgba(0,0,0,0.3);
-      border: 3px solid rgba(255,255,255,0.95);
-    }
-    
-    .globe-header h2 {
-      margin: 0;
-      font-size: 2.5rem;
-      background: linear-gradient(135deg, #167690, #128fa7);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      font-weight: 900;
-    }
-    
-    .globe-iframe-container {
-      position: relative;
-      width: 100%;
-      max-width: 1200px;
-      height: 650px;
-      margin: 0 auto 100px auto;
-      border-radius: 60px;
-      box-shadow: 0 60px 200px rgba(22,118,144,0.7);
-      background: radial-gradient(circle at center, rgba(227,242,253,0.98) 0%, rgba(187,222,251,0.95) 80%);
-      overflow: hidden;
-    }
-    
-    #globeIframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-      border-radius: 60px;
-      display: block;
-    }
-
-    /* TIME & WEATHER */
-    .time-weather-row {
-      display: flex;
-      justify-content: center;
-      gap: 60px;
-      flex-wrap: wrap;
-      margin-bottom: 80px;
-    }
-    
-    .time-card, .weather-card {
-      background: rgba(255,255,255,0.98);
-      backdrop-filter: blur(50px);
-      padding: 60px 70px;
-      border-radius: 60px;
-      box-shadow: 0 50px 160px rgba(0,0,0,0.35);
-      border: 4px solid rgba(255,255,255,0.98);
-      text-align: center;
-      min-width: 350px;
-      transition: all 0.7s cubic-bezier(0.25,0.46,0.45,0.94);
-    }
-    
-    .time-card:hover, .weather-card:hover {
-      transform: translateY(-40px);
-      box-shadow: 0 80px 240px rgba(0,0,0,0.5);
-    }
-    
-    .time-title, .weather-title {
-      font-size: 1.6rem;
-      color: #167690;
-      font-weight: 900;
-      margin-bottom: 50px;
-    }
-    
-    .time-display {
-      font-size: 6rem;
-      font-weight: 900;
-      color: #1a365d;
-      font-family: 'Courier New', monospace;
-      margin-bottom: 40px;
-    }
-    
-    .weather-temp {
-      font-size: 5rem;
-      font-weight: 900;
-      color: #ff6b35;
-      margin-bottom: 35px;
-    }
-
-    /* FLAGS */
-    .flags-section {
-      max-width: 1200px;
-      margin: 0 auto 80px;
-      padding: 0 20px;
-    }
-    
-    .flags-header {
-      font-size: 2.8rem;
-      background: linear-gradient(135deg, #167690, #128fa7);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 60px;
-    }
-    
-    .flags-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 40px;
-      max-width: 1000px;
-      margin: 0 auto;
-    }
-    
-    .flag-item {
+    .hero-meta {
       background: rgba(255,255,255,0.95);
-      backdrop-filter: blur(30px);
-      padding: 40px 25px;
+      backdrop-filter: blur(20px);
+      padding: 30px 60px;
       border-radius: 40px;
-      box-shadow: 0 30px 100px rgba(0,0,0,0.25);
+      display: inline-block;
+      box-shadow: 0 30px 100px rgba(0,0,0,0.3);
       border: 3px solid rgba(255,255,255,0.9);
-      transition: all 0.6s ease;
     }
     
-    .flag-item:hover {
-      transform: translateY(-20px) scale(1.05);
-      box-shadow: 0 50px 150px rgba(22,118,144,0.4);
-    }
-    
-    .flag-emoji {
-      font-size: 4rem;
-      margin-bottom: 15px;
-      display: block;
-    }
-    
-    .flag-name {
-      font-weight: 800;
-      color: #167690;
-      font-size: 1.2rem;
+    .hero p { 
+      font-size: 1.6rem; 
+      font-weight: 700; 
+      color: #167690; 
+      margin: 0;
     }
 
-    /* AGENDA */
+    /* CONFERENCE SYNOPSIS */
+    .synopsis-section {
+      max-width: 1200px;
+      margin: 120px auto;
+      padding: 0 40px;
+      text-align: center;
+    }
+    
+    .synopsis-header {
+      font-size: 3.5rem;
+      background: linear-gradient(135deg, #167690, #128fa7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 60px;
+      font-weight: 900;
+    }
+    
+    .synopsis-content {
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(40px);
+      padding: 80px;
+      border-radius: 50px;
+      box-shadow: 0 50px 160px rgba(0,0,0,0.25);
+      border: 3px solid rgba(255,255,255,0.95);
+      font-size: 1.3rem;
+      line-height: 1.8;
+      color: #1a365d;
+      font-weight: 600;
+    }
+
+    /* DETAILED AGENDA */
     .agenda-section {
-      max-width: 1100px;
-      margin: 0 auto 100px;
-      padding: 0 20px;
+      max-width: 1300px;
+      margin: 120px auto;
+      padding: 0 40px;
     }
     
     .agenda-header {
-      font-size: 2.8rem;
+      font-size: 3.5rem;
       text-align: center;
-      margin-bottom: 50px;
+      margin-bottom: 80px;
       background: linear-gradient(135deg, #167690, #128fa7);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      font-weight: 900;
     }
     
     .agenda-table {
@@ -264,84 +169,137 @@
       backdrop-filter: blur(40px);
       border-radius: 50px;
       overflow: hidden;
-      box-shadow: 0 50px 160px rgba(0,0,0,0.35);
+      box-shadow: 0 60px 200px rgba(0,0,0,0.35);
       border-collapse: collapse;
     }
     
     .agenda-table th {
       background: linear-gradient(135deg, #167690, #128fa7);
       color: white;
-      padding: 30px;
+      padding: 35px 40px;
       font-weight: 900;
-      font-size: 1.3rem;
+      font-size: 1.4rem;
+      text-align: left;
     }
     
     .agenda-table td {
-      padding: 25px 30px;
-      border-bottom: 1px solid rgba(255,255,255,0.5);
+      padding: 35px 40px;
+      border-bottom: 1px solid rgba(255,255,255,0.6);
       font-weight: 700;
+      font-size: 1.2rem;
+      vertical-align: top;
     }
+    
+    .agenda-table tr:nth-child(even) td {
+      background: rgba(255,255,255,0.7);
+    }
+    
+    .time-col { width: 18%; font-family: 'Courier New', monospace; font-size: 1.4rem; color: #ff6b35; }
+
+    /* INTERNATIONAL PARTNERS */
+    .partners-section {
+      max-width: 1200px;
+      margin: 120px auto;
+      padding: 0 40px;
+      text-align: center;
+    }
+    
+    .partners-header {
+      font-size: 3.2rem;
+      background: linear-gradient(135deg, #167690, #128fa7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 80px;
+    }
+    
+    .flags-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 50px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    
+    .flag-item {
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(30px);
+      padding: 60px 30px;
+      border-radius: 40px;
+      box-shadow: 0 40px 140px rgba(0,0,0,0.25);
+      border: 4px solid rgba(255,255,255,0.9);
+      transition: all 0.6s ease;
+      height: 100%;
+    }
+    
+    .flag-item:hover {
+      transform: translateY(-25px) scale(1.05);
+      box-shadow: 0 70px 220px rgba(22,118,144,0.4);
+    }
+    
+    .flag-emoji { font-size: 5rem; margin-bottom: 25px; display: block; }
+    .flag-name { font-weight: 900; color: #167690; font-size: 1.6rem; }
 
     /* BROCHURE */
     .brochure-section {
       max-width: 1200px;
-      margin: 0 auto 100px;
-      padding: 0 20px;
+      margin: 120px auto 200px;
+      padding: 0 40px;
       text-align: center;
     }
     
     .brochure-header {
-      font-size: 2.8rem;
+      font-size: 3.2rem;
       background: linear-gradient(135deg, #167690, #128fa7);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      margin-bottom: 50px;
+      margin-bottom: 60px;
     }
     
     .brochure-preview-container {
       background: rgba(255,255,255,0.95);
       backdrop-filter: blur(40px);
       border-radius: 40px;
-      padding: 40px;
-      margin-bottom: 50px;
-      box-shadow: 0 40px 140px rgba(0,0,0,0.3);
-      max-width: 1000px;
+      padding: 60px;
+      margin-bottom: 60px;
+      box-shadow: 0 50px 160px rgba(0,0,0,0.3);
+      max-width: 1100px;
       margin-left: auto;
       margin-right: auto;
     }
     
     .pdf-preview {
       width: 100%;
-      height: 600px;
-      border: 3px solid rgba(22,118,144,0.3);
-      border-radius: 25px;
-      box-shadow: 0 20px 80px rgba(0,0,0,0.2);
+      height: 700px;
+      border: 4px solid rgba(22,118,144,0.3);
+      border-radius: 30px;
+      box-shadow: 0 30px 120px rgba(0,0,0,0.25);
       background: white;
     }
 
     .download-btn {
       display: inline-block;
-      padding: 30px 80px;
+      padding: 35px 100px;
       background: linear-gradient(135deg, #167690, #128fa7);
       color: white;
       text-decoration: none;
       border-radius: 60px;
       font-weight: 900;
-      font-size: 1.6rem;
-      box-shadow: 0 40px 140px rgba(22,118,144,0.6);
+      font-size: 1.8rem;
+      box-shadow: 0 50px 160px rgba(22,118,144,0.6);
       transition: all 0.6s cubic-bezier(0.25,0.46,0.45,0.94);
-      border: 4px solid rgba(255,255,255,0.3);
+      border: 5px solid rgba(255,255,255,0.4);
     }
     
     .download-btn:hover {
-      transform: translateY(-15px);
-      box-shadow: 0 60px 200px rgba(22,118,144,0.8);
+      transform: translateY(-20px);
+      box-shadow: 0 70px 240px rgba(22,118,144,0.8);
     }
 
     @media (max-width: 768px) {
-      .time-weather-row { flex-direction: column; gap: 40px; }
-      .globe-iframe-container { height: 550px; }
-      .time-display { font-size: 4.5rem; }
+      .hero-meta { padding: 20px 40px; }
+      .synopsis-content { padding: 40px 30px; font-size: 1.1rem; }
+      .pdf-preview { height: 500px; }
+      .flags-grid { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 30px; }
     }
   </style>
 </head>
@@ -349,9 +307,9 @@
   <header class="header">
     <div class="logo">Stella Amaris × TWU</div>
     <nav class="nav">
-      <a href="#globe">Globe</a>
-      <a href="#flags">Partners</a>
+      <a href="#synopsis">Overview</a>
       <a href="#agenda">Agenda</a>
+      <a href="#partners">Partners</a>
       <a href="#brochure">Brochure</a>
     </nav>
   </header>
@@ -363,52 +321,58 @@
     <div class="hero-content">
       <h1>11th Annual Leadership Conference</h1>
       <h2>Integrating Human Factor in AI Age</h2>
-      <p><strong>January 19, 2026</strong> • Stella Amaris × Trinity Western University</p>
-    </div>
-  </section>
-
-  <!-- YOUR INTERACTIVE GLOBE WIDGET IFRAME -->
-  <section class="globe-section" id="globe">
-    <div class="globe-header">
-      <svg width="50" height="50" viewBox="0 0 24 24" fill="#167690">
-        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-      </svg>
-      <h2>🌍 Global Collaboration</h2>
-    </div>
-    
-    <div class="globe-iframe-container">
-      <iframe 
-        src="https://interactive-globe-widget.onrender.com" 
-        id="globeIframe"
-        title="Interactive 3D Globe - Stella Amaris Global Partners"
-        frameborder="0"
-        allowfullscreen>
-      </iframe>
-    </div>
-    
-    <div class="time-weather-row">
-      <div class="time-card">
-        <div class="time-title">🇮🇳 Chennai, India</div>
-        <div id="time-india" class="time-display">--:--</div>
-      </div>
-      <div class="weather-card">
-        <div class="weather-title">🌤️ Chennai Weather</div>
-        <div id="weather-india" class="weather-temp">28°C</div>
-      </div>
-      <div class="time-card">
-        <div class="time-title">🇨🇦 Vancouver, Canada</div>
-        <div id="time-canada" class="time-display">--:--</div>
-      </div>
-      <div class="weather-card">
-        <div class="weather-title">🌤️ Vancouver Weather</div>
-        <div id="weather-canada" class="weather-temp">7°C</div>
+      <div class="hero-meta">
+        <p><strong>January 19, 2026</strong> • Stella Amaris × Trinity Western University</p>
       </div>
     </div>
   </section>
 
-  <!-- FLAGS -->
-  <section class="flags-section" id="flags">
-    <h2 class="flags-header">🌐 International Partners</h2>
+  <!-- CONFERENCE SYNOPSIS -->
+  <section class="synopsis-section" id="synopsis">
+    <h2 class="synopsis-header">Conference Overview</h2>
+    <div class="synopsis-content">
+      The 11th Annual Leadership Conference brings together global thought leaders to explore the critical intersection of human intelligence and artificial intelligence in the modern era. This landmark event focuses on "Fifth Intelligence" - the synergistic integration of human creativity, emotional intelligence, and ethical judgment with AI's computational power and pattern recognition.
+      
+      Featuring keynote presentations, interactive workshops, and international industry panels, the conference addresses how leaders can harness AI as a force multiplier while preserving the uniquely human elements that drive innovation, trust, and meaningful progress. Participants will gain practical frameworks for AI-human collaboration across industries, cultures, and generations.
+      
+      Join us for transformative insights from India, Canada, Thailand, Iran, Nigeria, and China - united by a shared vision for responsible AI leadership in the global economy.
+    </div>
+  </section>
+
+  <!-- DETAILED AGENDA -->
+  <section class="agenda-section" id="agenda">
+    <h2 class="agenda-header">📅 Detailed Conference Agenda</h2>
+    <table class="agenda-table">
+      <tr>
+        <th class="time-col">Time</th>
+        <th>Session</th>
+      </tr>
+      <tr>
+        <td class="time-col">10:00 AM - 11:00 AM</td>
+        <td><strong>Opening & Keynote:</strong> "Fifth Intelligence" - Dr. Stella Amaris presents the revolutionary framework for human-AI symbiosis that defines the next era of leadership.</td>
+      </tr>
+      <tr>
+        <td class="time-col">11:15 AM - 12:00 PM</td>
+        <td><strong>AI + Human Integration Workshop:</strong> Hands-on session exploring practical tools and methodologies for integrating AI capabilities with human decision-making processes.</td>
+      </tr>
+      <tr>
+        <td class="time-col">12:00 PM - 02:00 PM</td>
+        <td><strong>Networking Lunch:</strong> Global cuisine and strategic networking with international delegates, industry leaders, and academic partners.</td>
+      </tr>
+      <tr>
+        <td class="time-col">02:00 PM - 03:15 PM</td>
+        <td><strong>Global Industry Panel:</strong> C-suite executives from India, Canada, China, and Europe discuss real-world AI implementation challenges and human-centered solutions.</td>
+      </tr>
+      <tr>
+        <td class="time-col">03:30 PM - 04:30 PM</td>
+        <td><strong>Book Signing & Closing:</strong> "Fifth Intelligence" book signing with Dr. Stella Amaris, closing remarks, and conference takeaways.</td>
+      </tr>
+    </table>
+  </section>
+
+  <!-- INTERNATIONAL PARTNERS -->
+  <section class="partners-section" id="partners">
+    <h2 class="partners-header">🌐 International Partners</h2>
     <div class="flags-grid">
       <div class="flag-item">
         <span class="flag-emoji">🇮🇳</span>
@@ -437,43 +401,12 @@
     </div>
   </section>
 
-  <!-- AGENDA -->
-  <section class="agenda-section" id="agenda">
-    <h2 class="agenda-header">📅 Conference Agenda</h2>
-    <table class="agenda-table">
-      <tr>
-        <th>Time</th>
-        <th>Session</th>
-      </tr>
-      <tr>
-        <td>10:00 AM</td>
-        <td>Opening & Keynote: "Fifth Intelligence"</td>
-      </tr>
-      <tr>
-        <td>11:15 AM</td>
-        <td>AI + Human Integration Workshop</td>
-      </tr>
-      <tr>
-        <td>12:00 PM</td>
-        <td>Networking Lunch</td>
-      </tr>
-      <tr>
-        <td>02:00 PM</td>
-        <td>Global Industry Panel</td>
-      </tr>
-      <tr>
-        <td>03:30 PM</td>
-        <td>Book Signing & Closing</td>
-      </tr>
-    </table>
-  </section>
-
   <!-- BROCHURE -->
   <section class="brochure-section" id="brochure">
-    <h2 class="brochure-header">📄 Conference Brochure Preview</h2>
+    <h2 class="brochure-header">📄 Conference Brochure</h2>
     
     <div class="brochure-preview-container">
-      <h3>👁️ Live PDF Preview</h3>
+      <h3 style="font-size: 2rem; color: #167690; margin-bottom: 30px;">👁️ Live PDF Preview</h3>
       <iframe 
         src="GLOB SMC Leadership Conference 2025_Brochure_Final5.pdf#toolbar=0&navpanes=0&scrollbar=0&view=FitH" 
         class="pdf-preview"
@@ -482,12 +415,12 @@
     </div>
     
     <a href="GLOB SMC Leadership Conference 2025_Brochure_Final5.pdf" class="download-btn" download>
-      📥 Download Full Brochure
+      📥 Download Full Conference Brochure
     </a>
   </section>
 
   <script>
-    // Hero neural network
+    // Hero neural network animation
     const canvas = document.getElementById('heroCanvas');
     const ctx = canvas.getContext('2d');
     
@@ -506,54 +439,28 @@
         brightness: 0.7 + Math.random() * 0.3
       }));
       
-      ctx.shadowBlur = 90;
-      ctx.shadowColor = '#ffd700';
+      ctx.shadowBlur = 90; ctx.shadowColor = '#ffd700';
       points.forEach(p => {
-        ctx.save();
-        ctx.translate(p.x, p.y);
-        ctx.globalAlpha = p.brightness;
-        ctx.beginPath();
-        ctx.arc(0, 0, 30 + p.brightness * 20, 0, Math.PI*2);
-        ctx.fillStyle = `rgba(255, 215, 0, ${p.brightness * 0.5})`;
-        ctx.fill();
-        ctx.shadowBlur = 45;
-        ctx.beginPath();
-        ctx.arc(0, 0, 12, 0, Math.PI*2);
-        ctx.fillStyle = `rgba(255, 255, 100, ${p.brightness})`;
-        ctx.fill();
-        ctx.restore();
+        ctx.save(); ctx.translate(p.x, p.y); ctx.globalAlpha = p.brightness;
+        ctx.beginPath(); ctx.arc(0, 0, 30 + p.brightness * 20, 0, Math.PI*2);
+        ctx.fillStyle = `rgba(255, 215, 0, ${p.brightness * 0.5})`; ctx.fill();
+        ctx.shadowBlur = 45; ctx.beginPath(); ctx.arc(0, 0, 12, 0, Math.PI*2);
+        ctx.fillStyle = `rgba(255, 255, 100, ${p.brightness})`; ctx.fill(); ctx.restore();
       });
       
-      ctx.shadowBlur = 55;
-      ctx.shadowColor = '#ffaa00';
-      ctx.strokeStyle = 'rgba(255, 193, 7, 0.85)';
-      ctx.lineWidth = 3.5;
+      ctx.shadowBlur = 55; ctx.shadowColor = '#ffaa00'; ctx.strokeStyle = 'rgba(255, 193, 7, 0.85)'; ctx.lineWidth = 3.5;
       points.forEach((p1, i) => {
         points.slice(i+1).forEach(p2 => {
           const dist = Math.hypot(p1.x - p2.x, p1.y - p2.y);
           if (dist < 320) {
             ctx.globalAlpha = 1 - dist / 320;
-            ctx.beginPath();
-            ctx.moveTo(p1.x, p1.y);
-            ctx.lineTo(p2.x, p2.y);
-            ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
           }
         });
       });
     }
     fieryNeural();
     setInterval(fieryNeural, 1300);
-
-    // Live clocks
-    function updateClocks() {
-      const now = new Date();
-      document.getElementById('time-india').textContent = 
-        now.toLocaleTimeString('en-GB', {timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit'});
-      document.getElementById('time-canada').textContent = 
-        now.toLocaleTimeString('en-CA', {timeZone: 'America/Vancouver', hour: '2-digit', minute: '2-digit'});
-    }
-    updateClocks();
-    setInterval(updateClocks, 1000);
   </script>
 </body>
 </html>
