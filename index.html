@@ -13,6 +13,7 @@
       margin: 0;
       color: #1a365d;
       line-height: 1.6;
+      padding-bottom: 60px;
     }
     .header {
       display: flex;
@@ -39,12 +40,10 @@
       color: #167690; 
       text-decoration: none; 
       font-weight: 600; 
-      font-size: 1rem;
       transition: color 0.3s;
     }
     .nav a:hover { color: #128fa7; }
 
-    /* HERO WITH ORIGINAL IMAGE */
     .hero {
       position: relative;
       height: 420px;
@@ -96,141 +95,113 @@
       text-shadow: 0 2px 10px rgba(0,0,0,0.5);
     }
 
-    .section {
-      max-width: 900px;
-      margin: 40px auto;
-      padding: 0 20px;
-    }
-    .section h2 {
-      font-size: 2.3rem;
-      color: #167690;
-      text-align: center;
-      margin-bottom: 25px;
-    }
-
-    /* 3D GLOBE BACK - WORKING VERSION */
+    /* EXACT LAYOUT FROM SCREENSHOT */
     .globe-section {
-      text-align: center;
-      background: rgba(255,255,255,0.9);
-      border-radius: 25px;
+      max-width: 1100px;
+      margin: 0 auto;
       padding: 40px 20px;
-      margin: 30px auto;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-      max-width: 750px;
+      position: relative;
+    }
+    
+    .globe-header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 30px;
+      background: rgba(255,255,255,0.9);
+      backdrop-filter: blur(20px);
+      padding: 20px 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+      max-width: 500px;
+      border: 1px solid rgba(255,255,255,0.6);
+    }
+    
+    .globe-header h2 {
+      margin: 0;
+      font-size: 1.6rem;
+      background: linear-gradient(135deg, #167690, #128fa7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 700;
     }
     
     #globeViz {
-      width: 650px !important;
-      height: 380px !important;
-      border-radius: 20px;
-      box-shadow: 0 20px 60px rgba(22,118,144,0.3);
-      margin: 0 auto;
-      background: radial-gradient(circle, #e3f2fd 0%, #bbdefb 70%, #90caf9 100%);
+      width: 100%;
+      height: 500px;
+      border-radius: 25px;
+      box-shadow: 0 25px 80px rgba(22,118,144,0.3);
+      background: radial-gradient(circle, rgba(227,242,253,0.9) 0%, rgba(187,222,251,0.7) 70%);
+      overflow: hidden;
+      margin-bottom: 30px;
+    }
+    
+    #globeViz canvas {
+      border-radius: 25px !important;
+      width: 100% !important;
+      height: 100% !important;
     }
 
-    .time-weather {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 25px;
-      margin: 40px 0;
+    .locations-row {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      flex-wrap: wrap;
     }
-    .time-card, .weather-card {
-      background: rgba(255,255,255,0.95);
-      backdrop-filter: blur(15px);
-      border-radius: 20px;
-      padding: 30px 25px;
+    
+    .location-card {
+      background: rgba(255,255,255,0.9);
+      backdrop-filter: blur(20px);
+      padding: 25px 35px;
+      border-radius: 25px;
+      box-shadow: 0 15px 50px rgba(0,0,0,0.15);
+      border: 1px solid rgba(255,255,255,0.8);
       text-align: center;
-      box-shadow: 0 15px 40px rgba(0,0,0,0.12);
-      border: 1px solid rgba(255,255,255,0.6);
-      transition: transform 0.3s;
+      min-width: 220px;
+      transition: all 0.4s ease;
     }
-    .time-card:hover, .weather-card:hover { transform: translateY(-5px); }
-    .time-card h3, .weather-card h3 {
-      margin: 0 0 20px 0;
+    
+    .location-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 25px 70px rgba(0,0,0,0.2);
+    }
+    
+    .location-title {
+      font-size: 1.1rem;
       color: #167690;
-      font-size: 1.2rem;
       font-weight: 700;
+      margin: 0 0 20px 0;
     }
-    .time-display {
-      font-size: 3.2rem;
+    
+    .location-time {
+      font-size: 3.5rem;
       font-weight: 800;
       color: #1a365d;
       font-family: 'Courier New', monospace;
-      text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      margin: 0 0 10px 0;
+      text-shadow: 0 3px 15px rgba(0,0,0,0.1);
     }
 
-    .agenda {
-      background: rgba(255,255,255,0.95);
-      border-radius: 25px;
-      padding: 45px;
-      margin: 40px auto;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+    .content-section {
+      max-width: 900px;
+      margin: 60px auto;
+      padding: 0 20px;
     }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 25px;
-      font-size: 1.1rem;
-    }
-    th, td {
-      padding: 18px 20px;
-      text-align: left;
-      border-bottom: 2px solid #e8f4fd;
-    }
-    th {
-      background: linear-gradient(135deg, #e3f2fd, #bbdefb);
-      font-weight: 700;
-      color: #1565c0;
-      border-radius: 12px 12px 0 0;
-    }
-    tr:hover { background: #f8fbff; }
-
-    .flags {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      flex-wrap: wrap;
-      margin-top: 30px;
-    }
-    .flag {
-      width: 70px;
-      height: 45px;
-      border-radius: 15px;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-      transition: all 0.4s cubic-bezier(0.25,0.46,0.45,0.94);
-      border: 3px solid rgba(255,255,255,0.8);
-    }
-    .flag:hover { 
-      transform: translateY(-8px) scale(1.05) rotate(2deg); 
-      box-shadow: 0 15px 40px rgba(22,118,144,0.4);
-    }
-
-    .download-btn {
-      display: block;
-      width: 280px;
-      margin: 30px auto 0;
-      padding: 20px 40px;
-      background: linear-gradient(135deg, #167690, #128fa7);
-      color: white;
-      text-decoration: none;
-      border-radius: 50px;
-      font-weight: 800;
-      font-size: 1.25rem;
-      box-shadow: 0 15px 45px rgba(22,118,144,0.4);
+    
+    .content-section h2 {
+      font-size: 2.5rem;
+      color: #167690;
       text-align: center;
-      transition: all 0.4s cubic-bezier(0.25,0.46,0.45,0.94);
-    }
-    .download-btn:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 25px 60px rgba(22,118,144,0.6);
+      margin-bottom: 40px;
     }
 
     @media (max-width: 768px) {
-      .time-weather { grid-template-columns: 1fr; gap: 20px; }
-      .hero h1 { font-size: 2rem; }
-      .header { padding: 15px 20px; flex-direction: column; gap: 15px; }
-      .nav { gap: 20px; font-size: 0.95rem; }
-      #globeViz { width: 100% !important; height: 300px !important; }
+      .locations-row { gap: 20px; }
+      .location-card { min-width: 180px; padding: 20px 25px; }
+      .location-time { font-size: 2.8rem; }
+      .globe-header { max-width: 100%; padding: 15px 20px; }
+      #globeViz { height: 350px; }
     }
   </style>
 </head>
@@ -240,12 +211,10 @@
     <nav class="nav">
       <a href="#agenda">Agenda</a>
       <a href="#globe">Globe</a>
-      <a href="#countries">Partners</a>
       <a href="#brochure">Brochure</a>
     </nav>
   </header>
 
-  <!-- ORIGINAL IMAGE BACK -->
   <section class="hero">
     <img src="humanintelligence.png" alt="Human-AI Conference Hero" />
     <canvas id="neuralCanvas"></canvas>
@@ -256,92 +225,68 @@
     </div>
   </section>
 
-  <section class="section">
-    <h2>Human Consciousness + AI</h2>
-    <p style="text-align: center; font-size: 1.25rem; color: #4a5568; max-width: 750px; margin: 0 auto 40px auto;">
-      Preserving critical thinking, emotional intelligence, and human oversight as AI transforms leadership.
-    </p>
-  </section>
-
-  <!-- 3D GLOBE RESTORED -->
+  <!-- EXACT LAYOUT FROM YOUR SCREENSHOT -->
   <section class="globe-section" id="globe">
-    <h2>🌍 Global Collaboration</h2>
-    <div id="globeViz">Loading 3D Globe...</div>
-    <p style="margin-top: 25px; color: #666; font-size: 1.15rem;">
-      <strong>Chennai, India</strong> • <strong>Vancouver, Canada</strong>
+    <div class="globe-header">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+      </svg>
+      <h2>🌍 Global Collaboration</h2>
+    </div>
+    
+    <div id="globeViz">Loading Interactive Globe...</div>
+    
+    <div class="locations-row">
+      <div class="location-card">
+        <div class="location-title">🇮🇳 Chennai, India</div>
+        <div id="time-india" class="location-time">--:--</div>
+      </div>
+      <div class="location-card">
+        <div class="location-title">🇨🇦 Vancouver, Canada</div>
+        <div id="time-canada" class="location-time">--:--</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="content-section">
+    <h2>Human-AI Leadership</h2>
+    <p style="text-align: center; font-size: 1.25rem; color: #4a5568; max-width: 750px; margin: 0 auto 50px;">
+      Preserving consciousness, critical thinking & emotional intelligence in the AI era.
     </p>
   </section>
 
-  <div class="time-weather">
-    <div class="time-card">
-      <h3>🇮🇳 Chennai, India</h3>
-      <div id="time-india" class="time-display">--:--</div>
-    </div>
-    <div class="time-card">
-      <h3>🇨🇦 Vancouver, Canada</h3>
-      <div id="time-canada" class="time-display">--:--</div>
-    </div>
-  </div>
-
-  <section class="agenda" id="agenda">
-    <h2>Conference Agenda</h2>
-    <table>
-      <tr><th>Time</th><th>Session</th></tr>
-      <tr><td>10:00 AM</td><td>Opening & Keynote: "Fifth Intelligence"</td></tr>
-      <tr><td>11:15 AM</td><td>AI + Human Integration Workshop</td></tr>
-      <tr><td>12:00 PM</td><td>Networking Lunch</td></tr>
-      <tr><td>02:00 PM</td><td>Global Industry Panel</td></tr>
-      <tr><td>03:30 PM</td><td>Book Signing & Closing</td></tr>
-    </table>
-  </section>
-
-  <section class="section" id="countries">
-    <h2>International Partners</h2>
-    <div class="flags">
-      <img src="https://flagcdn.com/w80/in.png" alt="India" class="flag" loading="lazy">
-      <img src="https://flagcdn.com/w80/ca.png" alt="Canada" class="flag" loading="lazy">
-      <img src="https://flagcdn.com/w80/th.png" alt="Thailand" class="flag" loading="lazy">
-    </div>
-  </section>
-
-  <section class="section" id="brochure">
-    <h2>Download Full Program</h2>
-    <a href="GLOB-SMC-Leadership-Conference-2025_Brochure_Final5.pdf" class="download-btn" download>
-      📥 Get Conference Brochure
-    </a>
-  </section>
-
-  <!-- WORKING 3D GLOBE LIBRARIES -->
+  <!-- CDN Libraries -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/globe.gl"></script>
   <script>
-    // 3D GLOBE - BULLETPROOF
+    // BULLETPROOF 3D GLOBE
     function initGlobe() {
       const globeEl = document.getElementById('globeViz');
       
       if (typeof Globe === 'undefined') {
-        globeEl.innerHTML = '🔄 Globe loading...';
+        globeEl.textContent = '🔄 Globe loading... Check connection';
         return;
       }
 
+      globeEl.innerHTML = '';
+      
       const globe = Globe()(globeEl)
         .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
         .bumpImageUrl('https://unpkg.com/three-globe/example/img/earth-topology.png')
         .showAtmosphere(true)
         .atmosphereColor('lightblue')
-        .atmosphereAltitude(0.25)
+        .atmosphereAltitude(0.3)
         .autoRotate(true)
-        .autoRotateSpeed(() => Math.sin(Date.now() * 0.001) * 0.2 + 0.4)
+        .autoRotateSpeed(0.4)
+        .pointsMerge(true)
         .pointsData([
-          { lat: 13.08, lng: 80.27, size: 0.12, color: '#ff6b35' },
-          { lat: 49.28, lng: -123.12, size: 0.12, color: '#4ecdc4' }
+          { lat: 13.08, lng: 80.27, size: 0.15, color: '#ff6b35' },
+          { lat: 49.28, lng: -123.12, size: 0.15, color: '#4ecdc4' }
         ])
         .pointRadius('size')
         .pointColor('color')
-        .pointAltitude(0.08)
-        .pointOfView({ lat: 25, lng: 80, altitude: 1.3 }, 2000);
-      
-      globeEl.innerHTML = '';
+        .pointAltitude(0.1)
+        .pointOfView({ lat: 28, lng: 82, altitude: 1.4 }, 2500);
     }
 
     // Neural Network
@@ -350,28 +295,31 @@
     canvas.width = window.innerWidth;
     canvas.height = 420;
     
-    function neuralNet() {
+    function neuralAnimation() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const points = Array(16).fill().map(() => ({
+      const points = Array(18).fill().map(() => ({
         x: 60 + Math.random() * (canvas.width - 120),
         y: 40 + Math.random() * (canvas.height - 80)
       }));
       
-      ctx.shadowBlur = 25;
+      // Nodes with glow
+      ctx.shadowBlur = 30;
       ctx.shadowColor = '#39d1c4';
       points.forEach(p => {
         ctx.beginPath();
-        ctx.arc(p.x, p.y, 14, 0, Math.PI*2);
-        ctx.fillStyle = 'rgba(57,209,196,0.7)';
+        ctx.arc(p.x, p.y, 16, 0, Math.PI*2);
+        ctx.fillStyle = 'rgba(57,209,196,0.8)';
         ctx.fill();
       });
       
+      // Connections
       ctx.shadowBlur = 0;
-      ctx.strokeStyle = 'rgba(57,209,196,0.5)';
-      ctx.lineWidth = 2;
+      ctx.strokeStyle = 'rgba(57,209,196,0.6)';
+      ctx.lineWidth = 2.5;
       for(let i = 0; i < points.length; i++) {
         for(let j = i+1; j < points.length; j++) {
-          if(Math.hypot(points[i].x-points[j].x, points[i].y-points[j].y) < 150 && Math.random() > 0.6) {
+          const dist = Math.hypot(points[i].x-points[j].x, points[i].y-points[j].y);
+          if (dist < 180) {
             ctx.beginPath();
             ctx.moveTo(points[i].x, points[i].y);
             ctx.lineTo(points[j].x, points[j].y);
@@ -380,10 +328,10 @@
         }
       }
     }
-    neuralNet();
-    setInterval(neuralNet, 4000);
+    neuralAnimation();
+    setInterval(neuralAnimation, 3500);
 
-    // Live Clocks
+    // Live World Clocks
     function updateClocks() {
       const now = new Date();
       document.getElementById('time-india').textContent = 
@@ -394,9 +342,9 @@
     updateClocks();
     setInterval(updateClocks, 1000);
 
-    // START
+    // Initialize when everything loads
     window.addEventListener('load', () => {
-      setTimeout(initGlobe, 500);
+      setTimeout(initGlobe, 800);
     });
   </script>
 </body>
