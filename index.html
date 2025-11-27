@@ -116,83 +116,88 @@
       margin: 0;
     }
 
-    /* WORLD CLOCK */
+    /* SINGLE LINE WORLD CLOCK - NO CARDS */
     .world-clock-section {
       max-width: 1400px;
-      margin: 100px auto;
+      margin: 80px auto;
       padding: 0 40px;
       text-align: center;
     }
     
     .clock-header {
-      font-size: 3.5rem;
+      font-size: 3rem;
       background: linear-gradient(135deg, #167690, #128fa7);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      margin-bottom: 60px;
+      margin-bottom: 40px;
       font-weight: 900;
     }
     
-    .clocks-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 40px;
+    .world-clock-widget {
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(40px);
+      padding: 40px 60px;
+      border-radius: 40px;
+      box-shadow: 0 40px 140px rgba(0,0,0,0.25);
+      border: 3px solid rgba(255,255,255,0.95);
       max-width: 1200px;
       margin: 0 auto;
     }
     
-    .clock-card {
-      background: rgba(255,255,255,0.95);
-      backdrop-filter: blur(40px);
-      padding: 50px 40px;
-      border-radius: 40px;
-      box-shadow: 0 40px 140px rgba(0,0,0,0.25);
-      border: 3px solid rgba(255,255,255,0.95);
-      transition: all 0.5s ease;
-      position: relative;
-      overflow: hidden;
+    .clock-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 25px;
+      margin-top: 20px;
     }
     
-    .clock-card:hover {
-      transform: translateY(-15px);
-      box-shadow: 0 60px 200px rgba(22,118,144,0.4);
-    }
-    
-    .clock-flag {
-      font-size: 4rem;
-      margin-bottom: 20px;
-      display: block;
-    }
-    
-    .clock-timezone {
-      font-size: 1.3rem;
-      color: #167690;
+    .clock-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 15px 10px;
+      background: transparent;
+      border-radius: 20px;
+      transition: all 0.3s ease;
       font-weight: 700;
-      margin-bottom: 30px;
+    }
+    
+    .clock-item:hover {
+      background: rgba(255,255,255,0.8);
+      transform: scale(1.05);
+    }
+    
+    .clock-item.live {
+      background: linear-gradient(135deg, #ff6b35, #ff8e53);
+      color: white;
+    }
+    
+    .clock-flag { 
+      font-size: 2.5rem; 
+      margin-bottom: 8px;
+    }
+    
+    .clock-country {
+      font-size: 0.95rem;
+      font-weight: 800;
+      margin-bottom: 5px;
+      text-align: center;
     }
     
     .clock-time {
-      font-size: 4.5rem;
+      font-size: 2rem;
+      font-family: 'Courier New', monospace;
       font-weight: 900;
       color: #1a365d;
-      font-family: 'Courier New', monospace;
-      margin-bottom: 20px;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
     }
     
-    .conference-indicator {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      background: linear-gradient(135deg, #ff6b35, #ff8e53);
-      color: white;
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-size: 0.9rem;
-      font-weight: 700;
+    .clock-item.live .clock-time {
+      color: #ffd700;
+      text-shadow: 0 0 15px rgba(255,215,0,0.8);
     }
 
-    /* CONFERENCE SYNOPSIS */
+    /* SYNOPSIS */
     .synopsis-section {
       max-width: 1200px;
       margin: 120px auto;
@@ -222,7 +227,7 @@
       font-weight: 600;
     }
 
-    /* AGENDA, PARTNERS, BROCHURE - SAME AS BEFORE */
+    /* AGENDA */
     .agenda-section {
       max-width: 1300px;
       margin: 120px auto;
@@ -272,6 +277,7 @@
     
     .time-col { width: 18%; font-family: 'Courier New', monospace; font-size: 1.4rem; color: #ff6b35; }
 
+    /* PARTNERS */
     .partners-section {
       max-width: 1200px;
       margin: 120px auto;
@@ -314,6 +320,7 @@
     .flag-emoji { font-size: 5rem; margin-bottom: 25px; display: block; }
     .flag-name { font-weight: 900; color: #167690; font-size: 1.6rem; }
 
+    /* BROCHURE */
     .brochure-section {
       max-width: 1200px;
       margin: 120px auto 200px;
@@ -370,11 +377,16 @@
     }
 
     @media (max-width: 768px) {
-      .clocks-grid { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; }
-      .clock-time { font-size: 3.5rem; }
+      .clock-grid { 
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 15px;
+      }
+      .clock-time { font-size: 1.6rem; }
+      .clock-flag { font-size: 2rem; }
       .hero-meta { padding: 20px 40px; }
       .synopsis-content { padding: 40px 30px; font-size: 1.1rem; }
       .pdf-preview { height: 500px; }
+      .flags-grid { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 30px; }
     }
   </style>
 </head>
@@ -403,15 +415,17 @@
     </div>
   </section>
 
-  <!-- LIVE WORLD CLOCK -->
+  <!-- SINGLE LINE WORLD CLOCK - NO SEPARATE CARDS -->
   <section class="world-clock-section" id="worldclock">
-    <h2 class="clock-header">🌍 Live World Clock - Conference Time</h2>
-    <div class="clocks-grid" id="clocksGrid">
-      <!-- CLOCKS POPULATED BY JS -->
+    <h2 class="clock-header">🌍 Live World Clock</h2>
+    <div class="world-clock-widget">
+      <div class="clock-grid" id="clockGrid">
+        <!-- POPULATED BY JS - ONE SINGLE GRID -->
+      </div>
     </div>
   </section>
 
-  <!-- CONFERENCE SYNOPSIS -->
+  <!-- SYNOPSIS -->
   <section class="synopsis-section" id="synopsis">
     <h2 class="synopsis-header">Conference Overview</h2>
     <div class="synopsis-content">
@@ -504,7 +518,7 @@
   </section>
 
   <script>
-    // Hero neural network
+    // Hero neural network animation
     const canvas = document.getElementById('heroCanvas');
     const ctx = canvas.getContext('2d');
     
@@ -546,53 +560,50 @@
     fieryNeural();
     setInterval(fieryNeural, 1300);
 
-    // LIVE WORLD CLOCK - ALL COUNTRIES
+    // WORLD CLOCK - SINGLE GRID (NO SEPARATE CARDS)
     const timezones = [
-      { name: 'India (IST)', flag: '🇮🇳', tz: 'Asia/Kolkata', active: true },
-      { name: 'Canada (PST)', flag: '🇨🇦', tz: 'America/Vancouver', active: false },
-      { name: 'Iran (IRST)', flag: '🇮🇷', tz: 'Asia/Tehran', active: false },
-      { name: 'Thailand (UTC)', flag: '🇹🇭', tz: 'Asia/Bangkok', active: false },
-      { name: 'Nigeria (WAT)', flag: '🇳🇬', tz: 'Africa/Lagos', active: false },
-      { name: 'China (CST)', flag: '🇨🇳', tz: 'Asia/Shanghai', active: false },
-      { name: 'South Africa (SAST)', flag: '🇿🇦', tz: 'Africa/Johannesburg', active: false },
-      { name: 'Kenya/Uganda (EAT)', flag: '🇰🇪🇺🇬', tz: 'Africa/Nairobi', active: false },
-      { name: 'Rwanda (CAT)', flag: '🇷🇼', tz: 'Africa/Kigali', active: false }
+      { name: 'India', flag: '🇮🇳', tz: 'Asia/Kolkata', timezone: 'IST' },
+      { name: 'Canada', flag: '🇨🇦', tz: 'America/Vancouver', timezone: 'PST' },
+      { name: 'Iran', flag: '🇮🇷', tz: 'Asia/Tehran', timezone: 'IRST' },
+      { name: 'Thailand', flag: '🇹🇭', tz: 'Asia/Bangkok', timezone: 'ICT' },
+      { name: 'Nigeria', flag: '🇳🇬', tz: 'Africa/Lagos', timezone: 'WAT' },
+      { name: 'China', flag: '🇨🇳', tz: 'Asia/Shanghai', timezone: 'CST' },
+      { name: 'S. Africa', flag: '🇿🇦', tz: 'Africa/Johannesburg', timezone: 'SAST' },
+      { name: 'Kenya/Uganda', flag: '🇰🇪🇺🇬', tz: 'Africa/Nairobi', timezone: 'EAT' },
+      { name: 'Rwanda', flag: '🇷🇼', tz: 'Africa/Kigali', timezone: 'CAT' }
     ];
 
-    function createClocks() {
-      const grid = document.getElementById('clocksGrid');
+    function createWorldClock() {
+      const grid = document.getElementById('clockGrid');
       timezones.forEach((tz, index) => {
-        const card = document.createElement('div');
-        card.className = 'clock-card';
-        card.id = `clock-${index}`;
-        card.innerHTML = `
-          <div class="conference-indicator">${tz.active ? '📅 LIVE' : ''}</div>
-          <span class="clock-flag">${tz.flag}</span>
-          <div class="clock-timezone">${tz.name}</div>
+        const item = document.createElement('div');
+        item.className = `clock-item ${tz.name === 'India' ? 'live' : ''}`;
+        item.innerHTML = `
+          <div class="clock-flag">${tz.flag}</div>
+          <div class="clock-country">${tz.name}</div>
           <div class="clock-time" id="time-${index}">--:--</div>
         `;
-        grid.appendChild(card);
+        grid.appendChild(item);
       });
     }
 
-    function updateWorldClocks() {
+    function updateWorldClock() {
       const now = new Date();
       timezones.forEach((tz, index) => {
         const timeEl = document.getElementById(`time-${index}`);
-        const localTime = now.toLocaleTimeString('en-GB', { 
+        timeEl.textContent = now.toLocaleTimeString('en-GB', { 
           timeZone: tz.tz, 
           hour: '2-digit', 
           minute: '2-digit',
           hour12: false 
         });
-        timeEl.textContent = localTime;
       });
     }
 
-    // Initialize clocks
-    createClocks();
-    updateWorldClocks();
-    setInterval(updateWorldClocks, 1000);
+    // Initialize
+    createWorldClock();
+    updateWorldClock();
+    setInterval(updateWorldClock, 1000);
   </script>
 </body>
 </html>
