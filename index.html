@@ -95,8 +95,36 @@
       margin: 35px auto;
       border-radius: 18px;
       box-shadow: 0 0 30px #97d8fc36;
-      background: #e1f5fa;
+      background: linear-gradient(135deg, #e1f5fa 0%, #b8e6fc 100%);
       position: relative;
+      overflow: hidden;
+    }
+    #globe-container canvas {
+      display: block;
+      width: 100% !important;
+      height: 100% !important;
+    }
+    .globe-loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #666;
+      font-size: 1.2rem;
+      text-align: center;
+      z-index: 10;
+    }
+    .globe-error {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255,255,255,0.95);
+      padding: 20px;
+      border-radius: 10px;
+      color: #d32f2f;
+      text-align: center;
+      z-index: 10;
     }
 
     .clocks { display: flex; justify-content: center; margin-bottom: 18px; }
@@ -141,7 +169,7 @@
     </nav>
   </div>
 
-  <!-- HERO Section - FIXED canvas tag -->
+  <!-- HERO Section -->
   <div class="image-overlay-hero">
     <img src="humanintelligence.png" alt="Human-AI Brain Conference Hero" class="brain-full-img"/>
     <canvas id="neuralCanvas"></canvas>
@@ -152,49 +180,51 @@
     </div>
   </div>
 
-  <!-- Conference Overview and Topics -->
+  <!-- Conference Overview -->
   <section class="conference-overview">
     <h2>Conference Overview</h2>
     <h3>Integrating the Human Factor in the Age of AI</h3>
     <p>
       How do we take back the human mind?<br>
-      This conference explores how higher-order human thinking, critical consciousness, and emotional intelligence can steer the development and deployment of AI. 
-      Rather than allowing technology to dictate the terms of human experience, we emphasize reclaiming our unique faculties—curiosity, transparency, accountability, and relationship-building—as the foundation for trustworthy, reliable AI systems.
+      This conference explores how higher-order human thinking, critical consciousness, and emotional intelligence can steer AI development. 
+      We emphasize reclaiming curiosity, transparency, accountability, and relationship-building as foundations for trustworthy AI.
     </p>
 
     <h3 style="font-size:1.18rem; color:#167690; margin-top:28px; margin-bottom:12px;">Topic Breakdown</h3>
     <ul style="font-size:1.07rem;">
-      <li><b>Emotional Intelligence in Technology Leadership</b>: The role of empathy, self-awareness, and social skills in building trustworthy AI and digital platforms. How emotional intelligence in leadership helps ensure technology aligns with real human needs.</li>
-      <li><b>Truth, Transparency, and Accountability: Pillars of Reliable AI</b>: Building AI systems that are explainable and auditable. Human-driven oversight to reinforce truthfulness and prevent bias or misuse.</li>
-      <li><b>Critical Thinking & Higher-Order Consciousness</b>: Strategies to foster curiosity, creativity, and independent analysis instead of offloading judgment to machines. How education and personal development cultivate higher-order beings who guide technology for society’s good.</li>
-      <li><b>Relationship-Centered AI</b>: Ways technology can strengthen (not weaken) trust and relationships. Setting boundaries for AI in personal, professional, and societal spheres.</li>
-      <li><b>Human Oversight: Defining AI Quality</b>: Human values and conscious decisions as the final arbiters of AI quality and impact. Collaborative models where AI augments but does not replace human expertise.</li>
-      <li><b>Building Trustworthy AI for Global Good</b>: International perspectives on ethical AI; case studies of human-centered AI in action across cultures and industries.</li>
+      <li><b>Emotional Intelligence in Technology Leadership</b>: Empathy and social skills ensuring technology aligns with human needs.</li>
+      <li><b>Truth, Transparency, and Accountability</b>: Human oversight preventing bias and ensuring explainable AI.</li>
+      <li><b>Critical Thinking & Higher-Order Consciousness</b>: Fostering curiosity and creativity over machine dependency.</li>
+      <li><b>Relationship-Centered AI</b>: Technology strengthening human trust and connections.</li>
+      <li><b>Human Oversight: Defining AI Quality</b>: Human values as final arbiters of AI impact.</li>
+      <li><b>Building Trustworthy AI for Global Good</b>: International case studies of ethical AI deployment.</li>
     </ul>
     <blockquote>
-      <b>Key Message:</b> AI feeds information and amplifies capabilities, but it is human sensitivity, higher order thinking, and ethical grounding that must always lead the way.<br>
-      Our opportunity is to ensure technology strengthens humanity and fosters a more truthful, transparent, and relational future.
+      <b>Key Message:</b> AI amplifies capabilities, but human sensitivity and ethical grounding must lead the way.
     </blockquote>
   </section>
 
-  <!-- Globe Section - FIXED: Changed section to div -->
-  <div id="globe-container"></div>
+  <!-- FIXED Globe Section -->
+  <div id="globe-container">
+    <div class="globe-loading">Loading 3D Globe...</div>
+  </div>
 
   <div class="clocks">
     <div class="clock">
       <div class="clock-title">Chennai</div>
-      <div id="time-india" class="clock-time"></div>
+      <div id="time-india" class="clock-time">--:--</div>
     </div>
     <div class="clock">
       <div class="clock-title">Canada</div>
-      <div id="time-canada" class="clock-time"></div>
+      <div id="time-canada" class="clock-time">--:--</div>
     </div>
   </div>
   <div class="weather-bar">
-    <div class="weather-card" id="weather-india"></div>
-    <div class="weather-card" id="weather-canada"></div>
+    <div class="weather-card" id="weather-india">Chennai<br>Loading...</div>
+    <div class="weather-card" id="weather-canada">Canada<br>Loading...</div>
   </div>
 
+  <!-- Rest of sections remain the same -->
   <section class="agenda" id="agenda">
     <h2>Conference Agenda Snapshot</h2>
     <table class="agenda-table">
@@ -241,121 +271,165 @@
     <a class="download-btn" href="GLOB-SMC-Leadership-Conference-2025_Brochure_Final5.pdf" download>
       Download Conference Brochure
     </a>
-    <embed src="GLOB-SMC-Leadership-Conference-2025_Brochure_Final5.pdf" width="320" height="250" type="application/pdf"/>
   </section>
 
   <section class="contact" id="contact">
     <h2>Contact & Live Updates</h2>
-    <p>For conference help, registration queries, or speaker information:<br>
-      <a href="mailto:info@stellamaris-twu-conference.org">info@stellamaris-twu-conference.org</a>
-    </p>
-    <p>Live weather and time for Chennai & Canada always visible above.<br>
-      Feedback and registration forms available soon!</p>
+    <p>For conference help or registration: <a href="mailto:info@stellamaris-twu-conference.org">info@stellamaris-twu-conference.org</a></p>
   </section>
 
-  <script src="https://unpkg.com/three@0.152.2/build/three.min.js"></script>
-  <script src="https://unpkg.com/globe.gl@2.30.2"></script>
+  <!-- UPDATED CDN versions - more reliable -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://unpkg.com/globe.gl"></script>
   <script>
-    // Wait for DOM to load
-    window.addEventListener('load', function() {
+    // Enhanced globe initialization with fallback
+    function initGlobe() {
+      const globeContainer = document.getElementById('globe-container');
+      const loadingEl = globeContainer.querySelector('.globe-loading');
       
-      // Neural Network Overlay - FIXED null check
-      const neuralCanvas = document.getElementById('neuralCanvas');
-      if (neuralCanvas) {
-        const nctx = neuralCanvas.getContext('2d');
-        neuralCanvas.width = window.innerWidth;
-        neuralCanvas.height = 380;
+      // Clear any previous content
+      globeContainer.innerHTML = '<div class="globe-loading">Initializing 3D Globe...</div>';
+      
+      // Check if Globe is available
+      if (typeof Globe === 'undefined') {
+        globeContainer.innerHTML = `
+          <div class="globe-error">
+            <p>Globe library failed to load</p>
+            <p>Check internet connection and refresh page</p>
+          </div>`;
+        console.error('Globe.gl not loaded');
+        return;
+      }
+
+      try {
+        // Create globe with reliable settings
+        const globe = Globe()
+          (globeContainer)
+          .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
+          .bumpImageUrl('https://unpkg.com/three-globe/example/img/earth-topology.png')
+          .showAtmosphere(true)
+          .atmosphereColor('lightblue')
+          .atmosphereAltitude(0.2)
+          .pointOfView({ lat: 22, lng: 79, altitude: 1.6 })
+          .pointsData([
+            { lat: 13.08, lng: 80.27, size: 0.05, color: '#fbbf24' },
+            { lat: 49.28, lng: -123.12, size: 0.05, color: '#38bdf8' }
+          ])
+          .pointAltitude('size')
+          .pointColor('color');
+
+        // Hide loading
+        loadingEl.style.display = 'none';
+        console.log('Globe initialized successfully');
         
-        function drawNeuralNetwork() {
-          nctx.clearRect(0, 0, neuralCanvas.width, neuralCanvas.height);
-          const points = [];
-          for(let i = 0; i < 14; i++) {
-            const px = Math.random() * neuralCanvas.width * 0.72 + neuralCanvas.width * 0.12;
-            const py = Math.random() * neuralCanvas.height * 0.7 + neuralCanvas.height * 0.15;
-            points.push({x: px, y: py});
-          }
-          for(const pt of points) {
-            nctx.beginPath();
-            nctx.arc(pt.x, pt.y, 19, 0, 2 * Math.PI);
-            nctx.fillStyle = "rgba(80,220,220,0.32)";
-            nctx.shadowColor = "#f4e285";
-            nctx.shadowBlur = 20;
-            nctx.fill();
-            nctx.closePath();
-          }
-          nctx.shadowBlur = 0;
-          nctx.lineWidth = 4;
-          nctx.strokeStyle = "#39d1c4";
-          for(let i = 0; i < points.length; i++) {
-            for(let j = i + 1; j < points.length; j++) {
-              if(Math.random() > 0.8) continue;
-              nctx.beginPath();
-              nctx.moveTo(points[i].x, points[i].y);
-              nctx.lineTo(points[j].x, points[j].y);
-              nctx.stroke();
-              nctx.closePath();
+      } catch (error) {
+        globeContainer.innerHTML = `
+          <div class="globe-error">
+            <p>Globe render error: ${error.message}</p>
+            <p>Try refreshing the page</p>
+          </div>`;
+        console.error('Globe error:', error);
+      }
+    }
+
+    // Initialize everything when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initPage);
+    } else {
+      initPage();
+    }
+
+    function initPage() {
+      initNeuralNetwork();
+      initClocks();
+      initWeather();
+      // Delay globe init to ensure libraries load
+      setTimeout(initGlobe, 500);
+    }
+
+    function initNeuralNetwork() {
+      const canvas = document.getElementById('neuralCanvas');
+      if (!canvas) return;
+      
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = 380;
+      
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const points = [];
+        for(let i = 0; i < 14; i++) {
+          points.push({
+            x: Math.random() * canvas.width * 0.72 + canvas.width * 0.12,
+            y: Math.random() * canvas.height * 0.7 + canvas.height * 0.15
+          });
+        }
+        
+        // Draw nodes
+        ctx.shadowBlur = 20;
+        ctx.shadowColor = "#f4e285";
+        points.forEach(pt => {
+          ctx.beginPath();
+          ctx.arc(pt.x, pt.y, 19, 0, Math.PI * 2);
+          ctx.fillStyle = "rgba(80,220,220,0.32)";
+          ctx.fill();
+        });
+        
+        // Draw connections
+        ctx.shadowBlur = 0;
+        ctx.strokeStyle = "#39d1c4";
+        ctx.lineWidth = 2;
+        for(let i = 0; i < points.length; i++) {
+          for(let j = i + 1; j < points.length; j++) {
+            if(Math.random() > 0.75) {
+              ctx.beginPath();
+              ctx.moveTo(points[i].x, points[i].y);
+              ctx.lineTo(points[j].x, points[j].y);
+              ctx.stroke();
             }
           }
         }
-        drawNeuralNetwork();
       }
+      draw();
+    }
 
-      // Clocks
+    function initClocks() {
       function updateClocks() {
-        const indiaTime = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
-        const canadaTime = new Date(new Date().toLocaleString("en-US", {timeZone: "America/Vancouver"}));
-        document.getElementById('time-india').innerText = indiaTime.toLocaleTimeString('en-IN', {hour: '2-digit', minute:'2-digit'});
-        document.getElementById('time-canada').innerText = canadaTime.toLocaleTimeString('en-CA', {hour: '2-digit', minute:'2-digit'});
+        const now = new Date();
+        const indiaTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
+        const canadaTime = new Date(now.toLocaleString("en-US", {timeZone: "America/Vancouver"}));
+        document.getElementById('time-india').textContent = 
+          indiaTime.toLocaleTimeString('en-IN', {hour: '2-digit', minute: '2-digit'});
+        document.getElementById('time-canada').textContent = 
+          canadaTime.toLocaleTimeString('en-CA', {hour: '2-digit', minute: '2-digit'});
       }
-      setInterval(updateClocks, 1000);
       updateClocks();
+      setInterval(updateClocks, 1000);
+    }
 
-      // Weather
-      async function fetchWeather(city, elId) {
+    async function initWeather() {
+      const cities = {
+        chennai: { lat: 13.0827, lng: 80.2707, name: 'Chennai' },
+        vancouver: { lat: 49.2827, lng: -123.1207, name: 'Vancouver' }
+      };
+      
+      for (const [city, coords] of Object.entries(cities)) {
         try {
-          let geo = {chennai: [13.0827, 80.2707], vancouver: [49.2827, -123.1207]};
-          let [lat, lon] = geo[city];
-          let resp = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
-          let data = await resp.json();
-          let weather = data.current_weather;
-          document.getElementById(elId).innerHTML = `${city.charAt(0).toUpperCase()+city.slice(1)}<br>
-            <b>${weather.temperature}°C</b> <br>
-            <img src="https://cdn-icons-png.flaticon.com/128/1163/1163661.png" alt="Weather" width="36"/>`;
-        } catch(e) {
-          console.error('Weather fetch failed:', e);
+          const response = await fetch(
+            `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lng}&current_weather=true`
+          );
+          const data = await response.json();
+          const weather = data.current_weather;
+          document.getElementById(`weather-${city}`).innerHTML = `
+            ${coords.name}<br>
+            <b>${weather.temperature}°C</b><br>
+            <img src="https://cdn-icons-png.flaticon.com/128/1163/1163661.png" width="36" alt="Weather">
+          `;
+        } catch (e) {
+          document.getElementById(`weather-${city}`).textContent = `${coords.name}\nWeather unavailable`;
         }
       }
-      fetchWeather('chennai', 'weather-india');
-      fetchWeather('vancouver', 'weather-canada');
-
-      // 3D Globe - FIXED globe URL and error handling
-      const globeElem = document.getElementById('globe-container');
-      if (globeElem && typeof Globe !== 'undefined') {
-        const myGlobe = Globe()
-          .globeImageUrl('https://unpkg.com/globe.gl/example/img/earth-blue-marble.jpg')
-          .width(700)
-          .height(410)
-          .showAtmosphere(true)
-          .atmosphereColor("#489dcc")
-          .atmosphereAltitude(0.28)
-          (globeElem);
-
-        myGlobe.pointOfView({ lat: 22, lng: 79, altitude: 1.65 });
-
-        myGlobe
-          .markersData([
-            { lat: 13.08, lng: 80.27, size: 0.18, color: '#fbbf24', label: 'Stella Amaris, Chennai (India)' },
-            { lat: 49.28, lng: -123.12, size: 0.18, color: '#38bdf8', label: 'Trinity Western University (Canada)' }
-          ])
-          .markerLabel('label')
-          .markerColor('color')
-          .markerAltitude(0.037)
-          .markerRadius('size');
-      } else {
-        globeElem.innerHTML = '<p style="text-align:center;padding:100px;color:#666;">Loading 3D Globe...</p>';
-      }
-
-    });
+    }
   </script>
 </body>
 </html>
