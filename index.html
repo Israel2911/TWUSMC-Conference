@@ -116,91 +116,92 @@
       margin: 0;
     }
 
-    /* SINGLE LINE WORLD CLOCK - NO CARDS */
+    /* ULTRA-COMPACT VERTICAL STACKED CLOCK */
     .world-clock-section {
-      max-width: 1400px;
-      margin: 80px auto;
-      padding: 0 40px;
+      max-width: 500px;
+      margin: 60px auto;
+      padding: 0 20px;
       text-align: center;
     }
     
     .clock-header {
-      font-size: 3rem;
+      font-size: 2.2rem;
       background: linear-gradient(135deg, #167690, #128fa7);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      margin-bottom: 40px;
+      margin-bottom: 30px;
       font-weight: 900;
     }
     
     .world-clock-widget {
       background: rgba(255,255,255,0.95);
       backdrop-filter: blur(40px);
-      padding: 40px 60px;
-      border-radius: 40px;
-      box-shadow: 0 40px 140px rgba(0,0,0,0.25);
-      border: 3px solid rgba(255,255,255,0.95);
-      max-width: 1200px;
+      padding: 30px 25px;
+      border-radius: 30px;
+      box-shadow: 0 30px 100px rgba(0,0,0,0.2);
+      border: 2px solid rgba(255,255,255,0.95);
+      max-width: 450px;
       margin: 0 auto;
     }
     
-    .clock-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 25px;
-      margin-top: 20px;
+    .clock-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
     }
     
     .clock-item {
       display: flex;
-      flex-direction: column;
       align-items: center;
-      padding: 15px 10px;
+      padding: 8px 12px;
       background: transparent;
-      border-radius: 20px;
+      border-radius: 15px;
       transition: all 0.3s ease;
       font-weight: 700;
+      font-size: 0.95rem;
     }
     
     .clock-item:hover {
-      background: rgba(255,255,255,0.8);
-      transform: scale(1.05);
+      background: rgba(255,255,255,0.6);
+      transform: scale(1.02);
     }
     
     .clock-item.live {
       background: linear-gradient(135deg, #ff6b35, #ff8e53);
       color: white;
+      box-shadow: 0 5px 20px rgba(255,107,53,0.4);
     }
     
     .clock-flag { 
-      font-size: 2.5rem; 
-      margin-bottom: 8px;
+      font-size: 1.6rem; 
+      margin-right: 10px;
+      flex-shrink: 0;
     }
     
-    .clock-country {
-      font-size: 0.95rem;
-      font-weight: 800;
-      margin-bottom: 5px;
-      text-align: center;
+    .clock-timezone {
+      flex: 1;
+      font-size: 0.9rem;
+      font-weight: 600;
     }
     
     .clock-time {
-      font-size: 2rem;
+      font-size: 1.4rem;
       font-family: 'Courier New', monospace;
       font-weight: 900;
       color: #1a365d;
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+      min-width: 60px;
+      text-align: right;
     }
     
     .clock-item.live .clock-time {
       color: #ffd700;
-      text-shadow: 0 0 15px rgba(255,215,0,0.8);
+      text-shadow: 0 0 10px rgba(255,215,0,0.8);
     }
 
     /* SYNOPSIS */
     .synopsis-section {
       max-width: 1200px;
-      margin: 120px auto;
+      margin: 100px auto;
       padding: 0 40px;
       text-align: center;
     }
@@ -377,12 +378,11 @@
     }
 
     @media (max-width: 768px) {
-      .clock-grid { 
-        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-        gap: 15px;
-      }
-      .clock-time { font-size: 1.6rem; }
-      .clock-flag { font-size: 2rem; }
+      .world-clock-section { margin: 40px auto; padding: 0 15px; }
+      .world-clock-widget { padding: 20px 15px; }
+      .clock-item { padding: 6px 8px; font-size: 0.85rem; }
+      .clock-flag { font-size: 1.4rem; }
+      .clock-time { font-size: 1.2rem; }
       .hero-meta { padding: 20px 40px; }
       .synopsis-content { padding: 40px 30px; font-size: 1.1rem; }
       .pdf-preview { height: 500px; }
@@ -415,21 +415,21 @@
     </div>
   </section>
 
-  <!-- SINGLE LINE WORLD CLOCK - NO SEPARATE CARDS -->
+  <!-- ULTRA-COMPACT VERTICAL WORLD CLOCK -->
   <section class="world-clock-section" id="worldclock">
     <h2 class="clock-header">🌍 Live World Clock</h2>
     <div class="world-clock-widget">
-      <div class="clock-grid" id="clockGrid">
-        <!-- POPULATED BY JS - ONE SINGLE GRID -->
+      <div class="clock-stack" id="clockStack">
+        <!-- VERTICALLY STACKED - POPULATED BY JS -->
       </div>
     </div>
   </section>
 
-  <!-- SYNOPSIS -->
+  <!-- SYNOPSIS - UPDATED WITH MORAL REASONING -->
   <section class="synopsis-section" id="synopsis">
     <h2 class="synopsis-header">Conference Overview</h2>
     <div class="synopsis-content">
-      The 11th Annual Leadership Conference brings together global thought leaders to explore the critical intersection of human intelligence and artificial intelligence in the modern era. This landmark event focuses on "Fifth Intelligence" - the synergistic integration of human creativity, emotional intelligence, and ethical judgment with AI's computational power and pattern recognition.
+      The 11th Annual Leadership Conference brings together global thought leaders to explore the critical intersection of human intelligence and artificial intelligence in the modern era. This landmark event focuses on "Fifth Intelligence" - the synergistic integration of human creativity, emotional intelligence, <strong>moral reasoning</strong>, and ethical judgment with AI's computational power and pattern recognition.
       
       Featuring keynote presentations, interactive workshops, and international industry panels, the conference addresses how leaders can harness AI as a force multiplier while preserving the uniquely human elements that drive innovation, trust, and meaningful progress. Participants will gain practical frameworks for AI-human collaboration across industries, cultures, and generations.
       
@@ -560,34 +560,34 @@
     fieryNeural();
     setInterval(fieryNeural, 1300);
 
-    // WORLD CLOCK - SINGLE GRID (NO SEPARATE CARDS)
+    // ULTRA-COMPACT VERTICAL CLOCK STACK
     const timezones = [
-      { name: 'India', flag: '🇮🇳', tz: 'Asia/Kolkata', timezone: 'IST' },
-      { name: 'Canada', flag: '🇨🇦', tz: 'America/Vancouver', timezone: 'PST' },
-      { name: 'Iran', flag: '🇮🇷', tz: 'Asia/Tehran', timezone: 'IRST' },
-      { name: 'Thailand', flag: '🇹🇭', tz: 'Asia/Bangkok', timezone: 'ICT' },
-      { name: 'Nigeria', flag: '🇳🇬', tz: 'Africa/Lagos', timezone: 'WAT' },
-      { name: 'China', flag: '🇨🇳', tz: 'Asia/Shanghai', timezone: 'CST' },
-      { name: 'S. Africa', flag: '🇿🇦', tz: 'Africa/Johannesburg', timezone: 'SAST' },
-      { name: 'Kenya/Uganda', flag: '🇰🇪🇺🇬', tz: 'Africa/Nairobi', timezone: 'EAT' },
-      { name: 'Rwanda', flag: '🇷🇼', tz: 'Africa/Kigali', timezone: 'CAT' }
+      { name: 'India IST', flag: '🇮🇳', tz: 'Asia/Kolkata' },
+      { name: 'Canada PST', flag: '🇨🇦', tz: 'America/Vancouver' },
+      { name: 'Iran IRST', flag: '🇮🇷', tz: 'Asia/Tehran' },
+      { name: 'Thailand ICT', flag: '🇹🇭', tz: 'Asia/Bangkok' },
+      { name: 'Nigeria WAT', flag: '🇳🇬', tz: 'Africa/Lagos' },
+      { name: 'China CST', flag: '🇨🇳', tz: 'Asia/Shanghai' },
+      { name: 'S.Africa SAST', flag: '🇿🇦', tz: 'Africa/Johannesburg' },
+      { name: 'Kenya EAT', flag: '🇰🇪', tz: 'Africa/Nairobi' },
+      { name: 'Rwanda CAT', flag: '🇷🇼', tz: 'Africa/Kigali' }
     ];
 
-    function createWorldClock() {
-      const grid = document.getElementById('clockGrid');
+    function createVerticalClock() {
+      const stack = document.getElementById('clockStack');
       timezones.forEach((tz, index) => {
         const item = document.createElement('div');
-        item.className = `clock-item ${tz.name === 'India' ? 'live' : ''}`;
+        item.className = `clock-item ${tz.name.includes('India') ? 'live' : ''}`;
         item.innerHTML = `
-          <div class="clock-flag">${tz.flag}</div>
-          <div class="clock-country">${tz.name}</div>
-          <div class="clock-time" id="time-${index}">--:--</div>
+          <span class="clock-flag">${tz.flag}</span>
+          <span class="clock-timezone">${tz.name}</span>
+          <span class="clock-time" id="time-${index}">--:--</span>
         `;
-        grid.appendChild(item);
+        stack.appendChild(item);
       });
     }
 
-    function updateWorldClock() {
+    function updateVerticalClock() {
       const now = new Date();
       timezones.forEach((tz, index) => {
         const timeEl = document.getElementById(`time-${index}`);
@@ -601,9 +601,9 @@
     }
 
     // Initialize
-    createWorldClock();
-    updateWorldClock();
-    setInterval(updateWorldClock, 1000);
+    createVerticalClock();
+    updateVerticalClock();
+    setInterval(updateVerticalClock, 1000);
   </script>
 </body>
 </html>
