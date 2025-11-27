@@ -44,83 +44,88 @@
     }
     .nav a:hover { color: #128fa7; }
 
+    /* HERO WITH ORIGINAL IMAGE */
     .hero {
       position: relative;
-      height: 400px;
-      margin-bottom: 40px;
+      height: 420px;
+      margin-bottom: 20px;
       overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
-    .hero-bg {
+    .hero img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: brightness(0.9) contrast(1.1);
       position: absolute;
       top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
-      opacity: 0.1;
     }
     #neuralCanvas {
       position: absolute;
       top: 0; left: 0;
       width: 100%; height: 100%;
       pointer-events: none;
+      z-index: 2;
     }
     .hero-content {
+      position: absolute;
+      top: 50px;
+      left: 50%;
+      transform: translateX(-50%);
       text-align: center;
       color: white;
-      z-index: 2;
-      max-width: 800px;
+      z-index: 3;
+      max-width: 900px;
       padding: 0 20px;
     }
     .hero h1 { 
-      font-size: 3rem; 
+      font-size: 2.8rem; 
       font-weight: 700; 
       margin: 0 0 10px 0;
-      text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+      text-shadow: 0 4px 20px rgba(0,0,0,0.7);
     }
     .hero h2 { 
       font-size: 1.4rem; 
       margin: 0 0 15px 0;
       opacity: 0.95;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.5);
     }
     .hero p { 
       font-size: 1.2rem; 
       margin: 0;
       font-weight: 500;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.5);
     }
 
     .section {
       max-width: 900px;
-      margin: 50px auto;
+      margin: 40px auto;
       padding: 0 20px;
     }
     .section h2 {
-      font-size: 2.5rem;
+      font-size: 2.3rem;
       color: #167690;
       text-align: center;
-      margin-bottom: 30px;
+      margin-bottom: 25px;
     }
 
-    /* GLOBE - BULLETPROOF INLINE SVG */
+    /* 3D GLOBE BACK - WORKING VERSION */
     .globe-section {
       text-align: center;
-      background: rgba(255,255,255,0.8);
+      background: rgba(255,255,255,0.9);
       border-radius: 25px;
       padding: 40px 20px;
-      margin: 40px auto;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-      max-width: 700px;
+      margin: 30px auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+      max-width: 750px;
     }
-    .globe-svg {
-      width: 100%;
-      height: 350px;
-      max-width: 600px;
-      animation: globeRotate 20s linear infinite;
-    }
-    @keyframes globeRotate {
-      from { transform: rotateY(0deg); }
-      to { transform: rotateY(360deg); }
+    
+    #globeViz {
+      width: 650px !important;
+      height: 380px !important;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(22,118,144,0.3);
+      margin: 0 auto;
+      background: radial-gradient(circle, #e3f2fd 0%, #bbdefb 70%, #90caf9 100%);
     }
 
     .time-weather {
@@ -130,100 +135,102 @@
       margin: 40px 0;
     }
     .time-card, .weather-card {
-      background: rgba(255,255,255,0.9);
+      background: rgba(255,255,255,0.95);
       backdrop-filter: blur(15px);
       border-radius: 20px;
-      padding: 30px 20px;
+      padding: 30px 25px;
       text-align: center;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-      border: 1px solid rgba(255,255,255,0.5);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+      border: 1px solid rgba(255,255,255,0.6);
+      transition: transform 0.3s;
     }
+    .time-card:hover, .weather-card:hover { transform: translateY(-5px); }
     .time-card h3, .weather-card h3 {
-      margin: 0 0 15px 0;
+      margin: 0 0 20px 0;
       color: #167690;
-      font-size: 1.1rem;
-      font-weight: 600;
+      font-size: 1.2rem;
+      font-weight: 700;
     }
     .time-display {
-      font-size: 3rem;
-      font-weight: 700;
+      font-size: 3.2rem;
+      font-weight: 800;
       color: #1a365d;
       font-family: 'Courier New', monospace;
-      margin: 10px 0;
-    }
-    .weather-temp {
-      font-size: 2.5rem;
-      font-weight: 700;
-      color: #ff6b35;
-    }
-    .weather-icon {
-      width: 50px;
-      height: 50px;
-      margin: 10px auto;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
 
     .agenda {
-      background: rgba(255,255,255,0.9);
-      border-radius: 20px;
-      padding: 40px;
+      background: rgba(255,255,255,0.95);
+      border-radius: 25px;
+      padding: 45px;
       margin: 40px auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.1);
     }
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 20px;
+      margin-top: 25px;
+      font-size: 1.1rem;
     }
     th, td {
-      padding: 15px;
+      padding: 18px 20px;
       text-align: left;
-      border-bottom: 1px solid #e1e8ed;
+      border-bottom: 2px solid #e8f4fd;
     }
     th {
-      background: linear-gradient(90deg, #e3f2fd, #bbdefb);
-      font-weight: 600;
+      background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+      font-weight: 700;
       color: #1565c0;
+      border-radius: 12px 12px 0 0;
     }
+    tr:hover { background: #f8fbff; }
 
     .flags {
       display: flex;
       justify-content: center;
-      gap: 15px;
+      gap: 20px;
       flex-wrap: wrap;
       margin-top: 30px;
     }
     .flag {
-      width: 60px;
-      height: 40px;
-      border-radius: 10px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-      transition: transform 0.3s;
+      width: 70px;
+      height: 45px;
+      border-radius: 15px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+      transition: all 0.4s cubic-bezier(0.25,0.46,0.45,0.94);
+      border: 3px solid rgba(255,255,255,0.8);
     }
-    .flag:hover { transform: scale(1.1) rotate(5deg); }
+    .flag:hover { 
+      transform: translateY(-8px) scale(1.05) rotate(2deg); 
+      box-shadow: 0 15px 40px rgba(22,118,144,0.4);
+    }
 
     .download-btn {
-      display: inline-block;
-      padding: 18px 40px;
+      display: block;
+      width: 280px;
+      margin: 30px auto 0;
+      padding: 20px 40px;
       background: linear-gradient(135deg, #167690, #128fa7);
       color: white;
       text-decoration: none;
       border-radius: 50px;
-      font-weight: 700;
-      font-size: 1.2rem;
-      box-shadow: 0 10px 30px rgba(22,118,144,0.4);
-      transition: all 0.3s;
-      margin: 20px auto;
+      font-weight: 800;
+      font-size: 1.25rem;
+      box-shadow: 0 15px 45px rgba(22,118,144,0.4);
       text-align: center;
+      transition: all 0.4s cubic-bezier(0.25,0.46,0.45,0.94);
     }
     .download-btn:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 15px 40px rgba(22,118,144,0.5);
+      transform: translateY(-6px);
+      box-shadow: 0 25px 60px rgba(22,118,144,0.6);
     }
 
     @media (max-width: 768px) {
       .time-weather { grid-template-columns: 1fr; gap: 20px; }
-      .hero h1 { font-size: 2.2rem; }
-      .nav { gap: 15px; }
-      .header { padding: 15px 20px; flex-wrap: wrap; gap: 20px; }
+      .hero h1 { font-size: 2rem; }
+      .header { padding: 15px 20px; flex-direction: column; gap: 15px; }
+      .nav { gap: 20px; font-size: 0.95rem; }
+      #globeViz { width: 100% !important; height: 300px !important; }
     }
   </style>
 </head>
@@ -232,161 +239,139 @@
     <div class="logo">Stella Amaris × TWU</div>
     <nav class="nav">
       <a href="#agenda">Agenda</a>
+      <a href="#globe">Globe</a>
       <a href="#countries">Partners</a>
       <a href="#brochure">Brochure</a>
-      <a href="#contact">Contact</a>
     </nav>
   </header>
 
+  <!-- ORIGINAL IMAGE BACK -->
   <section class="hero">
-    <div class="hero-bg"></div>
+    <img src="humanintelligence.png" alt="Human-AI Conference Hero" />
     <canvas id="neuralCanvas"></canvas>
     <div class="hero-content">
       <h1>11th Annual Leadership Conference</h1>
-      <h2>Human Factor in the Age of AI</h2>
+      <h2>Integrating Human Factor in AI Age</h2>
       <p><strong>January 19, 2026</strong> • Stella Amaris × Trinity Western University</p>
     </div>
   </section>
 
   <section class="section">
-    <h2>Human-AI Integration</h2>
-    <p style="text-align: center; font-size: 1.3rem; color: #4a5568; max-width: 700px; margin: 0 auto 40px;">
-      Preserving consciousness, critical thinking, and emotional intelligence as AI evolves.
+    <h2>Human Consciousness + AI</h2>
+    <p style="text-align: center; font-size: 1.25rem; color: #4a5568; max-width: 750px; margin: 0 auto 40px auto;">
+      Preserving critical thinking, emotional intelligence, and human oversight as AI transforms leadership.
     </p>
   </section>
 
-  <!-- BULLETPROOF ANIMATED GLOBE SVG -->
-  <section class="globe-section">
-    <h2 style="margin-top: 0;">🌍 Global Conference</h2>
-    <svg class="globe-svg" viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg">
-      <!-- Earth -->
-      <defs>
-        <radialGradient id="earthGrad" cx="50%" cy="50%">
-          <stop offset="0%" stop-color="#4a90e2"/>
-          <stop offset="50%" stop-color="#7bb3e8"/>
-          <stop offset="100%" stop-color="#2e5b9f"/>
-        </radialGradient>
-        <radialGradient id="atmosphere" cx="50%" cy="50%">
-          <stop offset="0%" stop-color="#a8e6ff" stop-opacity="0.6"/>
-          <stop offset="70%" stop-color="#b3d9ff" stop-opacity="0.3"/>
-          <stop offset="100%" stop-color="#e6f3ff" stop-opacity="0"/>
-        </radialGradient>
-      </defs>
-      <!-- Atmosphere glow -->
-      <circle cx="200" cy="125" r="118" fill="url(#atmosphere)" filter="url(#glow)"/>
-      <!-- Earth globe -->
-      <circle cx="200" cy="125" r="110" fill="url(#earthGrad)" stroke="#1e4d8c" stroke-width="3"/>
-      <!-- Continents (simplified) -->
-      <path d="M170 90 Q180 70 200 85 Q220 70 230 90 Q220 110 200 105 Q180 110 170 90" fill="#2d5016" stroke="#1a3a0f" stroke-width="1.5"/>
-      <path d="M280 120 Q300 100 310 130 Q290 150 270 135" fill="#2d5016" stroke="#1a3a0f" stroke-width="1.5"/>
-      <!-- Chennai marker -->
-      <circle cx="195" cy="140" r="8" fill="#ff6b35" stroke="white" stroke-width="2">
-        <animate attributeName="r" values="8;10;8" dur="2s" repeatCount="indefinite"/>
-      </circle>
-      <!-- Vancouver marker -->
-      <circle cx="170" cy="85" r="8" fill="#4ecdc4" stroke="white" stroke-width="2">
-        <animate attributeName="r" values="8;10;8" dur="2s" repeatCount="indefinite" begin="0.5s"/>
-      </circle>
-      <text x="195" y="148" text-anchor="middle" fill="white" font-size="10" font-weight="bold">IN</text>
-      <text x="170" y="93" text-anchor="middle" fill="white" font-size="10" font-weight="bold">CA</text>
-      <!-- Glow filter -->
-      <defs>
-        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-          <feMerge> 
-            <feMergeNode in="coloredBlur"/>
-            <feMergeNode in="SourceGraphic"/>
-          </feMerge>
-        </filter>
-      </defs>
-    </svg>
-    <p style="margin-top: 20px; color: #666; font-size: 1.1rem;">
-      Stella Amaris, India • Trinity Western University, Canada
+  <!-- 3D GLOBE RESTORED -->
+  <section class="globe-section" id="globe">
+    <h2>🌍 Global Collaboration</h2>
+    <div id="globeViz">Loading 3D Globe...</div>
+    <p style="margin-top: 25px; color: #666; font-size: 1.15rem;">
+      <strong>Chennai, India</strong> • <strong>Vancouver, Canada</strong>
     </p>
   </section>
 
   <div class="time-weather">
     <div class="time-card">
-      <h3>Chennai, India</h3>
+      <h3>🇮🇳 Chennai, India</h3>
       <div id="time-india" class="time-display">--:--</div>
     </div>
     <div class="time-card">
-      <h3>Vancouver, Canada</h3>
+      <h3>🇨🇦 Vancouver, Canada</h3>
       <div id="time-canada" class="time-display">--:--</div>
     </div>
   </div>
 
   <section class="agenda" id="agenda">
-    <h2>Conference Schedule</h2>
+    <h2>Conference Agenda</h2>
     <table>
       <tr><th>Time</th><th>Session</th></tr>
-      <tr><td>10:00 AM</td><td>Opening Keynote</td></tr>
-      <tr><td>11:00 AM</td><td>AI + Human Workshop</td></tr>
+      <tr><td>10:00 AM</td><td>Opening & Keynote: "Fifth Intelligence"</td></tr>
+      <tr><td>11:15 AM</td><td>AI + Human Integration Workshop</td></tr>
       <tr><td>12:00 PM</td><td>Networking Lunch</td></tr>
-      <tr><td>2:00 PM</td><td>Global Panel</td></tr>
-      <tr><td>3:30 PM</td><td>Closing + Book Signing</td></tr>
+      <tr><td>02:00 PM</td><td>Global Industry Panel</td></tr>
+      <tr><td>03:30 PM</td><td>Book Signing & Closing</td></tr>
     </table>
   </section>
 
   <section class="section" id="countries">
-    <h2>Global Partners</h2>
+    <h2>International Partners</h2>
     <div class="flags">
-      <img src="https://flagcdn.com/w40/in.png" alt="India" class="flag" loading="lazy">
-      <img src="https://flagcdn.com/w40/ca.png" alt="Canada" class="flag" loading="lazy">
-      <img src="https://flagcdn.com/w40/th.png" alt="Thailand" class="flag" loading="lazy">
+      <img src="https://flagcdn.com/w80/in.png" alt="India" class="flag" loading="lazy">
+      <img src="https://flagcdn.com/w80/ca.png" alt="Canada" class="flag" loading="lazy">
+      <img src="https://flagcdn.com/w80/th.png" alt="Thailand" class="flag" loading="lazy">
     </div>
   </section>
 
   <section class="section" id="brochure">
-    <h2>Get Brochure</h2>
+    <h2>Download Full Program</h2>
     <a href="GLOB-SMC-Leadership-Conference-2025_Brochure_Final5.pdf" class="download-btn" download>
-      📥 Download Full Program
+      📥 Get Conference Brochure
     </a>
   </section>
 
-  <section class="section" id="contact">
-    <h2>Contact</h2>
-    <p style="text-align: center; font-size: 1.3rem;">
-      <a href="mailto:info@stellamaris-twu-conference.org" style="color: #167690; font-weight: 600; text-decoration: none;">
-        info@stellamaris-twu-conference.org
-      </a>
-    </p>
-  </section>
-
+  <!-- WORKING 3D GLOBE LIBRARIES -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/globe.gl"></script>
   <script>
-    // Neural Network Animation
+    // 3D GLOBE - BULLETPROOF
+    function initGlobe() {
+      const globeEl = document.getElementById('globeViz');
+      
+      if (typeof Globe === 'undefined') {
+        globeEl.innerHTML = '🔄 Globe loading...';
+        return;
+      }
+
+      const globe = Globe()(globeEl)
+        .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
+        .bumpImageUrl('https://unpkg.com/three-globe/example/img/earth-topology.png')
+        .showAtmosphere(true)
+        .atmosphereColor('lightblue')
+        .atmosphereAltitude(0.25)
+        .autoRotate(true)
+        .autoRotateSpeed(() => Math.sin(Date.now() * 0.001) * 0.2 + 0.4)
+        .pointsData([
+          { lat: 13.08, lng: 80.27, size: 0.12, color: '#ff6b35' },
+          { lat: 49.28, lng: -123.12, size: 0.12, color: '#4ecdc4' }
+        ])
+        .pointRadius('size')
+        .pointColor('color')
+        .pointAltitude(0.08)
+        .pointOfView({ lat: 25, lng: 80, altitude: 1.3 }, 2000);
+      
+      globeEl.innerHTML = '';
+    }
+
+    // Neural Network
     const canvas = document.getElementById('neuralCanvas');
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
-    canvas.height = 400;
+    canvas.height = 420;
     
-    function drawNeural() {
+    function neuralNet() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const points = [];
-      for(let i = 0; i < 15; i++) {
-        points.push({
-          x: 50 + Math.random() * (canvas.width - 100),
-          y: 50 + Math.random() * (canvas.height - 100)
-        });
-      }
+      const points = Array(16).fill().map(() => ({
+        x: 60 + Math.random() * (canvas.width - 120),
+        y: 40 + Math.random() * (canvas.height - 80)
+      }));
       
-      // Nodes
-      ctx.shadowBlur = 20;
+      ctx.shadowBlur = 25;
       ctx.shadowColor = '#39d1c4';
       points.forEach(p => {
         ctx.beginPath();
-        ctx.arc(p.x, p.y, 12, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(57, 209, 196, 0.6)';
+        ctx.arc(p.x, p.y, 14, 0, Math.PI*2);
+        ctx.fillStyle = 'rgba(57,209,196,0.7)';
         ctx.fill();
       });
       
-      // Connections
       ctx.shadowBlur = 0;
-      ctx.strokeStyle = 'rgba(57, 209, 196, 0.4)';
-      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = 'rgba(57,209,196,0.5)';
+      ctx.lineWidth = 2;
       for(let i = 0; i < points.length; i++) {
-        for(let j = i + 1; j < points.length; j++) {
-          if(Math.random() > 0.7) {
+        for(let j = i+1; j < points.length; j++) {
+          if(Math.hypot(points[i].x-points[j].x, points[i].y-points[j].y) < 150 && Math.random() > 0.6) {
             ctx.beginPath();
             ctx.moveTo(points[i].x, points[i].y);
             ctx.lineTo(points[j].x, points[j].y);
@@ -395,8 +380,8 @@
         }
       }
     }
-    drawNeural();
-    setInterval(drawNeural, 3000);
+    neuralNet();
+    setInterval(neuralNet, 4000);
 
     // Live Clocks
     function updateClocks() {
@@ -408,6 +393,11 @@
     }
     updateClocks();
     setInterval(updateClocks, 1000);
+
+    // START
+    window.addEventListener('load', () => {
+      setTimeout(initGlobe, 500);
+    });
   </script>
 </body>
 </html>
