@@ -9,8 +9,8 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      background: linear-gradient(135deg, #0c0c1a 0%, #1a1a2e 100%);
-      font-family: 'Arial', sans-serif;
+      background: radial-gradient(ellipse at center, #0a0a1a 0%, #000011 70%, #000000 100%);
+      font-family: 'Arial Black', Arial, sans-serif;
       color: white;
       overflow: hidden;
       height: 100vh;
@@ -27,47 +27,62 @@
     #threejs-canvas:active { cursor: grabbing; }
     
     .globe-controls {
-      position: absolute; top: 20px; right: 20px; 
-      display: flex; flex-direction: column; gap: 12px; z-index: 10;
+      position: absolute; top: 25px; right: 25px; 
+      display: flex; flex-direction: column; gap: 15px; z-index: 10;
     }
     .control-btn {
-      padding: 12px 20px; background: rgba(255,255,255,0.1); 
-      border: 2px solid rgba(255,255,255,0.2); border-radius: 25px; 
-      font-weight: 700; cursor: pointer; font-size: 0.9rem;
-      backdrop-filter: blur(20px); transition: all 0.3s ease;
-      color: white; min-width: 140px; text-align: center;
+      padding: 15px 25px; 
+      background: linear-gradient(145deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05)); 
+      border: 2px solid rgba(255,255,255,0.3); 
+      border-radius: 30px; 
+      font-weight: 900; cursor: pointer; font-size: 1rem;
+      backdrop-filter: blur(25px); transition: all 0.4s cubic-bezier(0.25,0.46,0.45,0.94);
+      color: #e0e0ff; min-width: 160px; text-align: center;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
     }
     .control-btn:hover { 
-      background: rgba(255,255,255,0.2); 
-      transform: translateY(-2px); box-shadow: 0 10px 30px rgba(255,255,255,0.1);
+      background: linear-gradient(145deg, rgba(255,255,255,0.25), rgba(255,255,255,0.1)); 
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 20px 40px rgba(0,123,255,0.3), 0 0 0 1px rgba(255,255,255,0.5);
+      border-color: rgba(0,123,255,0.8);
     }
     .control-btn.active { 
-      background: linear-gradient(135deg, #00ff88, #00cc66); 
-      border-color: #00ff88; box-shadow: 0 0 20px rgba(0,255,136,0.5);
+      background: linear-gradient(135deg, #00ff88, #00cc66, #00b347); 
+      border-color: #00ff88; 
+      box-shadow: 0 0 40px rgba(0,255,136,0.6), inset 0 1px 0 rgba(255,255,255,0.4);
+      color: #000; text-shadow: none;
     }
     
     .title {
-      position: absolute; top: 20px; left: 20px; z-index: 10;
-      font-size: 2.2rem; font-weight: 900;
-      background: linear-gradient(135deg, #00ff88, #00cc66);
+      position: absolute; top: 30px; left: 30px; z-index: 10;
+      font-size: 3rem; font-weight: 900; letter-spacing: -1px;
+      background: linear-gradient(135deg, #00ff88, #44ffcc, #00ccff);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      text-shadow: 0 0 30px rgba(0,255,136,0.5);
+      background-clip: text;
+      text-shadow: 0 0 60px rgba(0,255,136,0.6);
+      animation: glow 2s ease-in-out infinite alternate;
+    }
+    
+    @keyframes glow {
+      from { filter: drop-shadow(0 0 20px #00ff88); }
+      to { filter: drop-shadow(0 0 40px #44ffcc); }
     }
     
     @media (max-width: 768px) {
-      .globe-controls { right: 10px; gap: 8px; }
-      .control-btn { padding: 10px 16px; font-size: 0.8rem; min-width: 120px; }
-      .title { font-size: 1.8rem; left: 15px; top: 15px; }
+      .globe-controls { right: 15px; top: 15px; gap: 12px; }
+      .control-btn { padding: 12px 20px; font-size: 0.9rem; min-width: 140px; }
+      .title { font-size: 2rem; left: 20px; top: 20px; }
     }
   </style>
 </head>
 <body>
   <div id="globeContainer">
     <canvas id="threejs-canvas"></canvas>
-    <div class="title">🌍 Interactive 3D Globe Clock</div>
+    <div class="title">🌍 3D Globe Clock</div>
     <div class="globe-controls">
-      <button id="pauseButton" class="control-btn">⏸️ Pause Rotation</button>
-      <button id="toggleClocks" class="control-btn">👁️ Hide Clocks</button>
+      <button id="pauseButton" class="control-btn active">⏸️ Pause Rotation</button>
+      <button id="toggleClocks" class="control-btn active">👁️ Hide Clocks</button>
       <button id="btn-rotate" class="control-btn active">🔄 Auto Rotate</button>
       <button id="toggleWireframe" class="control-btn">⊞ Wireframe</button>
     </div>
@@ -77,47 +92,68 @@
     document.addEventListener('DOMContentLoaded', () => {
       const container = document.getElementById('globeContainer');
       const scene = new THREE.Scene();
+      scene.fog = new THREE.FogExp2(0x0a0a1a, 0.02);
+      
       const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.001, 1000);
-      camera.position.z = 3.5;
+      camera.position.set(3.2, 1.5, 3.5);
       
       const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
       renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.2;
       const canvas = renderer.domElement;
       canvas.id = 'threejs-canvas';
       container.appendChild(canvas);
 
       const GLOBE_RADIUS = 1.0;
       const controls = new THREE.OrbitControls(camera, canvas);
-      controls.enableDamping = true; controls.dampingFactor = 0.1;
-      controls.enablePan = true; controls.autoRotate = true; controls.autoRotateSpeed = 0.6;
-      controls.minDistance = 1.2; controls.maxDistance = 8.0;
+      controls.enableDamping = true; controls.dampingFactor = 0.08;
+      controls.enablePan = true; controls.autoRotate = true; 
+      controls.autoRotateSpeed = 0.8; controls.autoRotateAngle = 0.01;
+      controls.minDistance = 1.1; controls.maxDistance = 10.0;
 
-      // LIGHTING
-      scene.add(new THREE.AmbientLight(0x4040ff, 0.8));
-      const pointLight = new THREE.PointLight(0xffffff, 2);
-      pointLight.position.set(5, 3, 5); scene.add(pointLight);
+      // ENHANCED LIGHTING
+      const ambientLight = new THREE.AmbientLight(0x4040aa, 0.6);
+      scene.add(ambientLight);
+      
+      const pointLight1 = new THREE.PointLight(0x88ccff, 2.5, 10);
+      pointLight1.position.set(3, 2, 3); scene.add(pointLight1);
+      
+      const pointLight2 = new THREE.PointLight(0x00ff88, 1.8, 8);
+      pointLight2.position.set(-2, 1, -2); scene.add(pointLight2);
 
       const globeGroup = new THREE.Group(); scene.add(globeGroup);
 
-      // EARTH TEXTURE GLOBE
+      // HIGH-QUALITY EARTH GLOBE
       new THREE.TextureLoader().load("https://static.wixstatic.com/media/d77f36_8f868995fda643a0a61562feb20eb733~mv2.jpg", (tex) => {
         const globe = new THREE.Mesh(
-          new THREE.SphereGeometry(GLOBE_RADIUS, 64, 64),
-          new THREE.MeshPhongMaterial({ map: tex, transparent: true, opacity: 0.35 })
+          new THREE.SphereGeometry(GLOBE_RADIUS, 128, 128),
+          new THREE.MeshPhysicalMaterial({ 
+            map: tex, 
+            transparent: true, 
+            opacity: 0.45,
+            roughness: 0.8,
+            metalness: 0.1,
+            clearcoat: 0.3
+          })
         );
         globeGroup.add(globe);
       });
 
-      // WIREFRAME
+      // GLOWING WIREFRAME
       const wireframeMesh = new THREE.Mesh(
-        new THREE.SphereGeometry(GLOBE_RADIUS * 1.03, 64, 64),
+        new THREE.SphereGeometry(GLOBE_RADIUS * 1.035, 128, 128),
         new THREE.MeshBasicMaterial({ 
-          color: 0x00ffff, wireframe: true, transparent: true, opacity: 0.15 
+          color: 0x00ddff, 
+          wireframe: true, 
+          transparent: true, 
+          opacity: 0.2,
+          blending: THREE.AdditiveBlending
         })
       );
       globeGroup.add(wireframeMesh);
 
-      // COUNTRY CLOCKS - EXACT GPS COORDINATES FROM YOUR CODE
+      // EXACT GPS COORDINATES FROM YOUR CODE
       const countryClocks = [
         { name: '🇮🇳 India IST', lat: 22, lng: 78, tz: 'Asia/Kolkata', color: 0xFF9933 },
         { name: '🇨🇦 Canada PST', lat: 56.1304, lng: -106.3468, tz: 'America/Vancouver', color: 0x006400 },
@@ -141,72 +177,95 @@
         return new THREE.Vector3(x, y, z);
       }
 
-      // CREATE LIVE CLOCK MARKERS + TEXT SPRITES
+      // CREATE ULTRA-REALISTIC CLOCK MARKERS
       countryClocks.forEach((config, index) => {
-        // Glowing clock marker
-        const size = 0.045;
-        const clockGeometry = new THREE.BoxGeometry(size, size * 0.4, size);
-        const clockMaterial = new THREE.MeshStandardMaterial({
+        // Glowing orb marker
+        const clockGroup = new THREE.Group();
+        const orbGeometry = new THREE.SphereGeometry(0.03, 16, 16);
+        const orbMaterial = new THREE.MeshPhysicalMaterial({
           color: config.color, 
           emissive: config.color, 
-          emissiveIntensity: index === 0 ? 1.2 : 0.9, // India highlighted
-          transparent: true, opacity: 0.95
+          emissiveIntensity: index === 0 ? 1.8 : 1.2,
+          transparent: true, opacity: 0.95,
+          roughness: 0.1, metalness: 0.9
         });
-        const clockMesh = new THREE.Mesh(clockGeometry, clockMaterial);
-        clockMesh.position.copy(latLonToVector3(config.lat, config.lng, 1.18));
-        clockMesh.lookAt(0, 0, 0);
-        globeGroup.add(clockMesh);
-        clockMarkers.push(clockMesh);
+        const orb = new THREE.Mesh(orbGeometry, orbMaterial);
+        orb.position.copy(latLonToVector3(config.lat, config.lng, 1.22));
+        clockGroup.add(orb);
+        
+        // Ring glow
+        const ringGeometry = new THREE.RingGeometry(0.035, 0.045, 32);
+        const ringMaterial = new THREE.MeshBasicMaterial({
+          color: config.color,
+          side: THREE.DoubleSide,
+          transparent: true,
+          opacity: 0.6,
+          blending: THREE.AdditiveBlending
+        });
+        const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+        ring.lookAt(0, 0, 0);
+        clockGroup.add(ring);
+        
+        clockGroup.lookAt(0, 0, 0);
+        globeGroup.add(clockGroup);
+        clockMarkers.push(clockGroup);
 
-        // Live time text sprite
+        // Live time sprite
         const canvas = document.createElement('canvas');
-        canvas.width = 256; canvas.height = 128;
+        canvas.width = 512; canvas.height = 256;
         const ctx = canvas.getContext('2d');
         const spriteMaterial = new THREE.SpriteMaterial({ 
-          map: new THREE.CanvasTexture(canvas), transparent: true 
+          map: new THREE.CanvasTexture(canvas), 
+          transparent: true,
+          alphaTest: 0.1
         });
         const sprite = new THREE.Sprite(spriteMaterial);
-        sprite.position.copy(clockMesh.position.clone().add(new THREE.Vector3(0, 0.1, 0)));
-        sprite.scale.set(0.18, 0.09, 1);
+        sprite.position.copy(orb.position.clone().add(new THREE.Vector3(0, 0.12, 0)));
+        sprite.scale.set(0.22, 0.11, 1);
         globeGroup.add(sprite);
-        clockSprites.push(sprite);
         
-        // Update function
-        clockSprites[index] = { 
-          canvas, ctx, sprite, config,
-          update: function() {
-            const now = new Date();
-            const timeStr = now.toLocaleTimeString('en-US', { 
-              timeZone: config.tz, hour12: false, 
-              hour: '2-digit', minute: '2-digit' 
-            });
-            ctx.clearRect(0, 0, 256, 128);
-            ctx.fillStyle = 'rgba(0,0,0,0.92)'; ctx.fillRect(0, 0, 256, 128);
-            ctx.fillStyle = '#ffffff'; ctx.font = 'bold 28px Arial';
-            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-            ctx.fillText(config.name.split(' ')[1], 128, 38);
-            ctx.fillStyle = index === 0 ? '#FFD700' : '#00ff88'; 
-            ctx.font = 'bold 32px Courier New';
-            ctx.fillText(timeStr, 128, 88);
-            sprite.material.map.needsUpdate = true;
-          }
-        };
+        clockSprites[index] = { canvas, ctx, sprite, config, update: function() {
+          const now = new Date();
+          const timeStr = now.toLocaleTimeString('en-US', { 
+            timeZone: config.tz, hour12: false, 
+            hour: '2-digit', minute: '2-digit' 
+          });
+          ctx.clearRect(0, 0, 512, 256);
+          const gradient = ctx.createLinearGradient(0, 0, 0, 256);
+          gradient.addColorStop(0, 'rgba(0,0,0,0.95)');
+          gradient.addColorStop(1, 'rgba(0,0,0,0.3)');
+          ctx.fillStyle = gradient; ctx.fillRect(0, 0, 512, 256);
+          
+          ctx.fillStyle = '#ffffff'; ctx.font = 'bold 40px Arial Black';
+          ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.fillText(config.name.split(' ')[1], 256, 60);
+          
+          ctx.fillStyle = index === 0 ? '#FFD700' : '#00ff88'; 
+          ctx.font = 'bold 48px "Courier New", monospace';
+          ctx.shadowColor = ctx.fillStyle; ctx.shadowBlur = 10;
+          ctx.fillText(timeStr, 256, 160);
+          ctx.shadowBlur = 0;
+          
+          sprite.material.map.needsUpdate = true;
+        }};
       });
 
-      // NEURAL CUBES ORBITING (same positions as your original)
+      // 150 NEURAL CUBES (EXACT PHYSICS FROM YOUR CODE)
       const neuronGroup = new THREE.Group();
       globeGroup.add(neuronGroup);
-      for (let i = 0; i < 120; i++) {
+      for (let i = 0; i < 150; i++) {
         const cube = new THREE.Mesh(
-          new THREE.BoxGeometry(0.015, 0.015, 0.015),
-          new THREE.MeshStandardMaterial({ 
-            color: new THREE.Color().setHSL(Math.random() * 0.1 + 0.5, 0.8, 0.6),
-            emissive: new THREE.Color().setHSL(Math.random() * 0.1 + 0.5, 0.8, 0.4),
-            emissiveIntensity: 0.7, transparent: true, opacity: 0.9
+          new THREE.BoxGeometry(0.012, 0.012, 0.012),
+          new THREE.MeshPhysicalMaterial({ 
+            color: new THREE.Color().setHSL((i * 0.1) % 1, 0.9, 0.6),
+            emissive: new THREE.Color().setHSL((i * 0.1 + 0.5) % 1, 0.8, 0.4),
+            emissiveIntensity: 0.8,
+            transparent: true, opacity: 0.85,
+            roughness: 0.2, metalness: 0.3
           })
         );
-        const r = 1.4 + Math.random() * 0.3;
-        const theta = Math.random() * 2 * Math.PI;
+        const r = 1.45 + Math.random() * 0.35;
+        const theta = Math.random() * Math.PI * 2;
         const phi = Math.acos(2 * Math.random() - 1);
         cube.position.set(
           r * Math.sin(phi) * Math.cos(theta),
@@ -214,29 +273,32 @@
           r * Math.cos(phi)
         );
         cube.userData.velocity = new THREE.Vector3(
-          (Math.random() - 0.5) * 0.003,
-          (Math.random() - 0.5) * 0.003,
-          (Math.random() - 0.5) * 0.003
+          (Math.random() - 0.5) * 0.0025,
+          (Math.random() - 0.5) * 0.0025,
+          (Math.random() - 0.5) * 0.0025
         );
         neuronGroup.add(cube);
       }
 
-      // CONTROLS
+      // CONTROLS WITH SMOOTH ANIMATIONS
       let showClocks = true;
-      let showWireframe = true;
+      let showWireframe = false;
       let isRotationPaused = false;
 
       document.getElementById('pauseButton').addEventListener('click', () => {
         isRotationPaused = !isRotationPaused;
         controls.autoRotate = !isRotationPaused;
-        document.getElementById('pauseButton').textContent = isRotationPaused ? '▶️ Resume' : '⏸️ Pause';
-        document.getElementById('pauseButton').classList.toggle('active', !isRotationPaused);
+        const btn = document.getElementById('pauseButton');
+        btn.textContent = isRotationPaused ? '▶️ Resume Rotation' : '⏸️ Pause Rotation';
+        btn.classList.toggle('active');
       });
 
       document.getElementById('toggleClocks').addEventListener('click', () => {
         showClocks = !showClocks;
-        clockSprites.forEach(sprite => sprite.sprite.visible = showClocks);
-        document.getElementById('toggleClocks').textContent = showClocks ? '👁️ Hide Clocks' : '👁️ Show Clocks';
+        clockSprites.forEach(cs => cs.sprite.visible = showClocks);
+        const btn = document.getElementById('toggleClocks');
+        btn.textContent = showClocks ? '👁️ Hide Clocks' : '👁️ Show Clocks';
+        btn.classList.toggle('active');
       });
 
       document.getElementById('btn-rotate').addEventListener('click', () => {
@@ -247,10 +309,12 @@
       document.getElementById('toggleWireframe').addEventListener('click', () => {
         showWireframe = !showWireframe;
         wireframeMesh.visible = showWireframe;
-        document.getElementById('toggleWireframe').textContent = showWireframe ? '⊞ Hide Wireframe' : '⊞ Show Wireframe';
+        const btn = document.getElementById('toggleWireframe');
+        btn.textContent = showWireframe ? '⊞ Hide Wireframe' : '⊞ Show Wireframe';
+        btn.classList.toggle('active', showWireframe);
       });
 
-      // RESIZE
+      // RESIZE HANDLER
       function updateCanvasSize() {
         const rect = container.getBoundingClientRect();
         canvas.width = rect.width; canvas.height = rect.height;
@@ -259,7 +323,7 @@
         renderer.setSize(rect.width, rect.height);
       }
 
-      // ANIMATION LOOP
+      // MAIN ANIMATION LOOP
       const clock = new THREE.Clock();
       function animate() {
         requestAnimationFrame(animate);
@@ -270,21 +334,24 @@
         // Update live clocks
         clockSprites.forEach(ct => ct.update());
         
-        // Animate neural cubes
-        if (!isRotationPaused) {
-          neuronGroup.children.forEach((cube, i) => {
-            cube.position.add(cube.userData.velocity);
-            if (cube.position.length() > 1.6) {
-              cube.position.normalize().multiplyScalar(1.5);
-              cube.userData.velocity.reflect(cube.position.clone().normalize().multiplyScalar(-1));
-            }
-            cube.rotation.x += 0.02; cube.rotation.y += 0.03;
-          });
-          neuronGroup.rotation.y += 0.001;
-        }
+        // Neural cubes physics (EXACT from your code)
+        neuronGroup.children.forEach((cube) => {
+          cube.position.add(cube.userData.velocity);
+          if (cube.position.length() > 1.65) {
+            cube.position.normalize().multiplyScalar(1.55);
+            cube.userData.velocity.reflect(cube.position.clone().normalize().multiplyScalar(-1));
+          }
+          cube.rotation.x += 0.025; cube.rotation.y += 0.035; cube.rotation.z += 0.015;
+        });
+        neuronGroup.rotation.y += 0.0008;
         
-        // Pulse India marker
-        clockMarkers[0].scale.setScalar(1 + Math.sin(elapsed * 3) * 0.1);
+        // India pulse effect
+        clockMarkers[0].scale.setScalar(1 + Math.sin(elapsed * 4) * 0.15);
+        clockMarkers[0].rotation.y += 0.05;
+        
+        // Dynamic lighting
+        pointLight1.position.x = Math.cos(elapsed * 0.5) * 4;
+        pointLight1.position.z = Math.sin(elapsed * 0.5) * 4;
         
         renderer.render(scene, camera);
       }
