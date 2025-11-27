@@ -93,30 +93,36 @@
     .hero h2 { font-size: clamp(1.4rem, 4vw, 2.2rem); font-weight: 700; color: white; margin: 0 0 25px 0; text-shadow: 0 0 30px rgba(0,0,0,0.8); }
     .hero p { font-size: clamp(1.1rem, 3vw, 1.5rem); font-weight: 700; color: white; margin: 0; text-shadow: 0 0 20px rgba(0,0,0,0.8); }
 
-    /* GLOBE - GLOBE ITSELF CENTERED INSIDE CONTAINER */
+    /* GLOBE - FULL WINDOW CENTERED */
     .globe-section {
-      max-width: 1400px;
-      margin: 80px auto;
       padding: 80px 20px;
       text-align: center;
+      position: relative;
+      min-height: 800px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
     
     .globe-header {
       display: inline-flex;
       align-items: center;
       gap: 25px;
-      margin-bottom: 60px;
+      margin-bottom: 40px;
       background: rgba(255,255,255,0.98);
       backdrop-filter: blur(40px);
-      padding: 35px 70px;
+      padding: 25px 50px;
       border-radius: 50px;
       box-shadow: 0 40px 140px rgba(0,0,0,0.3);
       border: 3px solid rgba(255,255,255,0.95);
+      position: relative;
+      z-index: 10;
     }
     
     .globe-header h2 {
       margin: 0;
-      font-size: 2.5rem;
+      font-size: 2.2rem;
       background: linear-gradient(135deg, #167690, #128fa7);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -125,35 +131,40 @@
     }
     
     #globeViz {
-      width: 100%;
-      max-width: 1200px;
-      height: 650px;
-      margin: 0 auto 100px !important;
+      width: 90vw;
+      max-width: 1100px;
+      height: 70vh;
+      max-height: 650px;
+      margin: 0 auto !important;
       border-radius: 60px;
       box-shadow: 0 60px 200px rgba(22,118,144,0.7);
       background: radial-gradient(circle at center, rgba(227,242,253,0.98) 0%, rgba(187,222,251,0.95) 80%);
       overflow: hidden;
       display: block !important;
+      position: relative !important;
+      left: 50% !important;
+      transform: translateX(-50%) !important;
     }
 
     /* TIME & WEATHER */
     .time-weather-row {
       display: flex;
       justify-content: center;
-      gap: 60px;
+      gap: 40px;
       flex-wrap: wrap;
-      margin-bottom: 80px;
+      margin-top: 60px;
+      max-width: 1400px;
     }
     
     .time-card, .weather-card {
       background: rgba(255,255,255,0.98);
       backdrop-filter: blur(50px);
-      padding: 60px 70px;
+      padding: 50px 60px;
       border-radius: 60px;
       box-shadow: 0 50px 160px rgba(0,0,0,0.35);
       border: 4px solid rgba(255,255,255,0.98);
       text-align: center;
-      min-width: 350px;
+      min-width: 320px;
       transition: all 0.7s cubic-bezier(0.25,0.46,0.45,0.94);
     }
     
@@ -163,25 +174,25 @@
     }
     
     .time-title, .weather-title {
-      font-size: 1.6rem;
+      font-size: 1.4rem;
       color: #167690;
       font-weight: 900;
-      margin-bottom: 50px;
-    }
-    
-    .time-display {
-      font-size: 6rem;
-      font-weight: 900;
-      color: #1a365d;
-      font-family: 'Courier New', monospace;
       margin-bottom: 40px;
     }
     
-    .weather-temp {
+    .time-display {
       font-size: 5rem;
       font-weight: 900;
+      color: #1a365d;
+      font-family: 'Courier New', monospace;
+      margin-bottom: 30px;
+    }
+    
+    .weather-temp {
+      font-size: 4.2rem;
+      font-weight: 900;
       color: #ff6b35;
-      margin-bottom: 35px;
+      margin-bottom: 25px;
     }
 
     /* FLAGS */
@@ -332,8 +343,11 @@
 
     @media (max-width: 768px) {
       .time-weather-row, .flags-grid { flex-direction: column; gap: 40px; align-items: center; }
-      #globeViz { height: 550px; }
-      .time-display { font-size: 4.5rem; }
+      #globeViz { 
+        width: 95vw; 
+        height: 60vh; 
+      }
+      .time-display { font-size: 4rem; }
       .pdf-preview { height: 400px; }
     }
   </style>
@@ -360,7 +374,7 @@
     </div>
   </section>
 
-  <!-- CLEAN GLOBE SECTION -->
+  <!-- GLOBE FULL WINDOW CENTERED -->
   <section class="globe-section" id="globe">
     <div class="globe-header">
       <svg width="50" height="50" viewBox="0 0 24 24" fill="#167690">
@@ -532,7 +546,7 @@
     fieryNeural();
     setInterval(fieryNeural, 1300);
 
-    // 3D GLOBE - FORCES CENTER ALIGNMENT
+    // FULL WINDOW CENTERED GLOBE
     function initGlobe() {
       const globeEl = document.getElementById('globeViz');
       
@@ -571,7 +585,6 @@
     updateClocks();
     setInterval(updateClocks, 1000);
 
-    // Load globe
     window.addEventListener('load', () => {
       setTimeout(initGlobe, 1000);
     });
