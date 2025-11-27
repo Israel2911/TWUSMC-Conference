@@ -44,7 +44,7 @@
     }
     .nav a:hover { color: #128fa7; }
 
-    /* HERO WITH CONFERENCE IMAGE */
+    /* HERO */
     .hero {
       position: relative;
       height: 100vh;
@@ -93,7 +93,7 @@
     .hero h2 { font-size: clamp(1.4rem, 4vw, 2.2rem); font-weight: 700; color: white; margin: 0 0 25px 0; text-shadow: 0 0 30px rgba(0,0,0,0.8); }
     .hero p { font-size: clamp(1.1rem, 3vw, 1.5rem); font-weight: 700; color: white; margin: 0; text-shadow: 0 0 20px rgba(0,0,0,0.8); }
 
-    /* PERFECTLY CENTERED GLOBE */
+    /* GLOBE */
     .globe-section {
       max-width: 1400px;
       margin: 0 auto;
@@ -143,17 +143,6 @@
       width: 100% !important;
       height: 100% !important;
       border-radius: 60px !important;
-      position: absolute !important;
-      top: 0 !important;
-      left: 0 !important;
-    }
-    
-    #globeViz canvas {
-      width: 100% !important;
-      height: 100% !important;
-      border-radius: 60px !important;
-      display: block !important;
-      margin: 0 !important;
       position: absolute !important;
       top: 0 !important;
       left: 0 !important;
@@ -252,14 +241,8 @@
       margin-bottom: 20px;
       box-shadow: 0 10px 40px rgba(0,0,0,0.3);
     }
-    
-    .flag-name {
-      font-weight: 800;
-      color: #167690;
-      font-size: 1.2rem;
-    }
 
-    /* BROCHURE WITH PREVIEW */
+    /* ACTUAL BROCHURE PREVIEW */
     .brochure-section {
       max-width: 1200px;
       margin: 0 auto 100px;
@@ -275,30 +258,44 @@
       margin-bottom: 50px;
     }
     
-    .brochure-preview {
+    .brochure-preview-container {
       background: rgba(255,255,255,0.95);
       backdrop-filter: blur(40px);
       border-radius: 40px;
       padding: 40px;
       margin-bottom: 50px;
       box-shadow: 0 40px 140px rgba(0,0,0,0.3);
-      max-width: 900px;
+      max-width: 1000px;
       margin-left: auto;
       margin-right: auto;
     }
     
-    .brochure-preview h3 {
+    .brochure-preview-container h3 {
       color: #167690;
       font-size: 1.8rem;
       margin-bottom: 25px;
       font-weight: 900;
     }
     
-    .brochure-preview p {
+    /* EMBEDDED PDF PREVIEW */
+    .pdf-preview {
+      width: 100%;
+      height: 600px;
+      border: 3px solid rgba(22,118,144,0.3);
+      border-radius: 25px;
+      box-shadow: 0 20px 80px rgba(0,0,0,0.2);
+      background: white;
+    }
+    
+    .preview-info {
       color: #1a365d;
       font-size: 1.1rem;
       line-height: 1.7;
-      margin-bottom: 30px;
+      margin-top: 25px;
+      padding: 20px;
+      background: rgba(232,244,253,0.7);
+      border-radius: 20px;
+      border-left: 5px solid #167690;
     }
     
     .download-btn {
@@ -324,6 +321,7 @@
       .time-weather-row, .flags-grid { flex-direction: column; gap: 40px; align-items: center; }
       .globe-container { height: 550px; }
       .time-display { font-size: 4.5rem; }
+      .pdf-preview { height: 400px; }
     }
   </style>
 </head>
@@ -338,7 +336,7 @@
     </nav>
   </header>
 
-  <!-- HERO WITH ORIGINAL CONFERENCE IMAGE -->
+  <!-- HERO -->
   <section class="hero">
     <img src="humanintelligence.png" alt="Conference Hero Image" />
     <canvas id="heroCanvas"></canvas>
@@ -349,7 +347,7 @@
     </div>
   </section>
 
-  <!-- PERFECTLY CENTERED GLOBE -->
+  <!-- GLOBE -->
   <section class="globe-section" id="globe">
     <div class="globe-header">
       <svg width="50" height="50" viewBox="0 0 24 24" fill="#167690">
@@ -413,20 +411,25 @@
     </div>
   </section>
 
-  <!-- BROCHURE WITH PREVIEW WINDOW -->
+  <!-- ACTUAL BROCHURE PREVIEW -->
   <section class="brochure-section" id="brochure">
-    <h2 class="brochure-header">📄 Conference Brochure</h2>
+    <h2 class="brochure-header">📄 Conference Brochure Preview</h2>
     
-    <div class="brochure-preview">
-      <h3>📖 What's Inside the Brochure:</h3>
-      <p>
-        <strong>• Full conference agenda</strong> with detailed session timings<br>
-        <strong>• Keynote speakers</strong> and their biographies<br>
-        <strong>• Global partner universities</strong> and collaboration details<br>
-        <strong>• Registration information</strong> and venue map<br>
-        <strong>• Sponsorship opportunities</strong> and contact details<br><br>
-        24-page professionally designed PDF - perfect for sharing!
-      </p>
+    <div class="brochure-preview-container">
+      <h3>👁️ Live PDF Preview (First Pages)</h3>
+      
+      <!-- ACTUAL EMBEDDED PDF PREVIEW -->
+      <iframe 
+        src="GLOB-SMC-Leadership-Conference-2025_Brochure_Final5.pdf#toolbar=0&navpanes=0&scrollbar=0&view=FitH" 
+        class="pdf-preview"
+        title="Conference Brochure Preview">
+      </iframe>
+      
+      <div class="preview-info">
+        <strong>✅ Full 24-page brochure preview above</strong><br>
+        Scroll through agenda, speakers, venue map, registration, sponsors<br>
+        <strong>📱 Mobile optimized • 🔍 Zoomable • 📄 Printable</strong>
+      </div>
     </div>
     
     <a href="GLOB-SMC-Leadership-Conference-2025_Brochure_Final5.pdf" class="download-btn" download>
@@ -437,7 +440,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/globe.gl"></script>
   <script>
-    // FIERY NEURAL OVER ORIGINAL IMAGE
+    // Fiery neural network
     const canvas = document.getElementById('heroCanvas');
     const ctx = canvas.getContext('2d');
     
@@ -494,13 +497,10 @@
     fieryNeural();
     setInterval(fieryNeural, 1300);
 
-    // BULLETPROOF CENTERED GLOBE
+    // Globe
     function initGlobe() {
       const globeEl = document.getElementById('globeViz');
-      if (typeof Globe === 'undefined') {
-        globeEl.innerHTML = '<div style="padding:80px;color:#666;font-size:1.5rem;">🌍 Globe loading... Perfect center!</div>';
-        return;
-      }
+      if (typeof Globe === 'undefined') return;
       
       const globe = Globe()(globeEl)
         .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
@@ -519,6 +519,7 @@
         .pointOfView({ lat: 28, lng: 82, altitude: 1.1 }, 6000);
     }
 
+    // Clocks
     function updateClocks() {
       const now = new Date();
       document.getElementById('time-india').textContent = 
