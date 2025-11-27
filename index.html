@@ -2,167 +2,80 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>TWU-SMC 11th Annual Leadership Conference</title>
+  <title>Interactive 3D Globe Clock</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/FontLoader.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
-      font-family: 'Nunito', sans-serif;
-      color: #1a365d;
-      overflow-x: hidden;
-      line-height: 1.6;
+      background: linear-gradient(135deg, #0c0c1a 0%, #1a1a2e 100%);
+      font-family: 'Arial', sans-serif;
+      color: white;
+      overflow: hidden;
+      height: 100vh;
     }
     
-    .header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 20px 40px; background: rgba(255,255,255,0.95);
-      backdrop-filter: blur(10px); box-shadow: 0 2px 20px rgba(0,0,0,0.1);
-      position: sticky; top: 0; z-index: 100;
-    }
-    .logo { 
-      font-size: 1.8rem; font-weight: 900; 
-      background: linear-gradient(135deg, #167690, #128fa7);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .nav { display: flex; gap: 30px; }
-    .nav a { color: #167690; text-decoration: none; font-weight: 700; font-size: 1.1rem; transition: color 0.3s; }
-    .nav a:hover { color: #128fa7; }
-
-    .hero {
-      position: relative; height: 100vh; min-height: 700px;
-      display: flex; align-items: center; justify-content: center;
-      overflow: hidden; text-align: center; padding: 0 40px;
-    }
-    
-    .hero img {
-      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-      object-fit: cover; filter: brightness(0.7) contrast(1.1); z-index: 1;
-    }
-    
-    #heroCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; }
-    
-    .hero-content { position: relative; z-index: 4; max-width: 1200px; }
-    .hero h1 {
-      font-size: clamp(3rem, 8vw, 5rem); font-weight: 900;
-      background: linear-gradient(45deg, #ffd700, #ffed4a);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text; margin: 0 0 20px 0; text-shadow: 0 0 60px rgba(255,215,0,0.8);
-      line-height: 1.1;
-    }
-    .hero h2 { font-size: clamp(1.6rem, 4vw, 2.5rem); font-weight: 700; color: white; margin: 0 0 40px 0; text-shadow: 0 0 30px rgba(0,0,0,0.8); }
-    .hero-meta {
-      background: rgba(255,255,255,0.95); backdrop-filter: blur(20px);
-      padding: 25px 50px; border-radius: 40px; display: inline-block;
-      box-shadow: 0 30px 100px rgba(0,0,0,0.3); border: 3px solid rgba(255,255,255,0.9);
-    }
-    .hero p { font-size: 1.4rem; font-weight: 700; color: #167690; margin: 0; }
-
-    /* 3D GLOBE CLOCK SECTION - SAME AS YOUR WIDGET */
-    .globe-clock-section {
-      max-width: 1400px; margin: 80px auto; padding: 0 20px; text-align: center;
-      position: relative;
-    }
-    .globe-header {
-      font-size: 2.4rem; background: linear-gradient(135deg, #167690, #128fa7);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      margin-bottom: 40px; font-weight: 900;
-    }
     #globeContainer { 
-      position: relative; width: 100%; height: 700px; 
-      border-radius: 20px; overflow: hidden;
-      box-shadow: 0 60px 180px rgba(0,74,162,0.5);
+      position: relative; width: 100vw; height: 100vh; 
+      cursor: grab;
     }
     #threejs-canvas { 
-      width: 100%; height: 100%; border-radius: 20px;
-      cursor: grab; transition: box-shadow 0.3s ease;
+      width: 100%; height: 100%;
+      cursor: grab;
     }
     #threejs-canvas:active { cursor: grabbing; }
     
     .globe-controls {
-      position: absolute; top: 20px; right: 20px; display: flex; gap: 10px; z-index: 10;
+      position: absolute; top: 20px; right: 20px; 
+      display: flex; flex-direction: column; gap: 12px; z-index: 10;
     }
     .control-btn {
-      padding: 12px 20px; background: rgba(255,255,255,0.95); border: none;
-      border-radius: 25px; font-weight: 700; cursor: pointer; font-size: 0.9rem;
-      backdrop-filter: blur(20px); box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-      transition: all 0.3s ease; color: #167690;
+      padding: 12px 20px; background: rgba(255,255,255,0.1); 
+      border: 2px solid rgba(255,255,255,0.2); border-radius: 25px; 
+      font-weight: 700; cursor: pointer; font-size: 0.9rem;
+      backdrop-filter: blur(20px); transition: all 0.3s ease;
+      color: white; min-width: 140px; text-align: center;
     }
-    .control-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 50px rgba(0,0,0,0.3); }
-    .control-btn.active { background: linear-gradient(135deg, #167690, #128fa7); color: white; }
-
-    @media (max-width: 768px) { #globeContainer { height: 500px; } }
+    .control-btn:hover { 
+      background: rgba(255,255,255,0.2); 
+      transform: translateY(-2px); box-shadow: 0 10px 30px rgba(255,255,255,0.1);
+    }
+    .control-btn.active { 
+      background: linear-gradient(135deg, #00ff88, #00cc66); 
+      border-color: #00ff88; box-shadow: 0 0 20px rgba(0,255,136,0.5);
+    }
+    
+    .title {
+      position: absolute; top: 20px; left: 20px; z-index: 10;
+      font-size: 2.2rem; font-weight: 900;
+      background: linear-gradient(135deg, #00ff88, #00cc66);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 30px rgba(0,255,136,0.5);
+    }
+    
+    @media (max-width: 768px) {
+      .globe-controls { right: 10px; gap: 8px; }
+      .control-btn { padding: 10px 16px; font-size: 0.8rem; min-width: 120px; }
+      .title { font-size: 1.8rem; left: 15px; top: 15px; }
+    }
   </style>
 </head>
 <body>
-  <header class="header">
-    <div class="logo">TWU-SMC × Leadership</div>
-    <nav class="nav">
-      <a href="#globeclock">🌍 Globe Clock</a>
-      <a href="#synopsis">Overview</a>
-      <a href="#agenda">Agenda</a>
-      <a href="#register">Register</a>
-    </nav>
-  </header>
-
-  <section class="hero">
-    <img src="humanintelligence.png" alt="Conference Hero Image" />
-    <canvas id="heroCanvas"></canvas>
-    <div class="hero-content">
-      <h1>TWU-SMC 11th Annual<br>Leadership Conference</h1>
-      <h2>The Fifth Intelligence:<br>Integrating the Human Factor</h2>
-      <div class="hero-meta">
-        <p><strong>January 19, 2026 • 10:00 AM - 3:30 PM IST</strong><br>Dr. Laird • VP Innovation, Global & Academic Partnerships, TWU</p>
-      </div>
+  <div id="globeContainer">
+    <canvas id="threejs-canvas"></canvas>
+    <div class="title">🌍 Interactive 3D Globe Clock</div>
+    <div class="globe-controls">
+      <button id="pauseButton" class="control-btn">⏸️ Pause Rotation</button>
+      <button id="toggleClocks" class="control-btn">👁️ Hide Clocks</button>
+      <button id="btn-rotate" class="control-btn active">🔄 Auto Rotate</button>
+      <button id="toggleWireframe" class="control-btn">⊞ Wireframe</button>
     </div>
-  </section>
-
-  <!-- EXACT 3D GLOBE FROM YOUR CODE + LIVE CLOCKS -->
-  <section class="globe-clock-section" id="globeclock">
-    <h2 class="globe-header">🌍 Interactive 3D Globe Clock</h2>
-    <div id="globeContainer">
-      <canvas id="threejs-canvas"></canvas>
-      <div class="globe-controls">
-        <button id="pauseButton" class="control-btn">Pause Rotation</button>
-        <button id="toggleClocks" class="control-btn">Hide Clocks</button>
-        <button id="btn-rotate" class="control-btn">Auto Rotate</button>
-      </div>
-    </div>
-  </section>
+  </div>
 
   <script>
-    // HERO ANIMATION (unchanged)
-    const heroCanvas = document.getElementById('heroCanvas');
-    const heroCtx = heroCanvas.getContext('2d');
-    function resizeHeroCanvas() {
-      heroCanvas.width = window.innerWidth; heroCanvas.height = window.innerHeight;
-    }
-    resizeHeroCanvas(); window.addEventListener('resize', resizeHeroCanvas);
-    function fieryNeural() {
-      heroCtx.clearRect(0, 0, heroCanvas.width, heroCanvas.height);
-      const points = Array(35).fill().map(() => ({
-        x: Math.random() * heroCanvas.width, y: Math.random() * heroCanvas.height * 0.85,
-        brightness: 0.7 + Math.random() * 0.3
-      }));
-      heroCtx.shadowBlur = 90; heroCtx.shadowColor = '#ffd700';
-      points.forEach(p => {
-        heroCtx.save(); heroCtx.translate(p.x, p.y); heroCtx.globalAlpha = p.brightness;
-        heroCtx.beginPath(); heroCtx.arc(0, 0, 30 + p.brightness * 20, 0, Math.PI*2);
-        heroCtx.fillStyle = `rgba(255, 215, 0, ${p.brightness * 0.5})`; heroCtx.fill();
-        heroCtx.shadowBlur = 45; heroCtx.beginPath(); heroCtx.arc(0, 0, 12, 0, Math.PI*2);
-        heroCtx.fillStyle = `rgba(255, 255, 100, ${p.brightness})`; heroCtx.fill(); heroCtx.restore();
-      });
-    }
-    fieryNeural(); setInterval(fieryNeural, 1300);
-
-    // === YOUR EXACT 3D GLOBE CODE + LIVE CLOCKS ===
     document.addEventListener('DOMContentLoaded', () => {
+      const container = document.getElementById('globeContainer');
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.001, 1000);
       camera.position.z = 3.5;
@@ -171,50 +84,52 @@
       renderer.setSize(window.innerWidth, window.innerHeight);
       const canvas = renderer.domElement;
       canvas.id = 'threejs-canvas';
-      document.getElementById('globeContainer').appendChild(canvas);
+      container.appendChild(canvas);
 
       const GLOBE_RADIUS = 1.0;
       const controls = new THREE.OrbitControls(camera, canvas);
       controls.enableDamping = true; controls.dampingFactor = 0.1;
       controls.enablePan = true; controls.autoRotate = true; controls.autoRotateSpeed = 0.6;
-      controls.minDistance = 0.01; controls.maxDistance = 15.0;
+      controls.minDistance = 1.2; controls.maxDistance = 8.0;
 
       // LIGHTING
-      scene.add(new THREE.AmbientLight(0x88ccff, 1.5));
-      const pointLight = new THREE.PointLight(0xffffff, 1.5);
-      pointLight.position.set(5, 5, 5); scene.add(pointLight);
+      scene.add(new THREE.AmbientLight(0x4040ff, 0.8));
+      const pointLight = new THREE.PointLight(0xffffff, 2);
+      pointLight.position.set(5, 3, 5); scene.add(pointLight);
 
       const globeGroup = new THREE.Group(); scene.add(globeGroup);
 
-      // EARTH TEXTURE GLOBE (EXACT FROM YOUR CODE)
+      // EARTH TEXTURE GLOBE
       new THREE.TextureLoader().load("https://static.wixstatic.com/media/d77f36_8f868995fda643a0a61562feb20eb733~mv2.jpg", (tex) => {
         const globe = new THREE.Mesh(
           new THREE.SphereGeometry(GLOBE_RADIUS, 64, 64),
-          new THREE.MeshPhongMaterial({ map: tex, transparent: true, opacity: 0.28 })
+          new THREE.MeshPhongMaterial({ map: tex, transparent: true, opacity: 0.35 })
         );
         globeGroup.add(globe);
       });
 
       // WIREFRAME
       const wireframeMesh = new THREE.Mesh(
-        new THREE.SphereGeometry(GLOBE_RADIUS + 0.05, 64, 64),
-        new THREE.MeshBasicMaterial({ color: 0x00ffff, wireframe: true, transparent: true, opacity: 0.12 })
+        new THREE.SphereGeometry(GLOBE_RADIUS * 1.03, 64, 64),
+        new THREE.MeshBasicMaterial({ 
+          color: 0x00ffff, wireframe: true, transparent: true, opacity: 0.15 
+        })
       );
       globeGroup.add(wireframeMesh);
 
-      // COUNTRY CLOCKS WITH EXACT GPS COORDINATES FROM YOUR CODE
+      // COUNTRY CLOCKS - EXACT GPS COORDINATES FROM YOUR CODE
       const countryClocks = [
-        { name: 'India IST 🇮🇳', lat: 22, lng: 78, tz: 'Asia/Kolkata', color: 0xFF9933 },
-        { name: 'Canada PST 🇨🇦', lat: 56.1304, lng: -106.3468, tz: 'America/Vancouver', color: 0xff0000 },
-        { name: 'Thailand ICT 🇹🇭', lat: 13.7563, lng: 100.5018, tz: 'Asia/Bangkok', color: 0xffcc00 },
-        { name: 'Europe 🇪🇺', lat: 48.8566, lng: 2.3522, tz: 'Europe/Paris', color: 0x0000FF },
-        { name: 'UK 🇬🇧', lat: 53, lng: -0.1276, tz: 'Europe/London', color: 0x191970 },
-        { name: 'USA 🇺🇸', lat: 39.8283, lng: -98.5795, tz: 'America/New_York', color: 0x003366 },
-        { name: 'Singapore 🇸🇬', lat: 1.35, lng: 103.8, tz: 'Asia/Singapore', color: 0xff0000 },
-        { name: 'Malaysia 🇲🇾', lat: 4, lng: 102, tz: 'Asia/Kuala_Lumpur', color: 0xFFD700 }
+        { name: '🇮🇳 India IST', lat: 22, lng: 78, tz: 'Asia/Kolkata', color: 0xFF9933 },
+        { name: '🇨🇦 Canada PST', lat: 56.1304, lng: -106.3468, tz: 'America/Vancouver', color: 0x006400 },
+        { name: '🇹🇭 Thailand ICT', lat: 13.7563, lng: 100.5018, tz: 'Asia/Bangkok', color: 0xffcc00 },
+        { name: '🇪🇺 Europe CET', lat: 48.8566, lng: 2.3522, tz: 'Europe/Paris', color: 0x0000FF },
+        { name: '🇬🇧 UK GMT', lat: 53, lng: -0.1276, tz: 'Europe/London', color: 0x191970 },
+        { name: '🇺🇸 USA EST', lat: 39.8283, lng: -98.5795, tz: 'America/New_York', color: 0x003366 },
+        { name: '🇸🇬 Singapore SGT', lat: 1.35, lng: 103.8, tz: 'Asia/Singapore', color: 0xEE2536 },
+        { name: '🇲🇾 Malaysia MYT', lat: 4, lng: 102, tz: 'Asia/Kuala_Lumpur', color: 0xFFD700 }
       ];
 
-      const clockTexts = [];
+      const clockMarkers = [];
       const clockSprites = [];
 
       function latLonToVector3(lat, lon, radius) {
@@ -226,87 +141,102 @@
         return new THREE.Vector3(x, y, z);
       }
 
-      // CREATE LIVE CLOCKS AT EXACT COUNTRY POSITIONS
-      countryClocks.forEach(config => {
-        // Clock marker
-        const size = 0.04;
-        const clockGeometry = new THREE.BoxGeometry(size, size * 0.3, size);
+      // CREATE LIVE CLOCK MARKERS + TEXT SPRITES
+      countryClocks.forEach((config, index) => {
+        // Glowing clock marker
+        const size = 0.045;
+        const clockGeometry = new THREE.BoxGeometry(size, size * 0.4, size);
         const clockMaterial = new THREE.MeshStandardMaterial({
-          color: config.color, emissive: config.color, emissiveIntensity: 0.8,
+          color: config.color, 
+          emissive: config.color, 
+          emissiveIntensity: index === 0 ? 1.2 : 0.9, // India highlighted
           transparent: true, opacity: 0.95
         });
         const clockMesh = new THREE.Mesh(clockGeometry, clockMaterial);
-        clockMesh.position.copy(latLonToVector3(config.lat, config.lng, 1.15));
+        clockMesh.position.copy(latLonToVector3(config.lat, config.lng, 1.18));
         clockMesh.lookAt(0, 0, 0);
         globeGroup.add(clockMesh);
+        clockMarkers.push(clockMesh);
 
         // Live time text sprite
         const canvas = document.createElement('canvas');
         canvas.width = 256; canvas.height = 128;
         const ctx = canvas.getContext('2d');
         const spriteMaterial = new THREE.SpriteMaterial({ 
-          map: new THREE.CanvasTexture(canvas),
-          transparent: true
+          map: new THREE.CanvasTexture(canvas), transparent: true 
         });
         const sprite = new THREE.Sprite(spriteMaterial);
-        sprite.position.copy(clockMesh.position.clone().add(new THREE.Vector3(0, 0.08, 0)));
-        sprite.scale.set(0.15, 0.075, 1);
+        sprite.position.copy(clockMesh.position.clone().add(new THREE.Vector3(0, 0.1, 0)));
+        sprite.scale.set(0.18, 0.09, 1);
         globeGroup.add(sprite);
+        clockSprites.push(sprite);
         
-        clockTexts.push({ 
+        // Update function
+        clockSprites[index] = { 
           canvas, ctx, sprite, config,
           update: function() {
             const now = new Date();
             const timeStr = now.toLocaleTimeString('en-US', { 
-              timeZone: config.tz, 
-              hour12: false, 
-              hour: '2-digit', 
-              minute: '2-digit' 
+              timeZone: config.tz, hour12: false, 
+              hour: '2-digit', minute: '2-digit' 
             });
             ctx.clearRect(0, 0, 256, 128);
-            ctx.fillStyle = 'rgba(0,0,0,0.9)'; ctx.fillRect(0, 0, 256, 128);
-            ctx.fillStyle = '#ffffff'; ctx.font = 'bold 32px Arial';
+            ctx.fillStyle = 'rgba(0,0,0,0.92)'; ctx.fillRect(0, 0, 256, 128);
+            ctx.fillStyle = '#ffffff'; ctx.font = 'bold 28px Arial';
             ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-            ctx.fillText(config.name.split(' ')[1], 128, 35);
-            ctx.fillStyle = '#00ff88'; ctx.font = 'bold 28px Courier New';
-            ctx.fillText(timeStr, 128, 85);
+            ctx.fillText(config.name.split(' ')[1], 128, 38);
+            ctx.fillStyle = index === 0 ? '#FFD700' : '#00ff88'; 
+            ctx.font = 'bold 32px Courier New';
+            ctx.fillText(timeStr, 128, 88);
             sprite.material.map.needsUpdate = true;
           }
-        });
+        };
       });
 
-      // NEURAL CUBES (SIMPLIFIED - SAME POSITIONS)
+      // NEURAL CUBES ORBITING (same positions as your original)
       const neuronGroup = new THREE.Group();
       globeGroup.add(neuronGroup);
-      for (let i = 0; i < 8; i++) {
+      for (let i = 0; i < 120; i++) {
         const cube = new THREE.Mesh(
-          new THREE.BoxGeometry(0.02, 0.02, 0.02),
+          new THREE.BoxGeometry(0.015, 0.015, 0.015),
           new THREE.MeshStandardMaterial({ 
-            color: countryClocks[i % countryClocks.length].color,
-            emissive: countryClocks[i % countryClocks.length].color,
-            emissiveIntensity: 0.6
+            color: new THREE.Color().setHSL(Math.random() * 0.1 + 0.5, 0.8, 0.6),
+            emissive: new THREE.Color().setHSL(Math.random() * 0.1 + 0.5, 0.8, 0.4),
+            emissiveIntensity: 0.7, transparent: true, opacity: 0.9
           })
         );
-        const r = 1.3 * Math.random(), theta = Math.random() * 2 * Math.PI, phi = Math.acos(2 * Math.random() - 1);
+        const r = 1.4 + Math.random() * 0.3;
+        const theta = Math.random() * 2 * Math.PI;
+        const phi = Math.acos(2 * Math.random() - 1);
         cube.position.set(
           r * Math.sin(phi) * Math.cos(theta),
           r * Math.sin(phi) * Math.sin(theta),
           r * Math.cos(phi)
         );
+        cube.userData.velocity = new THREE.Vector3(
+          (Math.random() - 0.5) * 0.003,
+          (Math.random() - 0.5) * 0.003,
+          (Math.random() - 0.5) * 0.003
+        );
         neuronGroup.add(cube);
       }
 
       // CONTROLS
+      let showClocks = true;
+      let showWireframe = true;
       let isRotationPaused = false;
+
       document.getElementById('pauseButton').addEventListener('click', () => {
         isRotationPaused = !isRotationPaused;
         controls.autoRotate = !isRotationPaused;
-        document.getElementById('pauseButton').textContent = isRotationPaused ? 'Resume' : 'Pause';
+        document.getElementById('pauseButton').textContent = isRotationPaused ? '▶️ Resume' : '⏸️ Pause';
+        document.getElementById('pauseButton').classList.toggle('active', !isRotationPaused);
       });
 
       document.getElementById('toggleClocks').addEventListener('click', () => {
-        const showClocks = clockSprites[0]?.visible ?? true;
-        clockTexts.forEach(ct => ct.sprite.visible = !showClocks);
+        showClocks = !showClocks;
+        clockSprites.forEach(sprite => sprite.sprite.visible = showClocks);
+        document.getElementById('toggleClocks').textContent = showClocks ? '👁️ Hide Clocks' : '👁️ Show Clocks';
       });
 
       document.getElementById('btn-rotate').addEventListener('click', () => {
@@ -314,9 +244,14 @@
         document.getElementById('btn-rotate').classList.toggle('active');
       });
 
-      // RESIZE HANDLER
+      document.getElementById('toggleWireframe').addEventListener('click', () => {
+        showWireframe = !showWireframe;
+        wireframeMesh.visible = showWireframe;
+        document.getElementById('toggleWireframe').textContent = showWireframe ? '⊞ Hide Wireframe' : '⊞ Show Wireframe';
+      });
+
+      // RESIZE
       function updateCanvasSize() {
-        const container = document.getElementById('globeContainer');
         const rect = container.getBoundingClientRect();
         canvas.width = rect.width; canvas.height = rect.height;
         camera.aspect = rect.width / rect.height;
@@ -330,11 +265,26 @@
         requestAnimationFrame(animate);
         controls.update();
         
-        // Update live clocks
-        clockTexts.forEach(ct => ct.update());
+        const elapsed = clock.getElapsedTime();
         
-        // Rotate neural cubes
-        neuronGroup.rotation.y += 0.002;
+        // Update live clocks
+        clockSprites.forEach(ct => ct.update());
+        
+        // Animate neural cubes
+        if (!isRotationPaused) {
+          neuronGroup.children.forEach((cube, i) => {
+            cube.position.add(cube.userData.velocity);
+            if (cube.position.length() > 1.6) {
+              cube.position.normalize().multiplyScalar(1.5);
+              cube.userData.velocity.reflect(cube.position.clone().normalize().multiplyScalar(-1));
+            }
+            cube.rotation.x += 0.02; cube.rotation.y += 0.03;
+          });
+          neuronGroup.rotation.y += 0.001;
+        }
+        
+        // Pulse India marker
+        clockMarkers[0].scale.setScalar(1 + Math.sin(elapsed * 3) * 0.1);
         
         renderer.render(scene, camera);
       }
