@@ -93,43 +93,30 @@
     .hero h2 { font-size: clamp(1.4rem, 4vw, 2.2rem); font-weight: 700; color: white; margin: 0 0 25px 0; text-shadow: 0 0 30px rgba(0,0,0,0.8); }
     .hero p { font-size: clamp(1.1rem, 3vw, 1.5rem); font-weight: 700; color: white; margin: 0; text-shadow: 0 0 20px rgba(0,0,0,0.8); }
 
-    /* NEW APPROACH - ABSOLUTE POSITIONED GLOBE */
+    /* SIMPLEST APPROACH - MAX WIDTH + AUTO MARGINS */
     .globe-section {
-      position: relative;
-      height: 100vh;
-      padding: 0;
-      overflow: hidden;
-    }
-    
-    .globe-absolute {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 65vmin;
-      height: 65vmin;
-      max-width: 900px;
-      max-height: 900px;
-      z-index: 5;
+      max-width: 1400px;
+      margin: 80px auto;
+      padding: 80px 20px;
+      text-align: center;
     }
     
     .globe-header {
-      position: absolute;
-      top: -120px;
-      left: 50%;
-      transform: translateX(-50%);
+      display: inline-flex;
+      align-items: center;
+      gap: 25px;
+      margin-bottom: 60px;
       background: rgba(255,255,255,0.98);
       backdrop-filter: blur(40px);
-      padding: 25px 50px;
+      padding: 35px 70px;
       border-radius: 50px;
       box-shadow: 0 40px 140px rgba(0,0,0,0.3);
       border: 3px solid rgba(255,255,255,0.95);
-      z-index: 10;
     }
     
     .globe-header h2 {
       margin: 0;
-      font-size: 2.2rem;
+      font-size: 2.5rem;
       background: linear-gradient(135deg, #167690, #128fa7);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -139,67 +126,68 @@
     
     #globeViz {
       width: 100%;
-      height: 100%;
+      max-width: 1200px;
+      height: 650px;
+      margin: 0 auto !important;
       border-radius: 60px;
       box-shadow: 0 60px 200px rgba(22,118,144,0.7);
       background: radial-gradient(circle at center, rgba(227,242,253,0.98) 0%, rgba(187,222,251,0.95) 80%);
       overflow: hidden;
+      display: block;
     }
 
-    /* TIME & WEATHER - BOTTOM CENTERED */
+    /* TIME & WEATHER */
     .time-weather-row {
-      position: absolute;
-      bottom: 40px;
-      left: 50%;
-      transform: translateX(-50%);
       display: flex;
-      gap: 30px;
-      flex-wrap: wrap;
       justify-content: center;
+      gap: 60px;
+      flex-wrap: wrap;
+      margin-top: 80px;
     }
     
     .time-card, .weather-card {
       background: rgba(255,255,255,0.98);
       backdrop-filter: blur(50px);
-      padding: 40px 50px;
-      border-radius: 50px;
-      box-shadow: 0 40px 120px rgba(0,0,0,0.3);
-      border: 3px solid rgba(255,255,255,0.98);
+      padding: 60px 70px;
+      border-radius: 60px;
+      box-shadow: 0 50px 160px rgba(0,0,0,0.35);
+      border: 4px solid rgba(255,255,255,0.98);
       text-align: center;
-      min-width: 280px;
-      transition: all 0.5s ease;
+      min-width: 350px;
+      transition: all 0.7s cubic-bezier(0.25,0.46,0.45,0.94);
     }
     
     .time-card:hover, .weather-card:hover {
-      transform: translateY(-20px);
-      box-shadow: 0 60px 180px rgba(0,0,0,0.4);
+      transform: translateY(-40px);
+      box-shadow: 0 80px 240px rgba(0,0,0,0.5);
     }
     
     .time-title, .weather-title {
-      font-size: 1.3rem;
+      font-size: 1.6rem;
       color: #167690;
       font-weight: 900;
-      margin-bottom: 30px;
+      margin-bottom: 50px;
     }
     
     .time-display {
-      font-size: 4rem;
+      font-size: 6rem;
       font-weight: 900;
       color: #1a365d;
       font-family: 'Courier New', monospace;
-      margin-bottom: 20px;
+      margin-bottom: 40px;
     }
     
     .weather-temp {
-      font-size: 3.5rem;
+      font-size: 5rem;
       font-weight: 900;
       color: #ff6b35;
+      margin-bottom: 35px;
     }
 
     /* FLAGS */
     .flags-section {
       max-width: 1200px;
-      margin: 80px auto;
+      margin: 0 auto 80px;
       padding: 0 20px;
     }
     
@@ -209,7 +197,6 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       margin-bottom: 60px;
-      text-align: center;
     }
     
     .flags-grid {
@@ -228,7 +215,6 @@
       box-shadow: 0 30px 100px rgba(0,0,0,0.25);
       border: 3px solid rgba(255,255,255,0.9);
       transition: all 0.6s ease;
-      text-align: center;
     }
     
     .flag-item:hover {
@@ -248,14 +234,14 @@
       font-size: 1.2rem;
     }
 
-    /* AGENDA & BROCHURE - SAME AS BEFORE */
-    .agenda-section, .brochure-section {
-      max-width: 1200px;
+    /* AGENDA */
+    .agenda-section {
+      max-width: 1100px;
       margin: 0 auto 100px;
       padding: 0 20px;
     }
     
-    .agenda-header, .brochure-header {
+    .agenda-header {
       font-size: 2.8rem;
       text-align: center;
       margin-bottom: 50px;
@@ -272,7 +258,6 @@
       overflow: hidden;
       box-shadow: 0 50px 160px rgba(0,0,0,0.35);
       border-collapse: collapse;
-      margin: 0 auto;
     }
     
     .agenda-table th {
@@ -289,6 +274,22 @@
       font-weight: 700;
     }
 
+    /* BROCHURE */
+    .brochure-section {
+      max-width: 1200px;
+      margin: 0 auto 100px;
+      padding: 0 20px;
+      text-align: center;
+    }
+    
+    .brochure-header {
+      font-size: 2.8rem;
+      background: linear-gradient(135deg, #167690, #128fa7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 50px;
+    }
+    
     .brochure-preview-container {
       background: rgba(255,255,255,0.95);
       backdrop-filter: blur(40px);
@@ -330,10 +331,9 @@
     }
 
     @media (max-width: 768px) {
-      .globe-absolute { width: 85vmin; height: 85vmin; }
-      #globeViz { border-radius: 40px; }
-      .time-weather-row { flex-direction: column; gap: 20px; bottom: 20px; }
-      .time-card, .weather-card { min-width: 250px; padding: 30px 40px; }
+      .time-weather-row { flex-direction: column; gap: 40px; }
+      #globeViz { height: 550px; }
+      .time-display { font-size: 4.5rem; }
     }
   </style>
 </head>
@@ -359,17 +359,16 @@
     </div>
   </section>
 
-  <!-- ABSOLUTE CENTERED GLOBE - NEW APPROACH -->
+  <!-- BACK TO ORIGINAL SIMPLE WORKING VERSION -->
   <section class="globe-section" id="globe">
-    <div class="globe-absolute">
-      <div class="globe-header">
-        <svg width="45" height="45" viewBox="0 0 24 24" fill="#167690">
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-        </svg>
-        <h2>🌍 Global Collaboration</h2>
-      </div>
-      <div id="globeViz">Loading Interactive 3D Globe...</div>
+    <div class="globe-header">
+      <svg width="50" height="50" viewBox="0 0 24 24" fill="#167690">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+      </svg>
+      <h2>🌍 Global Collaboration</h2>
     </div>
+    
+    <div id="globeViz">Loading Interactive 3D Globe...</div>
     
     <div class="time-weather-row">
       <div class="time-card">
@@ -391,107 +390,184 @@
     </div>
   </section>
 
-  <!-- REST OF SECTIONS -->
+  <!-- FLAGS -->
   <section class="flags-section" id="flags">
     <h2 class="flags-header">🌐 International Partners</h2>
     <div class="flags-grid">
       <div class="flag-item">
-        <span class="flag-emoji">🇮🇳</span><div class="flag-name">India</div>
+        <span class="flag-emoji">🇮🇳</span>
+        <div class="flag-name">India</div>
       </div>
       <div class="flag-item">
-        <span class="flag-emoji">🇨🇦</span><div class="flag-name">Canada</div>
+        <span class="flag-emoji">🇨🇦</span>
+        <div class="flag-name">Canada</div>
       </div>
       <div class="flag-item">
-        <span class="flag-emoji">🇹🇭</span><div class="flag-name">Thailand</div>
+        <span class="flag-emoji">🇹🇭</span>
+        <div class="flag-name">Thailand</div>
       </div>
       <div class="flag-item">
-        <span class="flag-emoji">🇮🇷</span><div class="flag-name">Iran</div>
+        <span class="flag-emoji">🇮🇷</span>
+        <div class="flag-name">Iran</div>
       </div>
       <div class="flag-item">
-        <span class="flag-emoji">🇳🇬</span><div class="flag-name">Nigeria</div>
+        <span class="flag-emoji">🇳🇬</span>
+        <div class="flag-name">Nigeria</div>
       </div>
       <div class="flag-item">
-        <span class="flag-emoji">🇨🇳</span><div class="flag-name">China</div>
+        <span class="flag-emoji">🇨🇳</span>
+        <div class="flag-name">China</div>
       </div>
     </div>
   </section>
 
+  <!-- AGENDA -->
   <section class="agenda-section" id="agenda">
     <h2 class="agenda-header">📅 Conference Agenda</h2>
     <table class="agenda-table">
-      <tr><th>Time</th><th>Session</th></tr>
-      <tr><td>10:00 AM</td><td>Opening & Keynote: "Fifth Intelligence"</td></tr>
-      <tr><td>11:15 AM</td><td>AI + Human Integration Workshop</td></tr>
-      <tr><td>12:00 PM</td><td>Networking Lunch</td></tr>
-      <tr><td>02:00 PM</td><td>Global Industry Panel</td></tr>
-      <tr><td>03:30 PM</td><td>Book Signing & Closing</td></tr>
+      <tr>
+        <th>Time</th>
+        <th>Session</th>
+      </tr>
+      <tr>
+        <td>10:00 AM</td>
+        <td>Opening & Keynote: "Fifth Intelligence"</td>
+      </tr>
+      <tr>
+        <td>11:15 AM</td>
+        <td>AI + Human Integration Workshop</td>
+      </tr>
+      <tr>
+        <td>12:00 PM</td>
+        <td>Networking Lunch</td>
+      </tr>
+      <tr>
+        <td>02:00 PM</td>
+        <td>Global Industry Panel</td>
+      </tr>
+      <tr>
+        <td>03:30 PM</td>
+        <td>Book Signing & Closing</td>
+      </tr>
     </table>
   </section>
 
+  <!-- BROCHURE -->
   <section class="brochure-section" id="brochure">
     <h2 class="brochure-header">📄 Conference Brochure Preview</h2>
+    
     <div class="brochure-preview-container">
       <h3>👁️ Live PDF Preview</h3>
-      <iframe src="GLOB SMC Leadership Conference 2025_Brochure_Final5.pdf#toolbar=0&navpanes=0&scrollbar=0&view=FitH" class="pdf-preview" title="Conference Brochure Preview"></iframe>
+      <iframe 
+        src="GLOB SMC Leadership Conference 2025_Brochure_Final5.pdf#toolbar=0&navpanes=0&scrollbar=0&view=FitH" 
+        class="pdf-preview"
+        title="Conference Brochure Preview">
+      </iframe>
     </div>
-    <a href="GLOB SMC Leadership Conference 2025_Brochure_Final5.pdf" class="download-btn" download>📥 Download Full Brochure</a>
+    
+    <a href="GLOB SMC Leadership Conference 2025_Brochure_Final5.pdf" class="download-btn" download>
+      📥 Download Full Brochure
+    </a>
   </section>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/globe.gl"></script>
   <script>
-    // Hero neural network (unchanged)
+    // Hero neural network
     const canvas = document.getElementById('heroCanvas');
     const ctx = canvas.getContext('2d');
-    function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-    resizeCanvas(); window.addEventListener('resize', resizeCanvas);
+    
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
     
     function fieryNeural() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       const points = Array(35).fill().map(() => ({
-        x: Math.random() * canvas.width, y: Math.random() * canvas.height * 0.85, brightness: 0.7 + Math.random() * 0.3
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height * 0.85,
+        brightness: 0.7 + Math.random() * 0.3
       }));
-      ctx.shadowBlur = 90; ctx.shadowColor = '#ffd700';
+      
+      ctx.shadowBlur = 90;
+      ctx.shadowColor = '#ffd700';
       points.forEach(p => {
-        ctx.save(); ctx.translate(p.x, p.y); ctx.globalAlpha = p.brightness;
-        ctx.beginPath(); ctx.arc(0, 0, 30 + p.brightness * 20, 0, Math.PI*2);
-        ctx.fillStyle = `rgba(255, 215, 0, ${p.brightness * 0.5})`; ctx.fill();
-        ctx.shadowBlur = 45; ctx.beginPath(); ctx.arc(0, 0, 12, 0, Math.PI*2);
-        ctx.fillStyle = `rgba(255, 255, 100, ${p.brightness})`; ctx.fill(); ctx.restore();
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.globalAlpha = p.brightness;
+        ctx.beginPath();
+        ctx.arc(0, 0, 30 + p.brightness * 20, 0, Math.PI*2);
+        ctx.fillStyle = `rgba(255, 215, 0, ${p.brightness * 0.5})`;
+        ctx.fill();
+        ctx.shadowBlur = 45;
+        ctx.beginPath();
+        ctx.arc(0, 0, 12, 0, Math.PI*2);
+        ctx.fillStyle = `rgba(255, 255, 100, ${p.brightness})`;
+        ctx.fill();
+        ctx.restore();
       });
-      ctx.shadowBlur = 55; ctx.shadowColor = '#ffaa00'; ctx.strokeStyle = 'rgba(255, 193, 7, 0.85)'; ctx.lineWidth = 3.5;
-      points.forEach((p1, i) => { points.slice(i+1).forEach(p2 => {
-        const dist = Math.hypot(p1.x - p2.x, p1.y - p2.y); if (dist < 320) {
-          ctx.globalAlpha = 1 - dist / 320; ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
-        }
-      }); });
+      
+      ctx.shadowBlur = 55;
+      ctx.shadowColor = '#ffaa00';
+      ctx.strokeStyle = 'rgba(255, 193, 7, 0.85)';
+      ctx.lineWidth = 3.5;
+      points.forEach((p1, i) => {
+        points.slice(i+1).forEach(p2 => {
+          const dist = Math.hypot(p1.x - p2.x, p1.y - p2.y);
+          if (dist < 320) {
+            ctx.globalAlpha = 1 - dist / 320;
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.stroke();
+          }
+        });
+      });
     }
-    fieryNeural(); setInterval(fieryNeural, 1300);
+    fieryNeural();
+    setInterval(fieryNeural, 1300);
 
-    // ABSOLUTE CENTERED GLOBE
+    // ORIGINAL GLOBE
     function initGlobe() {
       const globeEl = document.getElementById('globeViz');
       const cubeData = [
         { lat: 13.08, lng: 80.27, size: 0.12, color: '#ff6b35' },
         { lat: 49.28, lng: -123.12, size: 0.12, color: '#4ecdc4' }
       ];
+      
       Globe()(globeEl)
         .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
         .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
-        .showAtmosphere(true).atmosphereColor('lightblue').atmosphereAltitude(0.25)
-        .autoRotate(true).autoRotateSpeed(0.5)
-        .pointsData(cubeData).pointAltitude('size').pointRadius(0.4).pointColor('color').pointResolution(12)
-        .pointLightIntensity(2).pointOfView({ lat: 20, lng: 80, altitude: 1.2 }, 3000);
+        .showAtmosphere(true)
+        .atmosphereColor('lightblue')
+        .atmosphereAltitude(0.25)
+        .autoRotate(true)
+        .autoRotateSpeed(0.5)
+        .pointsData(cubeData)
+        .pointAltitude('size')
+        .pointRadius(0.4)
+        .pointColor('color')
+        .pointResolution(12)
+        .pointLightIntensity(2)
+        .pointOfView({ lat: 20, lng: 80, altitude: 1.2 }, 3000);
     }
 
     function updateClocks() {
       const now = new Date();
-      document.getElementById('time-india').textContent = now.toLocaleTimeString('en-GB', {timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit'});
-      document.getElementById('time-canada').textContent = now.toLocaleTimeString('en-CA', {timeZone: 'America/Vancouver', hour: '2-digit', minute: '2-digit'});
+      document.getElementById('time-india').textContent = 
+        now.toLocaleTimeString('en-GB', {timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit'});
+      document.getElementById('time-canada').textContent = 
+        now.toLocaleTimeString('en-CA', {timeZone: 'America/Vancouver', hour: '2-digit', minute: '2-digit'});
     }
-    updateClocks(); setInterval(updateClocks, 1000);
+    updateClocks();
+    setInterval(updateClocks, 1000);
 
-    window.addEventListener('load', () => setTimeout(initGlobe, 800));
+    window.addEventListener('load', () => {
+      setTimeout(initGlobe, 1000);
+    });
   </script>
 </body>
 </html>
