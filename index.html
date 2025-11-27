@@ -93,7 +93,7 @@
     .hero h2 { font-size: clamp(1.4rem, 4vw, 2.2rem); font-weight: 700; color: white; margin: 0 0 25px 0; text-shadow: 0 0 30px rgba(0,0,0,0.8); }
     .hero p { font-size: clamp(1.1rem, 3vw, 1.5rem); font-weight: 700; color: white; margin: 0; text-shadow: 0 0 20px rgba(0,0,0,0.8); }
 
-    /* SIMPLIFIED GLOBE */
+    /* ORIGINAL 3D GLOBE */
     .globe-section {
       max-width: 1400px;
       margin: 0 auto;
@@ -233,6 +233,46 @@
       font-size: 1.2rem;
     }
 
+    /* AGENDA */
+    .agenda-section {
+      max-width: 1100px;
+      margin: 0 auto 100px;
+      padding: 0 20px;
+    }
+    
+    .agenda-header {
+      font-size: 2.8rem;
+      text-align: center;
+      margin-bottom: 50px;
+      background: linear-gradient(135deg, #167690, #128fa7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .agenda-table {
+      width: 100%;
+      background: rgba(255,255,255,0.98);
+      backdrop-filter: blur(40px);
+      border-radius: 50px;
+      overflow: hidden;
+      box-shadow: 0 50px 160px rgba(0,0,0,0.35);
+      border-collapse: collapse;
+    }
+    
+    .agenda-table th {
+      background: linear-gradient(135deg, #167690, #128fa7);
+      color: white;
+      padding: 30px;
+      font-weight: 900;
+      font-size: 1.3rem;
+    }
+    
+    .agenda-table td {
+      padding: 25px 30px;
+      border-bottom: 1px solid rgba(255,255,255,0.5);
+      font-weight: 700;
+    }
+
     /* BROCHURE */
     .brochure-section {
       max-width: 1200px;
@@ -319,7 +359,7 @@
     </div>
   </section>
 
-  <!-- FALLBACK GLOBE - BEAUTIFUL 3D EARTH -->
+  <!-- ORIGINAL 3D GLOBE SECTION -->
   <section class="globe-section" id="globe">
     <div class="globe-header">
       <svg width="50" height="50" viewBox="0 0 24 24" fill="#167690">
@@ -328,9 +368,7 @@
       <h2>🌍 Global Collaboration</h2>
     </div>
     
-    <div id="globeViz">
-      <canvas id="earthCanvas" style="width:100%;height:100%;border-radius:60px;display:block;"></canvas>
-    </div>
+    <div id="globeViz">Loading Interactive 3D Globe... (CUBE READY)</div>
     
     <div class="time-weather-row">
       <div class="time-card">
@@ -384,15 +422,33 @@
   </section>
 
   <!-- AGENDA -->
-  <section class="agenda-section" id="agenda" style="max-width: 1100px; margin: 0 auto 100px; padding: 0 20px;">
-    <h2 style="font-size: 2.8rem; text-align: center; margin-bottom: 50px; background: linear-gradient(135deg, #167690, #128fa7); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">📅 Conference Agenda</h2>
-    <table class="agenda-table" style="width: 100%; background: rgba(255,255,255,0.98); backdrop-filter: blur(40px); border-radius: 50px; overflow: hidden; box-shadow: 0 50px 160px rgba(0,0,0,0.35); border-collapse: collapse;">
-      <tr><th style="background: linear-gradient(135deg, #167690, #128fa7); color: white; padding: 30px; font-weight: 900; font-size: 1.3rem;">Time</th><th style="background: linear-gradient(135deg, #167690, #128fa7); color: white; padding: 30px; font-weight: 900; font-size: 1.3rem;">Session</th></tr>
-      <tr><td style="padding: 25px 30px; border-bottom: 1px solid rgba(255,255,255,0.5); font-weight: 700;">10:00 AM</td><td style="padding: 25px 30px; border-bottom: 1px solid rgba(255,255,255,0.5); font-weight: 700;">Opening & Keynote: "Fifth Intelligence"</td></tr>
-      <tr><td style="padding: 25px 30px; border-bottom: 1px solid rgba(255,255,255,0.5); font-weight: 700;">11:15 AM</td><td style="padding: 25px 30px; border-bottom: 1px solid rgba(255,255,255,0.5); font-weight: 700;">AI + Human Integration Workshop</td></tr>
-      <tr><td style="padding: 25px 30px; border-bottom: 1px solid rgba(255,255,255,0.5); font-weight: 700;">12:00 PM</td><td style="padding: 25px 30px; border-bottom: 1px solid rgba(255,255,255,0.5); font-weight: 700;">Networking Lunch</td></tr>
-      <tr><td style="padding: 25px 30px; border-bottom: 1px solid rgba(255,255,255,0.5); font-weight: 700;">02:00 PM</td><td style="padding: 25px 30px; border-bottom: 1px solid rgba(255,255,255,0.5); font-weight: 700;">Global Industry Panel</td></tr>
-      <tr><td style="padding: 25px 30px; font-weight: 700;">03:30 PM</td><td style="padding: 25px 30px; font-weight: 700;">Book Signing & Closing</td></tr>
+  <section class="agenda-section" id="agenda">
+    <h2 class="agenda-header">📅 Conference Agenda</h2>
+    <table class="agenda-table">
+      <tr>
+        <th>Time</th>
+        <th>Session</th>
+      </tr>
+      <tr>
+        <td>10:00 AM</td>
+        <td>Opening & Keynote: "Fifth Intelligence"</td>
+      </tr>
+      <tr>
+        <td>11:15 AM</td>
+        <td>AI + Human Integration Workshop</td>
+      </tr>
+      <tr>
+        <td>12:00 PM</td>
+        <td>Networking Lunch</td>
+      </tr>
+      <tr>
+        <td>02:00 PM</td>
+        <td>Global Industry Panel</td>
+      </tr>
+      <tr>
+        <td>03:30 PM</td>
+        <td>Book Signing & Closing</td>
+      </tr>
     </table>
   </section>
 
@@ -414,8 +470,11 @@
     </a>
   </section>
 
+  <!-- ORIGINAL 3D GLOBE SCRIPTS - FIXED CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/globe.gl"></script>
   <script>
-    // 🔥 HERO NEURAL NETWORK
+    // Hero neural network
     const canvas = document.getElementById('heroCanvas');
     const ctx = canvas.getContext('2d');
     
@@ -472,114 +531,34 @@
     fieryNeural();
     setInterval(fieryNeural, 1300);
 
-    // 🌍 BULLETPROOF 3D EARTH GLOBE (NO EXTERNAL LIBRARIES)
-    function initEarthGlobe() {
-      const canvas = document.getElementById('earthCanvas');
-      const ctx = canvas.getContext('2d');
+    // ORIGINAL 3D GLOBE WITH CUBES
+    let globe;
+    function initGlobe() {
+      const globeEl = document.getElementById('globeViz');
       
-      // Set canvas size
-      function resizeCanvas() {
-        canvas.width = canvas.offsetWidth;
-        canvas.height = canvas.offsetHeight;
-      }
-      resizeCanvas();
-      window.addEventListener('resize', resizeCanvas);
+      // CUBE DATA - ADD YOUR COUNTRIES HERE
+      const cubeData = [
+        { lat: 13.08, lng: 80.27, size: 0.12, color: '#ff6b35' },  // 🇮🇳 India
+        { lat: 49.28, lng: -123.12, size: 0.12, color: '#4ecdc4' }, // 🇨🇦 Canada
+        // ADD MORE: { lat: XX.XX, lng: XX.XX, size: 0.12, color: '#YOURCOLOR' }
+      ];
       
-      // Earth colors
-      const ocean = '#1e5a8a';
-      const land = '#4a7c59';
-      const clouds = 'rgba(255,255,255,0.6)';
-      
-      let rotation = 0;
-      
-      function drawEarth() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        const centerX = canvas.width / 2;
-        const centerY = canvas.height / 2;
-        const globeRadius = Math.min(centerX, centerY) * 0.85;
-        
-        // Shadow
-        ctx.save();
-        ctx.translate(centerX + 20, centerY + 20);
-        ctx.beginPath();
-        ctx.arc(0, 0, globeRadius, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(0,0,0,0.3)';
-        ctx.fill();
-        ctx.restore();
-        
-        // Globe glow
-        ctx.save();
-        ctx.shadowColor = '#4ecdc4';
-        ctx.shadowBlur = 50;
-        ctx.translate(centerX, centerY);
-        ctx.beginPath();
-        ctx.arc(0, 0, globeRadius, 0, Math.PI * 2);
-        const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, globeRadius);
-        gradient.addColorStop(0, 'rgba(78, 205, 196, 0.4)');
-        gradient.addColorStop(1, 'rgba(78, 205, 196, 0)');
-        ctx.fillStyle = gradient;
-        ctx.fill();
-        ctx.restore();
-        
-        // Main globe
-        ctx.save();
-        ctx.translate(centerX, centerY);
-        ctx.beginPath();
-        ctx.arc(0, 0, globeRadius, 0, Math.PI * 2);
-        ctx.fillStyle = ocean;
-        ctx.fill();
-        
-        // Continents (rotating)
-        ctx.save();
-        ctx.rotate(rotation);
-        ctx.fillStyle = land;
-        // Simplified continent shapes
-        ctx.beginPath();
-        ctx.arc(0, -globeRadius * 0.4, globeRadius * 0.25, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.beginPath();
-        ctx.ellipse(globeRadius * 0.4, globeRadius * 0.2, globeRadius * 0.2, globeRadius * 0.15, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-        
-        // Atmosphere glow
-        ctx.shadowColor = '#4ecdc4';
-        ctx.shadowBlur = 30;
-        ctx.strokeStyle = 'rgba(78, 205, 196, 0.8)';
-        ctx.lineWidth = 5;
-        ctx.beginPath();
-        ctx.arc(0, 0, globeRadius * 1.05, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.restore();
-        
-        // Country markers (CUBES READY)
-        const markers = [
-          { lat: 13.08, lng: 80.27, color: '#ff6b35', name: 'India' },
-          { lat: 49.28, lng: -123.12, color: '#4ecdc4', name: 'Canada' }
-        ];
-        
-        markers.forEach(marker => {
-          const angle = (marker.lng * Math.PI / 180) + rotation;
-          const x = Math.cos(marker.lat * Math.PI / 180) * Math.cos(angle) * globeRadius * 0.9;
-          const y = Math.sin(marker.lat * Math.PI / 180) * globeRadius * 0.9;
-          
-          ctx.save();
-          ctx.translate(centerX + x, centerY + y);
-          ctx.shadowBlur = 20;
-          ctx.shadowColor = marker.color;
-          ctx.fillStyle = marker.color;
-          ctx.beginPath();
-          ctx.arc(0, 0, 12, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.restore();
-        });
-        
-        rotation += 0.005;
-        requestAnimationFrame(drawEarth);
-      }
-      
-      drawEarth();
+      globe = Globe()
+        (globeEl)
+        .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
+        .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
+        .showAtmosphere(true)
+        .atmosphereColor('lightblue')
+        .atmosphereAltitude(0.25)
+        .autoRotate(true)
+        .autoRotateSpeed(0.5)
+        .pointsData(cubeData)
+        .pointAltitude('size')
+        .pointRadius(0.4)
+        .pointColor('color')
+        .pointResolution(12)
+        .pointLightIntensity(2)
+        .pointOfView({ lat: 20, lng: 80, altitude: 1.2 }, 3000);
     }
 
     // Live clocks
@@ -593,9 +572,13 @@
     updateClocks();
     setInterval(updateClocks, 1000);
 
-    // Start everything
+    // Load globe when libraries ready
     window.addEventListener('load', () => {
-      initEarthGlobe();
+      setTimeout(() => {
+        if (typeof Globe !== 'undefined') {
+          initGlobe();
+        }
+      }, 1000);
     });
   </script>
 </body>
