@@ -93,11 +93,14 @@
     .hero h2 { font-size: clamp(1.4rem, 4vw, 2.2rem); font-weight: 700; color: white; margin: 0 0 25px 0; text-shadow: 0 0 30px rgba(0,0,0,0.8); }
     .hero p { font-size: clamp(1.1rem, 3vw, 1.5rem); font-weight: 700; color: white; margin: 0; text-shadow: 0 0 20px rgba(0,0,0,0.8); }
 
-    /* ORIGINAL 3D GLOBE */
+    /* PERFECTLY CENTERED GLOBE */
     .globe-section {
       max-width: 1400px;
-      margin: 0 auto;
-      padding: 80px 20px;
+      margin: 80px auto;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       text-align: center;
     }
     
@@ -128,11 +131,15 @@
       width: 100%;
       max-width: 1200px;
       height: 650px;
-      margin: 0 auto 100px;
+      margin: 0 auto 100px auto !important;
+      display: block;
       border-radius: 60px;
       box-shadow: 0 60px 200px rgba(22,118,144,0.7);
       background: radial-gradient(circle at center, rgba(227,242,253,0.98) 0%, rgba(187,222,251,0.95) 80%);
       overflow: hidden;
+      position: relative;
+      left: 50%;
+      transform: translateX(-50%);
     }
 
     /* TIME & WEATHER */
@@ -142,6 +149,8 @@
       gap: 60px;
       flex-wrap: wrap;
       margin-bottom: 80px;
+      max-width: 1400px;
+      width: 100%;
     }
     
     .time-card, .weather-card {
@@ -154,6 +163,8 @@
       text-align: center;
       min-width: 350px;
       transition: all 0.7s cubic-bezier(0.25,0.46,0.45,0.94);
+      flex: 1;
+      max-width: 400px;
     }
     
     .time-card:hover, .weather-card:hover {
@@ -359,7 +370,7 @@
     </div>
   </section>
 
-  <!-- ORIGINAL 3D GLOBE SECTION -->
+  <!-- PERFECTLY CENTERED GLOBE -->
   <section class="globe-section" id="globe">
     <div class="globe-header">
       <svg width="50" height="50" viewBox="0 0 24 24" fill="#167690">
@@ -470,7 +481,7 @@
     </a>
   </section>
 
-  <!-- ORIGINAL 3D GLOBE SCRIPTS - FIXED CDN -->
+  <!-- 3D GLOBE LIBRARIES -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/globe.gl"></script>
   <script>
@@ -531,16 +542,15 @@
     fieryNeural();
     setInterval(fieryNeural, 1300);
 
-    // ORIGINAL 3D GLOBE WITH CUBES
+    // CENTERED 3D GLOBE
     let globe;
     function initGlobe() {
       const globeEl = document.getElementById('globeViz');
       
-      // CUBE DATA - ADD YOUR COUNTRIES HERE
+      // CUBE DATA
       const cubeData = [
         { lat: 13.08, lng: 80.27, size: 0.12, color: '#ff6b35' },  // 🇮🇳 India
-        { lat: 49.28, lng: -123.12, size: 0.12, color: '#4ecdc4' }, // 🇨🇦 Canada
-        // ADD MORE: { lat: XX.XX, lng: XX.XX, size: 0.12, color: '#YOURCOLOR' }
+        { lat: 49.28, lng: -123.12, size: 0.12, color: '#4ecdc4' }  // 🇨🇦 Canada
       ];
       
       globe = Globe()
@@ -572,13 +582,12 @@
     updateClocks();
     setInterval(updateClocks, 1000);
 
-    // Load globe when libraries ready
     window.addEventListener('load', () => {
       setTimeout(() => {
         if (typeof Globe !== 'undefined') {
           initGlobe();
         }
-      }, 1000);
+      }, 1500);
     });
   </script>
 </body>
