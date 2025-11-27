@@ -279,48 +279,113 @@
     
     .time-col { width: 18%; font-family: 'Courier New', monospace; font-size: 1.4rem; color: #ff6b35; }
 
-    /* PARTNERS */
-    .partners-section {
+    /* REGISTRATION CARDS */
+    .registration-section {
       max-width: 1200px;
       margin: 120px auto;
       padding: 0 40px;
       text-align: center;
     }
     
-    .partners-header {
+    .registration-header {
       font-size: 3.2rem;
       background: linear-gradient(135deg, #167690, #128fa7);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       margin-bottom: 80px;
+      font-weight: 900;
     }
     
-    .flags-grid {
+    .cards-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 50px;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 60px;
       max-width: 1000px;
       margin: 0 auto;
     }
     
-    .flag-item {
+    .reg-card {
       background: rgba(255,255,255,0.95);
-      backdrop-filter: blur(30px);
-      padding: 60px 30px;
+      backdrop-filter: blur(40px);
+      padding: 60px 40px;
       border-radius: 40px;
       box-shadow: 0 40px 140px rgba(0,0,0,0.25);
       border: 4px solid rgba(255,255,255,0.9);
-      transition: all 0.6s ease;
+      transition: all 0.6s cubic-bezier(0.25,0.46,0.45,0.94);
       height: 100%;
+      position: relative;
+      overflow: hidden;
     }
     
-    .flag-item:hover {
-      transform: translateY(-25px) scale(1.05);
+    .reg-card:hover {
+      transform: translateY(-20px);
       box-shadow: 0 70px 220px rgba(22,118,144,0.4);
     }
     
-    .flag-emoji { font-size: 5rem; margin-bottom: 25px; display: block; }
-    .flag-name { font-weight: 900; color: #167690; font-size: 1.6rem; }
+    .reg-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: inherit;
+      border-radius: 36px;
+      padding: 4px;
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask-composite: exclude;
+      opacity: 0;
+      transition: opacity 0.6s ease;
+      z-index: -1;
+    }
+    
+    .reg-card:hover::before { opacity: 1; }
+    
+    .card-icon { 
+      font-size: 4rem; 
+      display: block; 
+      margin-bottom: 25px; 
+    }
+    
+    .card-title { 
+      font-size: 2rem; 
+      font-weight: 900; 
+      color: #167690; 
+      margin-bottom: 20px;
+    }
+    
+    .card-desc { 
+      font-size: 1.2rem; 
+      color: #1a365d; 
+      margin-bottom: 30px;
+      font-weight: 600;
+    }
+    
+    .reg-btn {
+      display: inline-block;
+      padding: 20px 50px;
+      background: linear-gradient(135deg, #167690, #128fa7);
+      color: white;
+      text-decoration: none;
+      border-radius: 50px;
+      font-weight: 900;
+      font-size: 1.3rem;
+      box-shadow: 0 20px 60px rgba(22,118,144,0.4);
+      transition: all 0.4s ease;
+      border: 3px solid rgba(255,255,255,0.6);
+    }
+    
+    .reg-btn:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 30px 80px rgba(22,118,144,0.6);
+    }
+    
+    .book-card .card-icon { color: #ff6b35; }
+    .book-card .card-title { color: #ff6b35; }
+    .book-card .reg-btn { 
+      background: linear-gradient(135deg, #ff6b35, #ff8e53); 
+      box-shadow: 0 20px 60px rgba(255,107,53,0.4);
+    }
+    .book-card:hover .reg-btn { 
+      box-shadow: 0 30px 80px rgba(255,107,53,0.6); 
+    }
 
     /* BROCHURE */
     .brochure-section {
@@ -379,6 +444,7 @@
     }
 
     @media (max-width: 768px) {
+      .cards-grid { grid-template-columns: 1fr; gap: 40px; }
       .world-clock-section { margin: 40px auto; padding: 0 15px; }
       .world-clock-widget { padding: 20px 15px; }
       .clock-item { padding: 6px 8px; font-size: 0.85rem; }
@@ -387,7 +453,7 @@
       .hero-meta { padding: 20px 40px; }
       .synopsis-content { padding: 40px 30px; font-size: 1.1rem; }
       .pdf-preview { height: 500px; }
-      .flags-grid { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 30px; }
+      .reg-card { padding: 40px 25px; }
     }
   </style>
 </head>
@@ -398,12 +464,12 @@
       <a href="#worldclock">World Clock</a>
       <a href="#synopsis">Overview</a>
       <a href="#agenda">Agenda</a>
-      <a href="#partners">Partners</a>
+      <a href="#register">Register</a>
       <a href="#brochure">Brochure</a>
     </nav>
   </header>
 
-  <!-- HERO - UPDATED TITLE -->
+  <!-- HERO -->
   <section class="hero">
     <img src="humanintelligence.png" alt="Conference Hero Image" />
     <canvas id="heroCanvas"></canvas>
@@ -420,13 +486,11 @@
   <section class="world-clock-section" id="worldclock">
     <h2 class="clock-header">🌍 Live World Clock</h2>
     <div class="world-clock-widget">
-      <div class="clock-stack" id="clockStack">
-        <!-- VERTICALLY STACKED - POPULATED BY JS -->
-      </div>
+      <div class="clock-stack" id="clockStack"></div>
     </div>
   </section>
 
-  <!-- SYNOPSIS - FULLY UPDATED -->
+  <!-- SYNOPSIS -->
   <section class="synopsis-section" id="synopsis">
     <h2 class="synopsis-header">Conference Overview</h2>
     <div class="synopsis-content">
@@ -434,7 +498,7 @@
       
       Joined by industry experts, educators, and government leaders, engage in provocative panel discussions on disruptive, controversial conversations about AI's impact on human consciousness, its changes to human behaviors, the way we communicate, work, and organizational changes, governing dynamics of economies, institutions, and private/public sectors.
       
-      Transformative insights from India, Canada, Thailand, Iran, Nigeria, and China - united by a shared vision for responsible AI leadership in the global economy.
+      Transformative insights from global thought leaders united by a shared vision for responsible AI leadership.
     </div>
   </section>
 
@@ -469,33 +533,24 @@
     </table>
   </section>
 
-  <!-- PARTNERS -->
-  <section class="partners-section" id="partners">
-    <h2 class="partners-header">🌐 International Partners</h2>
-    <div class="flags-grid">
-      <div class="flag-item">
-        <span class="flag-emoji">🇮🇳</span>
-        <div class="flag-name">India</div>
+  <!-- REGISTRATION CARDS - REPLACES PARTNERS -->
+  <section class="registration-section" id="register">
+    <h2 class="registration-header">🎫 Registration</h2>
+    <div class="cards-grid">
+      <!-- CONFERENCE REGISTRATION -->
+      <div class="reg-card">
+        <div class="card-icon">📺</div>
+        <div class="card-title">Live Conference Access</div>
+        <div class="card-desc">Join our international audience for the live online conference experience. Full access to keynote, panels, and workshops.</div>
+        <a href="#conference-registration" class="reg-btn">Register Now</a>
       </div>
-      <div class="flag-item">
-        <span class="flag-emoji">🇨🇦</span>
-        <div class="flag-name">Canada</div>
-      </div>
-      <div class="flag-item">
-        <span class="flag-emoji">🇹🇭</span>
-        <div class="flag-name">Thailand</div>
-      </div>
-      <div class="flag-item">
-        <span class="flag-emoji">🇮🇷</span>
-        <div class="flag-name">Iran</div>
-      </div>
-      <div class="flag-item">
-        <span class="flag-emoji">🇳🇬</span>
-        <div class="flag-name">Nigeria</div>
-      </div>
-      <div class="flag-item">
-        <span class="flag-emoji">🇨🇳</span>
-        <div class="flag-name">China</div>
+      
+      <!-- BOOK SIGNING - LIMITED SEATS -->
+      <div class="reg-card book-card">
+        <div class="card-icon">📖✨</div>
+        <div class="card-title">VIP Book Signing</div>
+        <div class="card-desc"><strong>Limited Seats!</strong> Pre-register for Dr. Laird's exclusive book signing after the conference. Priority access guaranteed.</div>
+        <a href="#book-signing-registration" class="reg-btn">Pre-Register VIP</a>
       </div>
     </div>
   </section>
