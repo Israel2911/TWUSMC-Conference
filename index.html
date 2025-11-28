@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>3D Globe Clock - VISIBLE GLOBE</title>
+  <title>3D Globe Clock - GUARANTEED VISIBLE</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -14,99 +14,107 @@
       font-family: Arial, sans-serif; 
       height: 100vh;
     }
-    #container { 
-      position: relative; 
-      width: 100vw; 
-      height: 100vh; 
-    }
-    canvas { 
-      display: block; 
-      width: 100%; 
-      height: 100%; 
+    #container { position: relative; width: 100vw; height: 100vh; }
+    canvas { display: block; width: 100%; height: 100%; }
+    .status { 
+      position: absolute; top: 10px; left: 10px; 
+      color: #00ff88; font-weight: bold; z-index: 100;
     }
     .controls {
-      position: absolute; top: 20px; right: 20px; 
+      position: absolute; top: 10px; right: 10px; 
       display: flex; gap: 10px; z-index: 100;
     }
     .btn {
-      padding: 10px 15px; background: rgba(0,255,136,0.2);
-      border: 1px solid #00ff88; color: white;
-      border-radius: 20px; cursor: pointer; font-weight: bold;
-    }
-    .title {
-      position: absolute; top: 20px; left: 20px;
-      color: #00ff88; font-size: 2.5em; font-weight: bold; z-index: 100;
+      padding: 8px 15px; background: rgba(0,255,136,0.3);
+      border: 1px solid #00ff88; color: white; border-radius: 20px; 
+      cursor: pointer; font-weight: bold;
     }
   </style>
 </head>
 <body>
   <div id="container">
-    <div class="title">🌍 GLOBE CLOCK</div>
+    <div class="status" id="status">Loading Globe...</div>
     <div class="controls">
       <button class="btn" id="toggleClocks">Hide Clocks</button>
-      <button class="btn" id="pause">Pause</button>
+      <button class="btn" id="resetView">Reset View</button>
     </div>
   </div>
 
   <script>
-    // SCENE SETUP
     const container = document.getElementById('container');
+    const status = document.getElementById('status');
+    
+    // SCENE
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(0x000011);
     container.appendChild(renderer.domElement);
 
     // CONTROLS
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    camera.position.z = 3;
+    camera.position.set(0, 0, 2.5); // CLOSER CAMERA
 
-    // BRIGHT LIGHTS - MAKES GLOBE VISIBLE
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.0);
+    // MAXIMUM BRIGHTNESS LIGHTING
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.2); // BRIGHT
     scene.add(ambientLight);
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
-    directionalLight.position.set(1, 1, 1);
-    scene.add(directionalLight);
+    const dirLight = new THREE.DirectionalLight(0xffffff, 2.0); // BRIGHT
+    dirLight.position.set(1, 1, 1);
+    scene.add(dirLight);
 
-    // GLOBE GROUP
     const globeGroup = new THREE.Group();
     scene.add(globeGroup);
+    status.textContent = "Creating Base Globe...";
 
-    // 🌍 MAIN GLOBE - HIGHLY VISIBLE
-    const globeGeometry = new THREE.SphereGeometry(1, 32, 32);
+    // 🌍 BASE GLOBE - ALWAYS VISIBLE (NO TEXTURE DEPENDENCY)
+    const globeGeometry = new THREE.SphereGeometry(1, 64, 64);
     const globeMaterial = new THREE.MeshLambertMaterial({ 
-      color: 0x2233aa,
-      emissive: 0x112244,
-      emissiveIntensity: 0.3
+      color: 0x4169e1, // Royal Blue
+      emissive: 0x1e3a8a,
+      emissiveIntensity: 0.4 // GLOW
     });
     const globe = new THREE.Mesh(globeGeometry, globeMaterial);
     globeGroup.add(globe);
+    status.textContent = "Base Globe Created ✓";
 
-    // EARTH TEXTURE
+    // TRY TEXTURE (FALLBACK TO BASE GLOBE)
     const textureLoader = new THREE.TextureLoader();
-    textureLoader.load('https://static.wixstatic.com/media/d77f36_8f868995fda643a0a61562feb20eb733~mv2.jpg', (texture) => {
-      const textureMaterial = new THREE.MeshLambertMaterial({
-        map: texture,
-        transparent: true,
-        opacity: 0.8
-      });
-      const textureGlobe = new THREE.Mesh(globeGeometry, textureMaterial);
-      globeGroup.add(textureGlobe);
-    });
+    textureLoader.load(
+      'https://static.wixstatic.com/media/d77f36_8f868995fda643a0a61562feb20eb733~mv2.jpg',
+      (texture) => {
+        const textureGlobe = new THREE.Mesh(
+          new THREE.SphereGeometry(0.98, 64, 64),
+          new THREE.MeshLambertMaterial({ 
+            map: texture, 
+            transparent: true, 
+            opacity: 0.7 
+          })
+        );
+        globeGroup.add(textureGlobe);
+        status.textContent = "Earth Texture Loaded ✓";
+      },
+      undefined,
+      (error) => {
+        console.log("Texture failed - using base globe");
+        status.textContent = "Using Base Globe (Texture Failed) ✓";
+      }
+    );
 
-    // WIREFRAME - VISIBLE
-    const wireframeGeometry = new THREE.SphereGeometry(1.02, 32, 32);
-    const wireframeMaterial = new THREE.MeshBasicMaterial({
-      color: 0x00ff88,
-      wireframe: true,
-      transparent: true,
-      opacity: 0.8
-    });
-    const wireframe = new THREE.Mesh(wireframeGeometry, wireframeMaterial);
+    // GREEN WIREFRAME - ALWAYS VISIBLE
+    const wireframe = new THREE.Mesh(
+      new THREE.SphereGeometry(1.02, 64, 64),
+      new THREE.MeshBasicMaterial({ 
+        color: 0x00ff88, 
+        wireframe: true, 
+        transparent: true, 
+        opacity: 1.0 
+      })
+    );
     globeGroup.add(wireframe);
+    status.textContent = "Wireframe Added ✓";
 
-    // GPS COORDINATES FROM YOUR CODE
+    // YOUR GPS COORDINATES
     const countries = [
       {name: 'India', lat: 22, lng: 78, tz: 'Asia/Kolkata', color: 0xff6600},
       {name: 'Canada', lat: 56.1304, lng: -106.3468, tz: 'America/Vancouver', color: 0xff0000},
@@ -130,90 +138,66 @@
       return new THREE.Vector3(x, y, z);
     }
 
-    // CREATE COUNTRY MARKERS + CLOCKS
+    // COUNTRY MARKERS
     countries.forEach((country, index) => {
-      // GLOWING MARKER
-      const markerGeometry = new THREE.SphereGeometry(0.04, 16, 16);
-      const markerMaterial = new THREE.MeshLambertMaterial({
-        color: country.color,
-        emissive: country.color,
-        emissiveIntensity: index === 0 ? 0.8 : 0.4
-      });
-      const marker = new THREE.Mesh(markerGeometry, markerMaterial);
+      const marker = new THREE.Mesh(
+        new THREE.SphereGeometry(0.04, 16, 16),
+        new THREE.MeshLambertMaterial({
+          color: country.color,
+          emissive: country.color,
+          emissiveIntensity: index === 0 ? 1.0 : 0.6 // India brighter
+        })
+      );
       marker.position.copy(latLonToVector3(country.lat, country.lng, 1.15));
       marker.lookAt(0, 0, 0);
       globeGroup.add(marker);
       clockMarkers.push(marker);
 
-      // TIME TEXT
+      // Clock text
       const canvas = document.createElement('canvas');
+      canvas.width = 256; canvas.height = 128;
       const ctx = canvas.getContext('2d');
-      canvas.width = 256;
-      canvas.height = 128;
-      
-      const spriteMaterial = new THREE.SpriteMaterial({
+      const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
         map: new THREE.CanvasTexture(canvas),
         transparent: true
-      });
-      const sprite = new THREE.Sprite(spriteMaterial);
+      }));
       sprite.position.copy(marker.position.clone().add(new THREE.Vector3(0, 0.1, 0)));
       sprite.scale.set(0.15, 0.075, 1);
       globeGroup.add(sprite);
 
       clockTexts.push({
-        canvas, ctx, sprite, country,
+        canvas, ctx, sprite, country, index,
         update: function() {
           const now = new Date();
           const time = now.toLocaleTimeString('en-US', {
-            timeZone: country.tz,
-            hour12: false,
-            hour: '2-digit',
-            minute: '2-digit'
+            timeZone: country.tz, hour12: false,
+            hour: '2-digit', minute: '2-digit'
           });
-          
           ctx.clearRect(0, 0, 256, 128);
-          ctx.fillStyle = 'rgba(0,0,0,0.9)';
-          ctx.fillRect(0, 0, 256, 128);
-          ctx.fillStyle = 'white';
-          ctx.font = 'bold 24px Arial';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
+          ctx.fillStyle = 'rgba(0,0,0,0.9)'; ctx.fillRect(0, 0, 256, 128);
+          ctx.fillStyle = 'white'; ctx.font = 'bold 24px Arial';
+          ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
           ctx.fillText(country.name, 128, 40);
           ctx.fillStyle = index === 0 ? '#ffff00' : '#00ff88';
           ctx.font = 'bold 32px Courier';
           ctx.fillText(time, 128, 90);
-          
           sprite.material.map.needsUpdate = true;
         }
       });
     });
 
-    // PARTICLES
-    const particles = new THREE.Group();
-    globeGroup.add(particles);
-    for(let i = 0; i < 100; i++) {
-      const particle = new THREE.Mesh(
-        new THREE.BoxGeometry(0.02, 0.02, 0.02),
-        new THREE.MeshLambertMaterial({ color: 0x00ff88 })
-      );
-      particle.position.x = (Math.random() - 0.5) * 4;
-      particle.position.y = (Math.random() - 0.5) * 4;
-      particle.position.z = (Math.random() - 0.5) * 4;
-      particles.add(particle);
-    }
+    status.textContent = "All Elements Loaded ✓ - Globe Active!";
 
     // CONTROLS
     let showClocks = true;
-    let paused = false;
-
     document.getElementById('toggleClocks').onclick = () => {
       showClocks = !showClocks;
       clockTexts.forEach(ct => ct.sprite.visible = showClocks);
     };
 
-    document.getElementById('pause').onclick = () => {
-      paused = !paused;
-      controls.autoRotate = !paused;
+    document.getElementById('resetView').onclick = () => {
+      camera.position.set(0, 0, 2.5);
+      controls.reset();
     };
 
     // RESIZE
@@ -223,34 +207,28 @@
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
 
-    // ANIMATION LOOP
+    // ANIMATION
+    const clock = new THREE.Clock();
     function animate() {
       requestAnimationFrame(animate);
-      
       controls.update();
       
-      // Rotate globe
-      globeGroup.rotation.y += 0.005;
+      const elapsed = clock.getElapsedTime();
+      
+      // Slow globe rotation
+      globeGroup.rotation.y = elapsed * 0.2;
       
       // Update clocks
       clockTexts.forEach(ct => ct.update());
       
-      // Animate particles
-      particles.rotation.y += 0.002;
-      particles.children.forEach((p, i) => {
-        p.rotation.x += 0.01;
-        p.rotation.y += 0.01;
-        p.position.y += Math.sin(Date.now() * 0.001 + i) * 0.001;
-      });
-      
       // India pulse
       if(clockMarkers[0]) {
-        clockMarkers[0].scale.setScalar(1 + Math.sin(Date.now() * 0.005) * 0.3);
+        clockMarkers[0].scale.setScalar(1 + Math.sin(elapsed * 3) * 0.3);
+        clockMarkers[0].rotation.y = elapsed * 2;
       }
       
       renderer.render(scene, camera);
     }
-    
     animate();
   </script>
 </body>
