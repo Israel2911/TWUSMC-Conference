@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>🌍 3D World Globe + CARD FLAGS</title>
+  <title>🌍 3D World Globe + CARD MARKERS</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -102,7 +102,6 @@
       {name: 'Malaysia', flag: '🇲🇾', lat: 4, lng: 102, tz: 'Asia/Kuala_Lumpur', color: 0xFFD700, cardId: 'Malaysia'}
     ];
 
-    const clockMarkers = [];
     const cardFlags = [];
 
     function latLonToVector3(lat, lon, radius) {
@@ -115,38 +114,24 @@
       );
     }
 
-    // ✅ CARD FLAGS AROUND COUNTRY SPHERES
+    // ✅ ONLY CARD FLAGS (NO SPHERES)
     countries.forEach((country, index) => {
-      // COUNTRY SPHERE (SMALLER, NOT BLOCKING)
-      const marker = new THREE.Mesh(
-        new THREE.SphereGeometry(0.035, 16, 16), // SMALLER
-        new THREE.MeshLambertMaterial({
-          color: country.color,
-          emissive: country.color,
-          emissiveIntensity: index === 0 ? 1.2 : 0.8
-        })
-      );
-      marker.position.copy(latLonToVector3(country.lat, country.lng, 1.16));
-      marker.lookAt(0, 0, 0);
-      globeGroup.add(marker);
-      clockMarkers.push(marker);
-
-      // 🟢 STYLED CARD FLAG (ROUNDED CORNERS + GLOW)
+      // 🟢 STYLED CARD FLAG (ONLY MARKER)
       const flagCanvas = document.createElement('canvas');
       flagCanvas.width = 420; flagCanvas.height = 220;
       const flagCtx = flagCanvas.getContext('2d');
       
-      // CARD BACKGROUND (rounded + gradient)
+      // CARD BACKGROUND
       const gradient = flagCtx.createLinearGradient(0, 0, 0, 220);
       gradient.addColorStop(0, 'rgba(20,20,40,0.98)');
       gradient.addColorStop(1, 'rgba(0,0,20,0.98)');
       flagCtx.fillStyle = gradient;
       
-      // ROUNDED CARD (25px radius)
+      // ROUNDED CARD + GLOW
       flagCtx.save();
-      flagCtx.shadowColor = 'rgba(0,255,136,0.3)';
-      flagCtx.shadowBlur = 25;
-      flagCtx.shadowOffsetY = 10;
+      flagCtx.shadowColor = country.color + '33'; // Use country color for glow
+      flagCtx.shadowBlur = 30;
+      flagCtx.shadowOffsetY = 12;
       
       flagCtx.beginPath();
       flagCtx.roundRect(15, 15, 390, 190, 25);
@@ -159,19 +144,19 @@
       flagCtx.lineJoin = 'round';
       flagCtx.stroke();
       
-      // COUNTRY FLAG (LEFT)
+      // COUNTRY FLAG
       flagCtx.fillStyle = '#ffffff';
       flagCtx.font = 'bold 85px Arial';
       flagCtx.textAlign = 'left';
       flagCtx.textBaseline = 'middle';
       flagCtx.fillText(country.flag, 45, 80);
       
-      // COUNTRY NAME (MIDDLE LEFT)
+      // COUNTRY NAME
       flagCtx.fillStyle = '#e0e0ff';
       flagCtx.font = 'bold 38px Arial';
       flagCtx.fillText(country.name, 160, 80);
       
-      // TIME (RIGHT - GLOWING)
+      // TIME (GLOWING)
       const now = new Date();
       const time = now.toLocaleTimeString('en-US', {
         timeZone: country.tz,
@@ -195,7 +180,7 @@
         map: new THREE.CanvasTexture(flagCanvas),
         transparent: true
       }));
-      cardFlag.position.copy(marker.position.clone().add(new THREE.Vector3(0, 0, 0.03)));
+      cardFlag.position.copy(latLonToVector3(country.lat, country.lng, 1.18));
       cardFlag.lookAt(0, 0, 0);
       cardFlag.scale.set(0.34, 0.20, 1);
       globeGroup.add(cardFlag);
@@ -229,16 +214,16 @@
         const flagData = cardFlags[index];
         flagData.ctx.clearRect(0, 0, 420, 220);
         
-        // RECREATE CARD
+        // RECREATE CARD (country-colored glow)
         const gradient = flagData.ctx.createLinearGradient(0, 0, 0, 220);
         gradient.addColorStop(0, 'rgba(20,20,40,0.98)');
         gradient.addColorStop(1, 'rgba(0,0,20,0.98)');
         flagData.ctx.fillStyle = gradient;
         
         flagData.ctx.save();
-        flagData.ctx.shadowColor = 'rgba(0,255,136,0.3)';
-        flagData.ctx.shadowBlur = 25;
-        flagData.ctx.shadowOffsetY = 10;
+        flagData.ctx.shadowColor = country.color + '33';
+        flagData.ctx.shadowBlur = 30;
+        flagData.ctx.shadowOffsetY = 12;
         flagData.ctx.beginPath();
         flagData.ctx.roundRect(15, 15, 390, 190, 25);
         flagData.ctx.fill();
@@ -291,8 +276,8 @@
         globeGroup.rotation.y = elapsed * 0.25;
       }
 
-      clockMarkers[0].scale.setScalar(1 + Math.sin(elapsed * 4) * 0.25);
-      clockMarkers[0].rotation.y = elapsed * 2;
+      // India card pulse
+      cardFlags[0].sprite.scale.setScalar(1 + Math.sin(elapsed * 4) * 0.15);
 
       renderer.render(scene, camera);
     }
