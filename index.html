@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>🌍 3D World Globe + PERFECTLY UNIFORM CARDS</title>
+  <title>🌍 3D World Globe + FIXED INDIA CARD</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -114,7 +114,7 @@
       );
     }
 
-    // ✅ IDENTICAL CODE FOR ALL CARDS - India now perfect
+    // ✅ TRUE BASE CODE - India FIXED to match EXACTLY
     countries.forEach((country, index) => {
       const flagCanvas = document.createElement('canvas');
       flagCanvas.width = 420; flagCanvas.height = 220;
@@ -143,38 +143,73 @@
       flagCtx.lineJoin = 'round';
       flagCtx.stroke();
       
-      // ✅ SAME POSITIONS FOR ALL (including India)
-      flagCtx.fillStyle = '#ffffff';
-      flagCtx.font = 'bold 85px Arial';
-      flagCtx.textAlign = 'left';
-      flagCtx.textBaseline = 'middle';
-      flagCtx.fillText(country.flag, 45, 80);
-      
-      flagCtx.fillStyle = '#e0e0ff';
-      flagCtx.font = 'bold 38px Arial';
-      flagCtx.textAlign = 'left';
-      flagCtx.textBaseline = 'middle';
-      flagCtx.fillText(country.name, 160, 80);
-      
-      // TIME (ONLY DIFFERENCE: India = gold)
-      const now = new Date();
-      const time = now.toLocaleTimeString('en-US', {
-        timeZone: country.tz,
-        hour12: false,
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-      
-      flagCtx.fillStyle = index === 0 ? '#FFD700' : '#00ff88';
-      flagCtx.font = 'bold 70px Courier New';
-      flagCtx.textAlign = 'right';
-      flagCtx.textBaseline = 'middle';
-      flagCtx.shadowColor = flagCtx.fillStyle;
-      flagCtx.shadowBlur = 25;
-      flagCtx.shadowOffsetX = 3;
-      flagCtx.shadowOffsetY = 3;
-      flagCtx.fillText(time, 375, 120);
-      flagCtx.shadowBlur = 0;
+      // 🇮🇳 INDIA FLAG - SPECIAL POSITIONING (matches screenshot)
+      if (country.name === 'India') {
+        // India flag slightly higher to match Thailand/Malaysia
+        flagCtx.fillStyle = '#ffffff';
+        flagCtx.font = 'bold 85px Arial';
+        flagCtx.textAlign = 'left';
+        flagCtx.textBaseline = 'middle';
+        flagCtx.fillText(country.flag, 45, 82);  // +2px adjustment
+        
+        flagCtx.fillStyle = '#e0e0ff';
+        flagCtx.font = 'bold 38px Arial';
+        flagCtx.textAlign = 'left';
+        flagCtx.textBaseline = 'middle';
+        flagCtx.fillText(country.name, 165, 82);  // +5px X, +2px Y
+        
+        // India gold time positioned exactly
+        const now = new Date();
+        const time = now.toLocaleTimeString('en-US', {
+          timeZone: country.tz,
+          hour12: false,
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+        
+        flagCtx.fillStyle = '#FFD700';
+        flagCtx.font = 'bold 68px Courier New';  // Slightly smaller
+        flagCtx.textAlign = 'right';
+        flagCtx.textBaseline = 'middle';
+        flagCtx.shadowColor = flagCtx.fillStyle;
+        flagCtx.shadowBlur = 25;
+        flagCtx.shadowOffsetX = 3;
+        flagCtx.shadowOffsetY = 3;
+        flagCtx.fillText(time, 370, 118);  // Fine-tuned position
+        flagCtx.shadowBlur = 0;
+      } else {
+        // ALL OTHER COUNTRIES - EXACT BASE CODE
+        flagCtx.fillStyle = '#ffffff';
+        flagCtx.font = 'bold 85px Arial';
+        flagCtx.textAlign = 'left';
+        flagCtx.textBaseline = 'middle';
+        flagCtx.fillText(country.flag, 45, 80);
+        
+        flagCtx.fillStyle = '#e0e0ff';
+        flagCtx.font = 'bold 38px Arial';
+        flagCtx.textAlign = 'left';
+        flagCtx.textBaseline = 'middle';
+        flagCtx.fillText(country.name, 160, 80);
+        
+        const now = new Date();
+        const time = now.toLocaleTimeString('en-US', {
+          timeZone: country.tz,
+          hour12: false,
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+        
+        flagCtx.fillStyle = '#00ff88';
+        flagCtx.font = 'bold 70px Courier New';
+        flagCtx.textAlign = 'right';
+        flagCtx.textBaseline = 'middle';
+        flagCtx.shadowColor = flagCtx.fillStyle;
+        flagCtx.shadowBlur = 25;
+        flagCtx.shadowOffsetX = 3;
+        flagCtx.shadowOffsetY = 3;
+        flagCtx.fillText(time, 375, 120);
+        flagCtx.shadowBlur = 0;
+      }
       
       const cardFlag = new THREE.Sprite(new THREE.SpriteMaterial({
         map: new THREE.CanvasTexture(flagCanvas),
@@ -198,7 +233,7 @@
       btn.textContent = isPaused ? '▶️ Resume Rotation' : '⏸️ Pause Rotation';
     };
 
-    // UPDATE ALL IDENTICAL CARDS
+    // UPDATE CARDS
     function updateTimes() {
       countries.forEach((country, index) => {
         const now = new Date();
@@ -214,7 +249,7 @@
         const flagData = cardFlags[index];
         flagData.ctx.clearRect(0, 0, 420, 220);
         
-        // SAME CODE FOR ALL
+        // RECREATE CARD
         const gradient = flagData.ctx.createLinearGradient(0, 0, 0, 220);
         gradient.addColorStop(0, 'rgba(20,20,40,0.98)');
         gradient.addColorStop(1, 'rgba(0,0,20,0.98)');
@@ -234,29 +269,55 @@
         flagData.ctx.lineJoin = 'round';
         flagData.ctx.stroke();
         
-        // ✅ IDENTICAL POSITIONS
-        flagData.ctx.fillStyle = '#ffffff';
-        flagData.ctx.font = 'bold 85px Arial';
-        flagData.ctx.textAlign = 'left';
-        flagData.ctx.textBaseline = 'middle';
-        flagData.ctx.fillText(country.flag, 45, 80);
-        
-        flagData.ctx.fillStyle = '#e0e0ff';
-        flagData.ctx.font = 'bold 38px Arial';
-        flagData.ctx.textAlign = 'left';
-        flagData.ctx.textBaseline = 'middle';
-        flagData.ctx.fillText(country.name, 160, 80);
-        
-        flagData.ctx.fillStyle = index === 0 ? '#FFD700' : '#00ff88';
-        flagData.ctx.font = 'bold 70px Courier New';
-        flagData.ctx.textAlign = 'right';
-        flagData.ctx.textBaseline = 'middle';
-        flagData.ctx.shadowColor = flagData.ctx.fillStyle;
-        flagData.ctx.shadowBlur = 25;
-        flagData.ctx.shadowOffsetX = 3;
-        flagData.ctx.shadowOffsetY = 3;
-        flagData.ctx.fillText(time, 375, 120);
-        flagData.ctx.shadowBlur = 0;
+        // INDIA SPECIAL POSITIONING
+        if (country.name === 'India') {
+          flagData.ctx.fillStyle = '#ffffff';
+          flagData.ctx.font = 'bold 85px Arial';
+          flagData.ctx.textAlign = 'left';
+          flagData.ctx.textBaseline = 'middle';
+          flagData.ctx.fillText(country.flag, 45, 82);
+          
+          flagData.ctx.fillStyle = '#e0e0ff';
+          flagData.ctx.font = 'bold 38px Arial';
+          flagData.ctx.textAlign = 'left';
+          flagData.ctx.textBaseline = 'middle';
+          flagData.ctx.fillText(country.name, 165, 82);
+          
+          flagData.ctx.fillStyle = '#FFD700';
+          flagData.ctx.font = 'bold 68px Courier New';
+          flagData.ctx.textAlign = 'right';
+          flagData.ctx.textBaseline = 'middle';
+          flagData.ctx.shadowColor = flagData.ctx.fillStyle;
+          flagData.ctx.shadowBlur = 25;
+          flagData.ctx.shadowOffsetX = 3;
+          flagData.ctx.shadowOffsetY = 3;
+          flagData.ctx.fillText(time, 370, 118);
+          flagData.ctx.shadowBlur = 0;
+        } else {
+          // OTHER COUNTRIES - BASE CODE
+          flagData.ctx.fillStyle = '#ffffff';
+          flagData.ctx.font = 'bold 85px Arial';
+          flagData.ctx.textAlign = 'left';
+          flagData.ctx.textBaseline = 'middle';
+          flagData.ctx.fillText(country.flag, 45, 80);
+          
+          flagData.ctx.fillStyle = '#e0e0ff';
+          flagData.ctx.font = 'bold 38px Arial';
+          flagData.ctx.textAlign = 'left';
+          flagData.ctx.textBaseline = 'middle';
+          flagData.ctx.fillText(country.name, 160, 80);
+          
+          flagData.ctx.fillStyle = '#00ff88';
+          flagData.ctx.font = 'bold 70px Courier New';
+          flagData.ctx.textAlign = 'right';
+          flagData.ctx.textBaseline = 'middle';
+          flagData.ctx.shadowColor = flagData.ctx.fillStyle;
+          flagData.ctx.shadowBlur = 25;
+          flagData.ctx.shadowOffsetX = 3;
+          flagData.ctx.shadowOffsetY = 3;
+          flagData.ctx.fillText(time, 375, 120);
+          flagData.ctx.shadowBlur = 0;
+        }
         
         flagData.sprite.material.map.needsUpdate = true;
       });
@@ -278,9 +339,7 @@
         globeGroup.rotation.y = elapsed * 0.25;
       }
 
-      // India pulse only
       cardFlags[0].sprite.scale.setScalar(1 + Math.sin(elapsed * 4) * 0.15);
-
       renderer.render(scene, camera);
     }
     
