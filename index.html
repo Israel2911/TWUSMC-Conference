@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>🌍 3D World Globe + SAME SIZE CARDS</title>
+  <title>🌍 3D World Globe + IDENTICAL SIZE</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -114,13 +114,12 @@
       );
     }
 
-    // ✅ ALL CARDS SAME SIZE - India uniform
+    // ✅ IDENTICAL 2px border thickness for ALL
     countries.forEach((country, index) => {
       const flagCanvas = document.createElement('canvas');
       flagCanvas.width = 420; flagCanvas.height = 220;
       const flagCtx = flagCanvas.getContext('2d');
       
-      // SAME BACKGROUND FOR ALL
       const gradient = flagCtx.createLinearGradient(0, 0, 0, 220);
       gradient.addColorStop(0, 'rgba(20,20,40,0.98)');
       gradient.addColorStop(1, 'rgba(0,0,20,0.98)');
@@ -135,24 +134,12 @@
       flagCtx.fill();
       flagCtx.restore();
       
-      // GOLD BORDER FOR INDIA ONLY
-      if (index === 0) {
-        flagCtx.strokeStyle = '#FFD700';
-        flagCtx.lineWidth = 3;
-        flagCtx.lineJoin = 'round';
-        flagCtx.shadowColor = '#FFD70044';
-        flagCtx.shadowBlur = 15;
-        flagCtx.shadowOffsetX = 0;
-        flagCtx.shadowOffsetY = 0;
-        flagCtx.stroke();
-      } else {
-        flagCtx.strokeStyle = 'rgba(255,255,255,0.3)';
-        flagCtx.lineWidth = 2;
-        flagCtx.lineJoin = 'round';
-        flagCtx.stroke();
-      }
+      // SAME 2px border thickness - DIFFERENT COLORS ONLY
+      flagCtx.strokeStyle = index === 0 ? '#FFD700' : 'rgba(255,255,255,0.3)';
+      flagCtx.lineWidth = 2;  // SAME THICKNESS
+      flagCtx.lineJoin = 'round';
+      flagCtx.stroke();
       
-      // ✅ SAME TEXT POSITIONS FOR ALL
       flagCtx.fillStyle = '#ffffff';
       flagCtx.font = 'bold 85px Arial';
       flagCtx.textAlign = 'left';
@@ -190,7 +177,7 @@
       }));
       cardFlag.position.copy(latLonToVector3(country.lat, country.lng, 1.18));
       cardFlag.lookAt(0, 0, 0);
-      cardFlag.scale.set(0.34, 0.20, 1);  // SAME SCALE FOR ALL
+      cardFlag.scale.set(0.34, 0.20, 1);
       globeGroup.add(cardFlag);
       cardFlags.push({ canvas: flagCanvas, ctx: flagCtx, sprite: cardFlag, country, index });
     });
@@ -234,24 +221,12 @@
         flagData.ctx.fill();
         flagData.ctx.restore();
         
-        // GOLD BORDER FOR INDIA
-        if (index === 0) {
-          flagData.ctx.strokeStyle = '#FFD700';
-          flagData.ctx.lineWidth = 3;
-          flagData.ctx.lineJoin = 'round';
-          flagData.ctx.shadowColor = '#FFD70044';
-          flagData.ctx.shadowBlur = 15;
-          flagData.ctx.shadowOffsetX = 0;
-          flagData.ctx.shadowOffsetY = 0;
-          flagData.ctx.stroke();
-        } else {
-          flagData.ctx.strokeStyle = 'rgba(255,255,255,0.3)';
-          flagData.ctx.lineWidth = 2;
-          flagData.ctx.lineJoin = 'round';
-          flagData.ctx.stroke();
-        }
+        // SAME 2px thickness for ALL
+        flagData.ctx.strokeStyle = index === 0 ? '#FFD700' : 'rgba(255,255,255,0.3)';
+        flagData.ctx.lineWidth = 2;
+        flagData.ctx.lineJoin = 'round';
+        flagData.ctx.stroke();
         
-        // SAME TEXT
         flagData.ctx.fillStyle = '#ffffff';
         flagData.ctx.font = 'bold 85px Arial';
         flagData.ctx.textAlign = 'left';
