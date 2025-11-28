@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>🌍 3D World Globe + Time Cards</title>
+  <title>🌍 3D World Globe + LARGER Flags</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -40,13 +40,14 @@
     }
     .time-card:last-child { border-bottom: none; }
     .time-card:hover { background: rgba(0,255,136,0.1); padding-left: 8px; }
-    .flag { font-size: 24px; margin-right: 12px; }
+    .flag { font-size: 28px; margin-right: 12px; } /* LARGER FLAGS */
     .time-text { color: #00ff88; font-family: 'Courier New', monospace; font-weight: bold; }
     .country-name { color: #ffffff; margin-right: 8px; }
     
     @media (max-width: 768px) {
       .time-cards { left: 10px; min-width: 240px; padding: 15px; }
       .time-card { font-size: 14px; }
+      .flag { font-size: 24px; }
     }
   </style>
 </head>
@@ -155,6 +156,7 @@
 
     const clockMarkers = [];
     const clockTexts = [];
+    const flagSprites = [];
 
     // GPS FUNCTION
     function latLonToVector3(lat, lon, radius) {
@@ -167,11 +169,11 @@
       );
     }
 
-    // COUNTRY SPHERES + FLAGS ON GLOBE
+    // COUNTRY SPHERES + LARGER FLAGS ON GLOBE
     countries.forEach((country, index) => {
-      // GLOWING SPHERE
+      // 🔴 LARGER GLOWING SPHERE (0.045 → 0.055)
       const marker = new THREE.Mesh(
-        new THREE.SphereGeometry(0.04, 16, 16),
+        new THREE.SphereGeometry(0.055, 20, 20),
         new THREE.MeshLambertMaterial({
           color: country.color,
           emissive: country.color,
@@ -183,27 +185,28 @@
       globeGroup.add(marker);
       clockMarkers.push(marker);
 
-      // FLAG EMOJI ON GLOBE (smaller canvas sprite)
+      // 🟡 LARGER FLAG EMOJI ON GLOBE (0.12→0.20, 0.06→0.10)
       const flagCanvas = document.createElement('canvas');
-      flagCanvas.width = 128; flagCanvas.height = 64;
+      flagCanvas.width = 256; flagCanvas.height = 128; // LARGER CANVAS
       const flagCtx = flagCanvas.getContext('2d');
       flagCtx.fillStyle = 'rgba(0,0,0,0.9)';
-      flagCtx.fillRect(0, 0, 128, 64);
+      flagCtx.fillRect(0, 0, 256, 128);
       flagCtx.fillStyle = '#ffffff';
-      flagCtx.font = 'bold 32px Arial';
+      flagCtx.font = 'bold 64px Arial'; // LARGER FONT
       flagCtx.textAlign = 'center';
       flagCtx.textBaseline = 'middle';
-      flagCtx.fillText(country.flag, 64, 32);
+      flagCtx.fillText(country.flag, 128, 64);
       
       const flagSprite = new THREE.Sprite(new THREE.SpriteMaterial({
         map: new THREE.CanvasTexture(flagCanvas),
         transparent: true
       }));
-      flagSprite.position.copy(marker.position.clone().add(new THREE.Vector3(0, -0.08, 0)));
-      flagSprite.scale.set(0.12, 0.06, 1);
+      flagSprite.position.copy(marker.position.clone().add(new THREE.Vector3(0, -0.10, 0)));
+      flagSprite.scale.set(0.20, 0.10, 1); // LARGER SCALE
       globeGroup.add(flagSprite);
+      flagSprites.push(flagSprite);
 
-      // TIME TEXT (above flag)
+      // TIME TEXT (above larger flag)
       const canvas = document.createElement('canvas');
       canvas.width = 256; canvas.height = 128;
       const ctx = canvas.getContext('2d');
@@ -211,7 +214,7 @@
         map: new THREE.CanvasTexture(canvas),
         transparent: true
       }));
-      sprite.position.copy(marker.position.clone().add(new THREE.Vector3(0, 0.13, 0)));
+      sprite.position.copy(marker.position.clone().add(new THREE.Vector3(0, 0.16, 0))); // ADJUSTED FOR LARGER FLAG
       sprite.scale.set(0.18, 0.09, 1);
       globeGroup.add(sprite);
 
@@ -282,18 +285,13 @@
         globeGroup.rotation.y = elapsed * 0.25;
       }
 
-      // India pulse
+      // India pulse (LARGE sphere)
       clockMarkers[0].scale.setScalar(1 + Math.sin(elapsed * 4) * 0.2);
       clockMarkers[0].rotation.y = elapsed * 2;
 
-      // Update times every second
-      if (Math.floor(elapsed) !== Math.floor(clock.getElapsedTime() - 1)) {
-        updateTimes();
-      }
-
       renderer.render(scene, camera);
     }
-    setInterval(updateTimes, 1000); // Precise 1-second updates
+    setInterval(updateTimes, 1000);
     animate();
   </script>
 </body>
