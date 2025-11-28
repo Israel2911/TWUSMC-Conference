@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>🌍 3D World Globe + SINGLE BLACK FLAG</title>
+  <title>🌍 3D World Globe + ALL-IN-ONE BLACK FLAG</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -13,7 +13,6 @@
     #container { position: relative; width: 100vw; height: 100vh; }
     canvas { display: block; width: 100%; height: 100%; }
     
-    /* GLOBE CONTROLS */
     .globe-controls { position: absolute; top: 20px; right: 20px; z-index: 100; }
     .pause-btn { 
       padding: 15px 25px; background: rgba(0,255,136,0.2); 
@@ -24,7 +23,6 @@
     .pause-btn:hover { background: rgba(0,255,136,0.4); transform: scale(1.05); }
     .pause-btn.active { background: #00ff88; color: black; }
 
-    /* TIME CARDS */
     .time-cards {
       position: absolute; left: 20px; top: 50%; transform: translateY(-50%);
       background: rgba(0,0,20,0.9); border: 1px solid rgba(0,255,136,0.3);
@@ -94,18 +92,18 @@
     );
 
     const countries = [
-      {name: 'India IST', flag: '🇮🇳', lat: 22, lng: 78, tz: 'Asia/Kolkata', color: 0xFF9933, cardId: 'India'},
-      {name: 'Canada PST', flag: '🇨🇦', lat: 56.1304, lng: -106.3468, tz: 'America/Vancouver', color: 0xff0000, cardId: 'Canada'},
-      {name: 'Thailand ICT', flag: '🇹🇭', lat: 13.7563, lng: 100.5018, tz: 'Asia/Bangkok', color: 0xffcc00, cardId: 'Thailand'},
-      {name: 'Europe CET', flag: '🇪🇺', lat: 48.8566, lng: 2.3522, tz: 'Europe/Paris', color: 0x0000FF, cardId: 'Europe'},
-      {name: 'UK GMT', flag: '🇬🇧', lat: 53, lng: -0.1276, tz: 'Europe/London', color: 0x191970, cardId: 'UK'},
-      {name: 'USA EST', flag: '🇺🇸', lat: 39.8283, lng: -98.5795, tz: 'America/New_York', color: 0x003366, cardId: 'USA'},
-      {name: 'Singapore SGT', flag: '🇸🇬', lat: 1.35, lng: 103.8, tz: 'Asia/Singapore', color: 0xEE2536, cardId: 'Singapore'},
-      {name: 'Malaysia MYT', flag: '🇲🇾', lat: 4, lng: 102, tz: 'Asia/Kuala_Lumpur', color: 0xFFD700, cardId: 'Malaysia'}
+      {name: 'India', flag: '🇮🇳', lat: 22, lng: 78, tz: 'Asia/Kolkata', color: 0xFF9933, cardId: 'India'},
+      {name: 'Canada', flag: '🇨🇦', lat: 56.1304, lng: -106.3468, tz: 'America/Vancouver', color: 0xff0000, cardId: 'Canada'},
+      {name: 'Thailand', flag: '🇹🇭', lat: 13.7563, lng: 100.5018, tz: 'Asia/Bangkok', color: 0xffcc00, cardId: 'Thailand'},
+      {name: 'Europe', flag: '🇪🇺', lat: 48.8566, lng: 2.3522, tz: 'Europe/Paris', color: 0x0000FF, cardId: 'Europe'},
+      {name: 'UK', flag: '🇬🇧', lat: 53, lng: -0.1276, tz: 'Europe/London', color: 0x191970, cardId: 'UK'},
+      {name: 'USA', flag: '🇺🇸', lat: 39.8283, lng: -98.5795, tz: 'America/New_York', color: 0x003366, cardId: 'USA'},
+      {name: 'Singapore', flag: '🇸🇬', lat: 1.35, lng: 103.8, tz: 'Asia/Singapore', color: 0xEE2536, cardId: 'Singapore'},
+      {name: 'Malaysia', flag: '🇲🇾', lat: 4, lng: 102, tz: 'Asia/Kuala_Lumpur', color: 0xFFD700, cardId: 'Malaysia'}
     ];
 
     const clockMarkers = [];
-    const combinedFlags = []; // SINGLE BLACK FLAG per country
+    const combinedFlags = [];
 
     function latLonToVector3(lat, lon, radius) {
       const phi = (90 - lat) * (Math.PI / 180);
@@ -117,7 +115,7 @@
       );
     }
 
-    // ✅ SINGLE BLACK FLAG = SPHERE + FLAG + TIME
+    // ✅ ONE BLACK FLAG = FLAG + COUNTRY + TIME
     countries.forEach((country, index) => {
       // GLOWING SPHERE (behind flag)
       const marker = new THREE.Mesh(
@@ -133,23 +131,30 @@
       globeGroup.add(marker);
       clockMarkers.push(marker);
 
-      // 🟢 SINGLE BLACK FLAG CANVAS (FLAG + TIME TOGETHER)
+      // 🟢 SINGLE BLACK FLAG (ALL CONTENT)
       const flagCanvas = document.createElement('canvas');
-      flagCanvas.width = 320; flagCanvas.height = 180; // LARGER
+      flagCanvas.width = 400; flagCanvas.height = 200; // WIDER
       const flagCtx = flagCanvas.getContext('2d');
       
       // BLACK BACKGROUND
-      flagCtx.fillStyle = 'rgba(0,0,0,0.95)';
-      flagCtx.fillRect(0, 0, 320, 180);
+      flagCtx.fillStyle = 'rgba(0,0,0,0.97)';
+      flagCtx.fillRect(0, 0, 400, 200);
       
-      // COUNTRY FLAG (TOP)
+      // FLAG (LEFT TOP)
       flagCtx.fillStyle = '#ffffff';
-      flagCtx.font = 'bold 72px Arial';
-      flagCtx.textAlign = 'center';
+      flagCtx.font = 'bold 80px Arial';
+      flagCtx.textAlign = 'left';
       flagCtx.textBaseline = 'middle';
-      flagCtx.fillText(country.flag, 160, 60);
+      flagCtx.fillText(country.flag, 30, 60);
       
-      // TIME TEXT (BOTTOM)
+      // COUNTRY NAME (RIGHT TOP)
+      flagCtx.fillStyle = '#ffffff';
+      flagCtx.font = 'bold 36px Arial';
+      flagCtx.textAlign = 'left';
+      flagCtx.textBaseline = 'middle';
+      flagCtx.fillText(country.name, 140, 60);
+      
+      // TIME (CENTER BOTTOM - GLOWING)
       const now = new Date();
       const time = now.toLocaleTimeString('en-US', {
         timeZone: country.tz,
@@ -159,10 +164,12 @@
       });
       
       flagCtx.fillStyle = index === 0 ? '#FFD700' : '#00ff88';
-      flagCtx.font = 'bold 48px Courier New';
+      flagCtx.font = 'bold 64px Courier New';
+      flagCtx.textAlign = 'center';
+      flagCtx.textBaseline = 'middle';
       flagCtx.shadowColor = flagCtx.fillStyle;
-      flagCtx.shadowBlur = 12;
-      flagCtx.fillText(time, 160, 130);
+      flagCtx.shadowBlur = 20;
+      flagCtx.fillText(time, 200, 140);
       flagCtx.shadowBlur = 0;
       
       const combinedFlag = new THREE.Sprite(new THREE.SpriteMaterial({
@@ -170,7 +177,7 @@
         transparent: true
       }));
       combinedFlag.position.copy(marker.position.clone().add(new THREE.Vector3(0, 0, 0.02)));
-      combinedFlag.scale.set(0.28, 0.16, 1); // PERFECT SIZE
+      combinedFlag.scale.set(0.32, 0.18, 1);
       globeGroup.add(combinedFlag);
       combinedFlags.push({ canvas: flagCanvas, ctx: flagCtx, sprite: combinedFlag, country, index });
     });
@@ -186,7 +193,7 @@
       btn.textContent = isPaused ? '▶️ Resume Rotation' : '⏸️ Pause Rotation';
     };
 
-    // UPDATE TIMES (CARDS + FLAGS)
+    // UPDATE ALL CONTENT IN SINGLE FLAGS
     function updateTimes() {
       countries.forEach((country, index) => {
         const now = new Date();
@@ -202,21 +209,33 @@
         
         // UPDATE SINGLE BLACK FLAGS
         const flagData = combinedFlags[index];
-        flagData.ctx.clearRect(0, 0, 320, 180);
-        flagData.ctx.fillStyle = 'rgba(0,0,0,0.95)';
-        flagData.ctx.fillRect(0, 0, 320, 180);
+        flagData.ctx.clearRect(0, 0, 400, 200);
         
+        flagData.ctx.fillStyle = 'rgba(0,0,0,0.97)';
+        flagData.ctx.fillRect(0, 0, 400, 200);
+        
+        // FLAG
         flagData.ctx.fillStyle = '#ffffff';
-        flagData.ctx.font = 'bold 72px Arial';
+        flagData.ctx.font = 'bold 80px Arial';
+        flagData.ctx.textAlign = 'left';
+        flagData.ctx.textBaseline = 'middle';
+        flagData.ctx.fillText(country.flag, 30, 60);
+        
+        // COUNTRY NAME
+        flagData.ctx.fillStyle = '#ffffff';
+        flagData.ctx.font = 'bold 36px Arial';
+        flagData.ctx.textAlign = 'left';
+        flagData.ctx.textBaseline = 'middle';
+        flagData.ctx.fillText(country.name, 140, 60);
+        
+        // TIME (GLOWING)
+        flagData.ctx.fillStyle = index === 0 ? '#FFD700' : '#00ff88';
+        flagData.ctx.font = 'bold 64px Courier New';
         flagData.ctx.textAlign = 'center';
         flagData.ctx.textBaseline = 'middle';
-        flagData.ctx.fillText(country.flag, 160, 60);
-        
-        flagData.ctx.fillStyle = index === 0 ? '#FFD700' : '#00ff88';
-        flagData.ctx.font = 'bold 48px Courier New';
         flagData.ctx.shadowColor = flagData.ctx.fillStyle;
-        flagData.ctx.shadowBlur = 12;
-        flagData.ctx.fillText(time, 160, 130);
+        flagData.ctx.shadowBlur = 20;
+        flagData.ctx.fillText(time, 200, 140);
         flagData.ctx.shadowBlur = 0;
         
         flagData.sprite.material.map.needsUpdate = true;
