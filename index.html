@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>🌍 3D World Globe + UNIFORM CARD MARKERS</title>
+  <title>🌍 3D World Globe + FIXED CARD MARKERS</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -114,7 +114,7 @@
       );
     }
 
-    // ✅ ALL IDENTICAL CARDS - India standardized
+    // ✅ PERFECT SPACING - NO OVERLAP
     countries.forEach((country, index) => {
       const flagCanvas = document.createElement('canvas');
       flagCanvas.width = 420; flagCanvas.height = 220;
@@ -126,7 +126,7 @@
       gradient.addColorStop(1, 'rgba(0,0,20,0.98)');
       flagCtx.fillStyle = gradient;
       
-      // ROUNDED CARD + GLOW (ALL SAME - India standardized)
+      // ROUNDED CARD + GLOW
       flagCtx.save();
       flagCtx.shadowColor = country.color + '33';
       flagCtx.shadowBlur = 30;
@@ -143,21 +143,21 @@
       flagCtx.lineJoin = 'round';
       flagCtx.stroke();
       
-      // COUNTRY FLAG (STANDARD POSITION)
+      // COUNTRY FLAG (LEFT)
       flagCtx.fillStyle = '#ffffff';
       flagCtx.font = 'bold 85px Arial';
       flagCtx.textAlign = 'left';
       flagCtx.textBaseline = 'middle';
-      flagCtx.fillText(country.flag, 45, 110);  // ✅ MOVED TO 110px (matches others)
+      flagCtx.fillText(country.flag, 45, 80);  // ✅ BACK TO ORIGINAL 80px
       
-      // COUNTRY NAME (STANDARD POSITION)
+      // COUNTRY NAME (CENTER - NO OVERLAP)
       flagCtx.fillStyle = '#e0e0ff';
       flagCtx.font = 'bold 38px Arial';
       flagCtx.textAlign = 'left';
       flagCtx.textBaseline = 'middle';
-      flagCtx.fillText(country.name, 160, 110);  // ✅ MOVED TO 110px (matches others)
+      flagCtx.fillText(country.name, 160, 80);  // ✅ BACK TO ORIGINAL 80px
       
-      // TIME (STANDARD POSITION)
+      // TIME (RIGHT - FIXED POSITION)
       const now = new Date();
       const time = now.toLocaleTimeString('en-US', {
         timeZone: country.tz,
@@ -174,7 +174,7 @@
       flagCtx.shadowBlur = 25;
       flagCtx.shadowOffsetX = 3;
       flagCtx.shadowOffsetY = 3;
-      flagCtx.fillText(time, 375, 115);  // ✅ MOVED TO 115px (perfect alignment)
+      flagCtx.fillText(time, 375, 120);  // ✅ FIXED - RIGHT SIDE NO OVERLAP
       flagCtx.shadowBlur = 0;
       
       const cardFlag = new THREE.Sprite(new THREE.SpriteMaterial({
@@ -199,7 +199,7 @@
       btn.textContent = isPaused ? '▶️ Resume Rotation' : '⏸️ Pause Rotation';
     };
 
-    // UPDATE ALL STANDARDIZED CARDS
+    // UPDATE CARDS
     function updateTimes() {
       countries.forEach((country, index) => {
         const now = new Date();
@@ -215,7 +215,7 @@
         const flagData = cardFlags[index];
         flagData.ctx.clearRect(0, 0, 420, 220);
         
-        // RECREATE STANDARDIZED CARD
+        // RECREATE CARD
         const gradient = flagData.ctx.createLinearGradient(0, 0, 0, 220);
         gradient.addColorStop(0, 'rgba(20,20,40,0.98)');
         gradient.addColorStop(1, 'rgba(0,0,20,0.98)');
@@ -235,18 +235,18 @@
         flagData.ctx.lineJoin = 'round';
         flagData.ctx.stroke();
         
-        // ✅ STANDARD POSITIONS FOR ALL
+        // ✅ PERFECT SPACING - NO OVERLAP
         flagData.ctx.fillStyle = '#ffffff';
         flagData.ctx.font = 'bold 85px Arial';
         flagData.ctx.textAlign = 'left';
         flagData.ctx.textBaseline = 'middle';
-        flagData.ctx.fillText(country.flag, 45, 110);
+        flagData.ctx.fillText(country.flag, 45, 80);
         
         flagData.ctx.fillStyle = '#e0e0ff';
         flagData.ctx.font = 'bold 38px Arial';
         flagData.ctx.textAlign = 'left';
         flagData.ctx.textBaseline = 'middle';
-        flagData.ctx.fillText(country.name, 160, 110);
+        flagData.ctx.fillText(country.name, 160, 80);
         
         flagData.ctx.fillStyle = index === 0 ? '#FFD700' : '#00ff88';
         flagData.ctx.font = 'bold 70px Courier New';
@@ -256,7 +256,7 @@
         flagData.ctx.shadowBlur = 25;
         flagData.ctx.shadowOffsetX = 3;
         flagData.ctx.shadowOffsetY = 3;
-        flagData.ctx.fillText(time, 375, 115);
+        flagData.ctx.fillText(time, 375, 120);
         flagData.ctx.shadowBlur = 0;
         
         flagData.sprite.material.map.needsUpdate = true;
@@ -279,7 +279,7 @@
         globeGroup.rotation.y = elapsed * 0.25;
       }
 
-      // India card pulse only
+      // India card pulse
       cardFlags[0].sprite.scale.setScalar(1 + Math.sin(elapsed * 4) * 0.15);
 
       renderer.render(scene, camera);
