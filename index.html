@@ -40,7 +40,7 @@
     .hero {
       position: relative; 
       height: 100vh; 
-      min-height: 950px; /* Increased height to fit everything */
+      min-height: 950px; 
       display: flex; align-items: center; justify-content: center;
       overflow: hidden; text-align: center; padding: 0 40px;
     }
@@ -49,10 +49,10 @@
       object-fit: cover; filter: brightness(0.5) contrast(1.1); z-index: 1;
     }
     
-    /* FRAMED GLOBE CONTAINER - MOVED UP */
+    /* FRAMED GLOBE CONTAINER - LOWERED significantly */
     #heroGlobeContainer {
       position: absolute; 
-      top: 38%; /* Moved UP to clear the stack */
+      top: 55%; /* Pushed DOWN to clear brain area */
       left: 50%; 
       width: 550px; height: 550px;
       transform: translate(-50%, -50%);
@@ -62,18 +62,18 @@
       backdrop-filter: blur(5px);
     }
 
-    /* VERTICAL TIME STACK - MOVED DOWN */
+    /* VERTICAL TIME STACK - LOWERED */
     .globe-times-stack {
       position: absolute; 
-      bottom: 5%; /* Pinned to BOTTOM */
+      bottom: 20px; /* Pinned very low */
       left: 50%;
       transform: translateX(-50%); z-index: 5;
-      display: flex; flex-direction: column; gap: 6px; /* Tighter gap */
+      display: flex; flex-direction: column; gap: 6px; 
       width: 380px;
     }
     .globe-time-item {
       background: rgba(255,255,255,0.85); backdrop-filter: blur(15px);
-      padding: 8px 20px; /* Smaller padding */
+      padding: 8px 20px; 
       border-radius: 12px;
       border: 1px solid rgba(255,255,255,0.4);
       box-shadow: 0 5px 15px rgba(0,0,0,0.15);
@@ -89,6 +89,7 @@
     }
     .globe-time-item.india { border: 2px solid #FF9933; background: rgba(255,245,230,0.95); }
 
+    /* TITLE AREA - KEPT HIGH */
     .hero-content { position: relative; z-index: 4; max-width: 1200px; pointer-events: none; height: 100%; }
     .hero h1 {
       position: absolute; top: 5%; width: 100%; left: 0;
@@ -105,11 +106,6 @@
       pointer-events: auto;
     }
     
-    /* Info strip moved to very bottom */
-    .hero-meta {
-      display: none; /* Hidden to save space, info is in header/h2 */
-    }
-
     .globe-controls { position: absolute; top: 100px; right: 20px; z-index: 100; }
     .pause-btn { 
       padding: 8px 16px; background: rgba(0,0,0,0.5); color: white; 
@@ -145,8 +141,8 @@
     }
 
     @media (max-width: 768px) {
-      #heroGlobeContainer { width: 320px; height: 320px; top: 30%; }
-      .globe-times-stack { bottom: 2%; width: 95%; gap: 4px; }
+      #heroGlobeContainer { width: 320px; height: 320px; top: 50%; }
+      .globe-times-stack { bottom: 10px; width: 95%; gap: 4px; }
       .hero h1 { font-size: 2rem; top: 2%; }
       .hero h2 { font-size: 1.2rem; top: 8%; }
       .globe-time-item { padding: 6px 12px; }
@@ -168,7 +164,7 @@
 <section class="hero" id="hero">
   <img src="humanintelligence.png" alt="Background">
   
-  <!-- 1. GLOBE (Moved Up) -->
+  <!-- 1. GLOBE (Lowered) -->
   <div id="heroGlobeContainer"></div>
   
   <div class="globe-controls">
@@ -181,7 +177,7 @@
     <h2>Integrating the Human Factor</h2>
   </div>
 
-  <!-- 3. TIME STACK (Moved Down) -->
+  <!-- 3. TIME STACK (Lowered) -->
   <div class="globe-times-stack" id="timeStack">
     <!-- Times injected by JS -->
   </div>
