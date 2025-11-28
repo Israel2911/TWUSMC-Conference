@@ -36,10 +36,10 @@
     }
     .nav a:hover { color: #128fa7; }
 
-    /* HERO SECTION - CLEAN AND UNOBSTRUCTED */
+    /* HERO SECTION - CLEAN */
     .hero {
       position: relative; 
-      height: 90vh; /* Full height for impact */
+      height: 85vh; 
       min-height: 600px; 
       display: flex; align-items: center; justify-content: center;
       overflow: hidden; text-align: center; padding: 0 40px;
@@ -49,7 +49,7 @@
       object-fit: cover; filter: brightness(0.6) contrast(1.1); z-index: 1;
     }
     
-    /* TITLE CONTENT ONLY */
+    /* TITLE CONTENT */
     .hero-content { position: relative; z-index: 4; max-width: 1200px; }
     .hero h1 {
       font-size: 4.5rem; font-weight: 900;
@@ -68,38 +68,47 @@
       color: white; font-weight: 700; display: inline-block;
     }
 
-    /* NEW SECTION: GLOBE & TIMES (Separated) */
+    /* GLOBAL CONNECT SECTION */
     .global-connect-section {
       background: white;
       padding: 100px 40px;
       max-width: 1400px; margin: 0 auto;
-      display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 80px;
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 60px;
     }
 
     /* LEFT SIDE: GLOBE CONTAINER */
     .globe-wrapper {
       position: relative;
-      width: 500px; height: 500px;
+      width: 600px; height: 600px; /* Increased size */
+      /* Removed border-radius: 50% and overflow hidden so flags stick out */
+      display: flex; align-items: center; justify-content: center;
+    }
+    /* The circular frame behind the globe */
+    .globe-frame {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      width: 480px; height: 480px;
       border-radius: 50%;
-      /* Frame Styling */
-      border: 10px solid #f0f4f8;
-      box-shadow: inset 0 0 60px rgba(0,0,0,0.1), 0 20px 60px rgba(0,0,0,0.1);
+      border: 2px dashed #e0e0e0; /* Subtle guide circle */
+      z-index: 0; pointer-events: none;
     }
+    
     #heroGlobeContainer {
-      width: 100%; height: 100%; border-radius: 50%; overflow: hidden;
+      width: 100%; height: 100%; z-index: 2; position: relative;
     }
+    
     .globe-controls { 
-      position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 10; 
+      position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); z-index: 10; 
     }
     .pause-btn { 
-      padding: 8px 20px; background: rgba(255,255,255,0.9); color: #167690; 
+      padding: 8px 20px; background: #167690; color: white; 
       border: none; border-radius: 20px; cursor: pointer; font-weight: bold;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     }
+    .pause-btn:hover { background: #128fa7; }
 
     /* RIGHT SIDE: TIME STACK */
     .times-wrapper {
-      flex: 1; min-width: 350px; max-width: 500px;
+      flex: 1; min-width: 350px; max-width: 450px;
     }
     .section-header-small {
       font-size: 2rem; font-weight: 900; margin-bottom: 30px;
@@ -110,14 +119,14 @@
     }
     .globe-time-item {
       background: #f8fafc; 
-      padding: 15px 30px; 
+      padding: 15px 25px; 
       border-radius: 15px; 
       border-left: 5px solid #ddd;
       display: flex; align-items: center; justify-content: space-between;
       transition: all 0.2s;
     }
     .globe-time-item:hover { 
-      background: white; transform: translateX(10px); 
+      background: white; transform: translateX(5px); 
       box-shadow: 0 5px 20px rgba(0,0,0,0.08); 
       border-left-color: #167690;
     }
@@ -132,8 +141,7 @@
       border-left-color: #FF9933; background: #fffbf5; 
     }
 
-
-    /* OTHER SECTIONS */
+    /* SECTIONS */
     .section { padding: 80px 40px; max-width: 1200px; margin: 0 auto; text-align: center; }
     .section-header {
       font-size: 2.5rem; font-weight: 900; margin-bottom: 40px;
@@ -145,7 +153,6 @@
       padding: 60px; border-radius: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.05);
       font-size: 1.1rem; text-align: left;
     }
-
     .agenda-table { width: 100%; border-collapse: collapse; text-align: left; }
     .agenda-table th { background: #167690; color: white; padding: 15px; }
     .agenda-table td { padding: 15px; border-bottom: 1px solid #eee; }
@@ -164,7 +171,8 @@
     @media (max-width: 768px) {
       .hero h1 { font-size: 2.5rem; }
       .global-connect-section { padding: 60px 20px; gap: 40px; }
-      .globe-wrapper { width: 320px; height: 320px; }
+      .globe-wrapper { width: 350px; height: 350px; }
+      .globe-frame { width: 280px; height: 280px; }
     }
   </style>
 </head>
@@ -181,7 +189,7 @@
   </nav>
 </header>
 
-<!-- 1. CLEAN HERO SECTION (Image + Title Only) -->
+<!-- HERO -->
 <section class="hero" id="hero">
   <img src="humanintelligence.png" alt="Background">
   <div class="hero-content">
@@ -191,11 +199,12 @@
   </div>
 </section>
 
-<!-- 2. NEW GLOBAL CONNECTION SECTION (Globe + Times) -->
+<!-- GLOBAL CONNECT -->
 <section class="global-connect-section" id="global">
   
   <!-- Left: Globe -->
   <div class="globe-wrapper">
+    <div class="globe-frame"></div> <!-- Subtle circle behind -->
     <div id="heroGlobeContainer"></div>
     <div class="globe-controls">
       <button class="pause-btn" id="pauseBtn">⏸ Pause Rotation</button>
@@ -212,7 +221,7 @@
 
 </section>
 
-<!-- 3. CONTENT SECTIONS -->
+<!-- CONTENT -->
 <section class="section" id="synopsis">
   <h2 class="section-header">Conference Overview</h2>
   <div class="content-box">
@@ -266,22 +275,23 @@
   // THREE.JS GLOBE
   const container = document.getElementById('heroGlobeContainer');
   const scene = new THREE.Scene();
+  // Field of View 45, Aspect Ratio 1 (square), Near 0.1, Far 1000
   const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000); 
-  camera.position.z = 2.8;
+  camera.position.z = 3.5; // Pulled back camera to see orbital flags
   
   const renderer = new THREE.WebGLRenderer({alpha: true, antialias: true});
-  renderer.setSize(500, 500);
+  renderer.setSize(600, 600); // Large renderer to prevent clipping
   container.appendChild(renderer.domElement);
 
   const controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   controls.autoRotate = true;
-  controls.autoRotateSpeed = 1.0;
+  controls.autoRotateSpeed = 1.2;
   controls.enableZoom = false;
 
-  // Lights
-  scene.add(new THREE.AmbientLight(0xffffff, 1.0));
-  const dLight = new THREE.DirectionalLight(0xffffff, 0.5);
+  // Lights - Brighter ambient for visibility
+  scene.add(new THREE.AmbientLight(0xffffff, 1.4));
+  const dLight = new THREE.DirectionalLight(0xffffff, 0.6);
   dLight.position.set(5,3,5);
   scene.add(dLight);
 
@@ -292,7 +302,7 @@
   new THREE.TextureLoader().load('https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Land_ocean_ice_2048.jpg/1024px-Land_ocean_ice_2048.jpg', tex => {
     const globe = new THREE.Mesh(
       new THREE.SphereGeometry(1, 64, 64),
-      new THREE.MeshPhongMaterial({map: tex, specular: 0x111111, shininess: 5})
+      new THREE.MeshPhongMaterial({map: tex, specular: 0x111111, shininess: 10})
     );
     globeGroup.add(globe);
   });
@@ -326,7 +336,7 @@
 
     const tex = new THREE.CanvasTexture(canvas);
     const sprite = new THREE.Sprite(new THREE.SpriteMaterial({map: tex}));
-    const pos = latLonToVec3(country.lat, country.lng, 1.1);
+    const pos = latLonToVec3(country.lat, country.lng, 1.25); // Distance from center (1.0 is surface)
     sprite.position.copy(pos);
     sprite.scale.set(0.6, 0.3, 1);
     globeGroup.add(sprite);
@@ -336,7 +346,7 @@
 
   countries.forEach(c => flagSprites.push(createLabel(c)));
 
-  // INIT STACK HTML (CLEAN LIST)
+  // INIT STACK HTML
   const stackEl = document.getElementById('timeStack');
   countries.forEach((c, i) => {
     const div = document.createElement('div');
@@ -364,13 +374,13 @@
       const ctx = item.ctx;
       ctx.clearRect(0,0,256,128);
       
-      ctx.fillStyle = 'rgba(20,30,50,0.8)';
+      ctx.fillStyle = 'rgba(20,30,50,0.85)';
       ctx.beginPath(); ctx.roundRect(10, 20, 236, 88, 30); ctx.fill();
-      ctx.lineWidth=2; ctx.strokeStyle = item.country.color; ctx.stroke();
+      ctx.lineWidth=4; ctx.strokeStyle = item.country.color; ctx.stroke();
 
       ctx.fillStyle = '#fff'; ctx.font = 'bold 28px Nunito';
       ctx.fillText(item.country.flag, 30, 75);
-      ctx.font = 'bold 22px Nunito';
+      ctx.font = 'bold 24px Nunito';
       ctx.fillText(item.country.name.split(' ')[0], 70, 60);
       
       ctx.fillStyle = '#00ff88'; ctx.font = 'bold 34px Courier New';
@@ -390,7 +400,7 @@
   let paused = false;
   document.getElementById('pauseBtn').onclick = function() {
     paused = !paused;
-    this.innerText = paused ? '▶ Resume' : '⏸ Pause';
+    this.innerText = paused ? '▶ Resume' : '⏸ Pause Rotation';
     controls.autoRotate = !paused;
   };
 
