@@ -36,95 +36,104 @@
     }
     .nav a:hover { color: #128fa7; }
 
-    /* HERO SECTION - CLEAN (No Stack) */
+    /* HERO SECTION - CLEAN AND UNOBSTRUCTED */
     .hero {
       position: relative; 
-      height: 85vh; /* Slightly shorter to show bar below */
-      min-height: 700px; 
+      height: 90vh; /* Full height for impact */
+      min-height: 600px; 
       display: flex; align-items: center; justify-content: center;
       overflow: hidden; text-align: center; padding: 0 40px;
     }
     .hero img {
       position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-      object-fit: cover; filter: brightness(0.5) contrast(1.1); z-index: 1;
+      object-fit: cover; filter: brightness(0.6) contrast(1.1); z-index: 1;
     }
     
-    /* GLOBE - Centered but unobtrusive */
-    #heroGlobeContainer {
-      position: absolute; 
-      top: 45%; 
-      left: 50%; 
-      width: 500px; height: 500px;
-      transform: translate(-50%, -50%);
-      z-index: 3; border-radius: 50%;
-      border: 6px solid rgba(255,255,255,0.15);
-      box-shadow: 0 0 80px rgba(255,255,255,0.2), inset 0 0 80px rgba(0,0,0,0.5);
-      backdrop-filter: blur(5px);
-    }
-
-    .hero-content { position: relative; z-index: 4; max-width: 1200px; pointer-events: none; height: 100%; }
+    /* TITLE CONTENT ONLY */
+    .hero-content { position: relative; z-index: 4; max-width: 1200px; }
     .hero h1 {
-      position: absolute; top: 10%; width: 100%; left: 0;
-      font-size: 3.5rem; font-weight: 900;
+      font-size: 4.5rem; font-weight: 900;
       background: linear-gradient(45deg, #ffd700, #ffed4a);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      margin: 0; text-shadow: 0 0 50px rgba(255,215,0,0.6);
-      pointer-events: auto;
+      margin: 0 0 20px 0; text-shadow: 0 0 50px rgba(255,215,0,0.6);
+      line-height: 1.1;
     }
     .hero h2 { 
-      position: absolute; top: 22%; width: 100%; left: 0;
-      font-size: 1.8rem; font-weight: 700; color: white; 
-      text-shadow: 0 0 20px rgba(0,0,0,0.8);
-      pointer-events: auto;
+      font-size: 2.2rem; font-weight: 700; color: white; 
+      margin: 0 0 40px 0; text-shadow: 0 0 20px rgba(0,0,0,0.8);
     }
-    
-    .globe-controls { position: absolute; top: 100px; right: 20px; z-index: 100; }
-    .pause-btn { 
-      padding: 8px 16px; background: rgba(0,0,0,0.5); color: white; 
-      border: 1px solid white; border-radius: 20px; cursor: pointer; font-size: 0.9rem;
+    .hero-meta {
+      background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);
+      padding: 15px 40px; border-radius: 50px; border: 1px solid rgba(255,255,255,0.3);
+      color: white; font-weight: 700; display: inline-block;
     }
 
-    /* NEW: LIVE TIMES BAR (Moved out of hero) */
-    .live-times-section {
-      background: #f0f4f8; /* Light gray to blend with white area */
-      padding: 40px 0;
+    /* NEW SECTION: GLOBE & TIMES (Separated) */
+    .global-connect-section {
+      background: white;
+      padding: 100px 40px;
+      max-width: 1400px; margin: 0 auto;
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 80px;
+    }
+
+    /* LEFT SIDE: GLOBE CONTAINER */
+    .globe-wrapper {
       position: relative;
-      z-index: 10;
-      margin-top: -50px; /* Overlap slightly or sit flush */
+      width: 500px; height: 500px;
+      border-radius: 50%;
+      /* Frame Styling */
+      border: 10px solid #f0f4f8;
+      box-shadow: inset 0 0 60px rgba(0,0,0,0.1), 0 20px 60px rgba(0,0,0,0.1);
     }
-    
-    .globe-times-stack {
-      /* No absolute positioning! Flow layout now */
-      display: flex; 
-      flex-wrap: wrap; /* Allow wrapping on small screens */
-      justify-content: center;
-      gap: 15px;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 20px;
+    #heroGlobeContainer {
+      width: 100%; height: 100%; border-radius: 50%; overflow: hidden;
+    }
+    .globe-controls { 
+      position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 10; 
+    }
+    .pause-btn { 
+      padding: 8px 20px; background: rgba(255,255,255,0.9); color: #167690; 
+      border: none; border-radius: 20px; cursor: pointer; font-weight: bold;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     }
 
-    .globe-time-item {
-      background: white; 
-      padding: 12px 25px; 
-      border-radius: 50px; /* Pill shape */
-      border: 1px solid rgba(0,0,0,0.1);
-      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-      display: flex; align-items: center; gap: 15px;
-      transition: transform 0.2s;
-      min-width: 220px;
+    /* RIGHT SIDE: TIME STACK */
+    .times-wrapper {
+      flex: 1; min-width: 350px; max-width: 500px;
     }
-    .globe-time-item:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-    .globe-flag { font-size: 1.5rem; }
-    .globe-timezone { font-size: 1rem; font-weight: 700; color: #167690; }
+    .section-header-small {
+      font-size: 2rem; font-weight: 900; margin-bottom: 30px;
+      color: #167690; text-align: center;
+    }
+    .globe-times-stack {
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .globe-time-item {
+      background: #f8fafc; 
+      padding: 15px 30px; 
+      border-radius: 15px; 
+      border-left: 5px solid #ddd;
+      display: flex; align-items: center; justify-content: space-between;
+      transition: all 0.2s;
+    }
+    .globe-time-item:hover { 
+      background: white; transform: translateX(10px); 
+      box-shadow: 0 5px 20px rgba(0,0,0,0.08); 
+      border-left-color: #167690;
+    }
+    .globe-flag { font-size: 1.8rem; }
+    .globe-info { display: flex; align-items: center; gap: 15px; }
+    .globe-timezone { font-size: 1.1rem; font-weight: 700; color: #1a365d; }
     .globe-time { 
       font-family: 'Courier New', monospace; font-weight: 900; 
-      font-size: 1.2rem; color: #ff6b35; margin-left: auto;
+      font-size: 1.4rem; color: #ff6b35; 
     }
-    .globe-time-item.india { border: 2px solid #FF9933; background: #fffaf5; }
+    .globe-time-item.india { 
+      border-left-color: #FF9933; background: #fffbf5; 
+    }
 
 
-    /* SECTIONS */
+    /* OTHER SECTIONS */
     .section { padding: 80px 40px; max-width: 1200px; margin: 0 auto; text-align: center; }
     .section-header {
       font-size: 2.5rem; font-weight: 900; margin-bottom: 40px;
@@ -133,7 +142,7 @@
     }
     .content-box {
       background: white; 
-      padding: 50px; border-radius: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.05);
+      padding: 60px; border-radius: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.05);
       font-size: 1.1rem; text-align: left;
     }
 
@@ -153,10 +162,9 @@
     }
 
     @media (max-width: 768px) {
-      #heroGlobeContainer { width: 320px; height: 320px; top: 50%; }
-      .globe-times-stack { flex-direction: column; align-items: stretch; }
-      .hero h1 { font-size: 2rem; top: 5%; }
-      .hero h2 { font-size: 1.2rem; top: 12%; }
+      .hero h1 { font-size: 2.5rem; }
+      .global-connect-section { padding: 60px 20px; gap: 40px; }
+      .globe-wrapper { width: 320px; height: 320px; }
     }
   </style>
 </head>
@@ -165,37 +173,46 @@
 <header class="header">
   <div class="logo">TWU-SMC Leadership</div>
   <nav class="nav">
-    <a href="#hero">Globe</a>
+    <a href="#hero">Home</a>
+    <a href="#global">Live</a>
     <a href="#synopsis">Overview</a>
     <a href="#agenda">Agenda</a>
     <a href="#register">Register</a>
   </nav>
 </header>
 
+<!-- 1. CLEAN HERO SECTION (Image + Title Only) -->
 <section class="hero" id="hero">
   <img src="humanintelligence.png" alt="Background">
-  
-  <!-- 1. GLOBE (Centered in Hero) -->
-  <div id="heroGlobeContainer"></div>
-  
-  <div class="globe-controls">
-    <button class="pause-btn" id="pauseBtn">⏸ Pause</button>
-  </div>
-
-  <!-- 2. TITLES -->
   <div class="hero-content">
-    <h1>The Fifth Intelligence</h1>
-    <h2>Integrating the Human Factor</h2>
+    <h1>TWU-SMC Annual<br>Leadership Conference</h1>
+    <h2>The Fifth Intelligence: Integrating the Human Factor</h2>
+    <div class="hero-meta">January 19, 2026 • 10:00 AM IST</div>
   </div>
 </section>
 
-<!-- 3. NEW: LIVE TIMES BAR (Below Hero / Above Overview) -->
-<section class="live-times-section">
-  <div class="globe-times-stack" id="timeStack">
-    <!-- Times injected by JS -->
+<!-- 2. NEW GLOBAL CONNECTION SECTION (Globe + Times) -->
+<section class="global-connect-section" id="global">
+  
+  <!-- Left: Globe -->
+  <div class="globe-wrapper">
+    <div id="heroGlobeContainer"></div>
+    <div class="globe-controls">
+      <button class="pause-btn" id="pauseBtn">⏸ Pause Rotation</button>
+    </div>
   </div>
+
+  <!-- Right: Times -->
+  <div class="times-wrapper">
+    <h3 class="section-header-small">🌍 Live Global Connection</h3>
+    <div class="globe-times-stack" id="timeStack">
+      <!-- JS Injects Times Here -->
+    </div>
+  </div>
+
 </section>
 
+<!-- 3. CONTENT SECTIONS -->
 <section class="section" id="synopsis">
   <h2 class="section-header">Conference Overview</h2>
   <div class="content-box">
@@ -280,9 +297,8 @@
     globeGroup.add(globe);
   });
 
-  // Markers (Flags on Globe)
+  // Markers
   const flagSprites = [];
-  
   function latLonToVec3(lat, lon, r) {
     const phi = (90 - lat) * (Math.PI/180);
     const theta = (lon + 180) * (Math.PI/180);
@@ -320,14 +336,16 @@
 
   countries.forEach(c => flagSprites.push(createLabel(c)));
 
-  // INIT STACK HTML (NOW A HORIZONTAL/GRID BAR)
+  // INIT STACK HTML (CLEAN LIST)
   const stackEl = document.getElementById('timeStack');
   countries.forEach((c, i) => {
     const div = document.createElement('div');
     div.className = 'globe-time-item ' + (i===0 ? 'india' : '');
     div.innerHTML = `
-      <span class="globe-flag">${c.flag}</span>
-      <span class="globe-timezone">${c.name}</span>
+      <div class="globe-info">
+        <span class="globe-flag">${c.flag}</span>
+        <span class="globe-timezone">${c.name}</span>
+      </div>
       <span class="globe-time" id="stack-time-${i}">--:--</span>
     `;
     stackEl.appendChild(div);
