@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>🌍 3D World Globe + FIXED CARD MARKERS</title>
+  <title>🌍 3D World Globe + PERFECTLY UNIFORM CARDS</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -114,7 +114,7 @@
       );
     }
 
-    // ✅ PERFECT SPACING - NO OVERLAP
+    // ✅ IDENTICAL CODE FOR ALL CARDS - India now perfect
     countries.forEach((country, index) => {
       const flagCanvas = document.createElement('canvas');
       flagCanvas.width = 420; flagCanvas.height = 220;
@@ -143,21 +143,20 @@
       flagCtx.lineJoin = 'round';
       flagCtx.stroke();
       
-      // COUNTRY FLAG (LEFT)
+      // ✅ SAME POSITIONS FOR ALL (including India)
       flagCtx.fillStyle = '#ffffff';
       flagCtx.font = 'bold 85px Arial';
       flagCtx.textAlign = 'left';
       flagCtx.textBaseline = 'middle';
-      flagCtx.fillText(country.flag, 45, 80);  // ✅ BACK TO ORIGINAL 80px
+      flagCtx.fillText(country.flag, 45, 80);
       
-      // COUNTRY NAME (CENTER - NO OVERLAP)
       flagCtx.fillStyle = '#e0e0ff';
       flagCtx.font = 'bold 38px Arial';
       flagCtx.textAlign = 'left';
       flagCtx.textBaseline = 'middle';
-      flagCtx.fillText(country.name, 160, 80);  // ✅ BACK TO ORIGINAL 80px
+      flagCtx.fillText(country.name, 160, 80);
       
-      // TIME (RIGHT - FIXED POSITION)
+      // TIME (ONLY DIFFERENCE: India = gold)
       const now = new Date();
       const time = now.toLocaleTimeString('en-US', {
         timeZone: country.tz,
@@ -174,7 +173,7 @@
       flagCtx.shadowBlur = 25;
       flagCtx.shadowOffsetX = 3;
       flagCtx.shadowOffsetY = 3;
-      flagCtx.fillText(time, 375, 120);  // ✅ FIXED - RIGHT SIDE NO OVERLAP
+      flagCtx.fillText(time, 375, 120);
       flagCtx.shadowBlur = 0;
       
       const cardFlag = new THREE.Sprite(new THREE.SpriteMaterial({
@@ -199,7 +198,7 @@
       btn.textContent = isPaused ? '▶️ Resume Rotation' : '⏸️ Pause Rotation';
     };
 
-    // UPDATE CARDS
+    // UPDATE ALL IDENTICAL CARDS
     function updateTimes() {
       countries.forEach((country, index) => {
         const now = new Date();
@@ -215,7 +214,7 @@
         const flagData = cardFlags[index];
         flagData.ctx.clearRect(0, 0, 420, 220);
         
-        // RECREATE CARD
+        // SAME CODE FOR ALL
         const gradient = flagData.ctx.createLinearGradient(0, 0, 0, 220);
         gradient.addColorStop(0, 'rgba(20,20,40,0.98)');
         gradient.addColorStop(1, 'rgba(0,0,20,0.98)');
@@ -235,7 +234,7 @@
         flagData.ctx.lineJoin = 'round';
         flagData.ctx.stroke();
         
-        // ✅ PERFECT SPACING - NO OVERLAP
+        // ✅ IDENTICAL POSITIONS
         flagData.ctx.fillStyle = '#ffffff';
         flagData.ctx.font = 'bold 85px Arial';
         flagData.ctx.textAlign = 'left';
@@ -279,7 +278,7 @@
         globeGroup.rotation.y = elapsed * 0.25;
       }
 
-      // India card pulse
+      // India pulse only
       cardFlags[0].sprite.scale.setScalar(1 + Math.sin(elapsed * 4) * 0.15);
 
       renderer.render(scene, camera);
