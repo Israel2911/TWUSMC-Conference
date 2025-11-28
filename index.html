@@ -2,16 +2,19 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>🌍 3D World Globe Clock</title>
+  <title>🌍 3D World Globe + Time Cards</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #000011; overflow: hidden; height: 100vh; }
+    body { background: #000011; overflow: hidden; height: 100vh; font-family: -apple-system, Arial, sans-serif; }
+    
     #container { position: relative; width: 100vw; height: 100vh; }
     canvas { display: block; width: 100%; height: 100%; }
-    .controls { 
+    
+    /* GLOBE CONTROLS */
+    .globe-controls { 
       position: absolute; top: 20px; right: 20px; z-index: 100;
     }
     .pause-btn { 
@@ -22,12 +25,80 @@
     }
     .pause-btn:hover { background: rgba(0,255,136,0.4); transform: scale(1.05); }
     .pause-btn.active { background: #00ff88; color: black; }
+
+    /* TIME CARDS PANEL */
+    .time-cards {
+      position: absolute; left: 20px; top: 50%; transform: translateY(-50%);
+      background: rgba(0,0,20,0.9); border: 1px solid rgba(0,255,136,0.3);
+      border-radius: 20px; padding: 20px; max-height: 80vh;
+      overflow-y: auto; backdrop-filter: blur(20px); z-index: 100;
+      min-width: 280px; box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    }
+    .time-card {
+      display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(0,255,136,0.2);
+      transition: all 0.3s; font-size: 16px; font-weight: 500;
+    }
+    .time-card:last-child { border-bottom: none; }
+    .time-card:hover { background: rgba(0,255,136,0.1); padding-left: 8px; }
+    .flag { font-size: 24px; margin-right: 12px; }
+    .time-text { color: #00ff88; font-family: 'Courier New', monospace; font-weight: bold; }
+    .country-name { color: #ffffff; margin-right: 8px; }
+    
+    @media (max-width: 768px) {
+      .time-cards { left: 10px; min-width: 240px; padding: 15px; }
+      .time-card { font-size: 14px; }
+    }
   </style>
 </head>
 <body>
   <div id="container">
-    <div class="controls">
+    <!-- GLOBE CONTROLS -->
+    <div class="globe-controls">
       <button class="pause-btn active" id="pauseRotate">⏸️ Pause Rotation</button>
+    </div>
+
+    <!-- TIME CARDS -->
+    <div class="time-cards" id="timeCards">
+      <div class="time-card" id="card-India">
+        <span class="flag">🇮🇳</span>
+        <span class="country-name">India IST</span>
+        <span class="time-text" id="time-India">--:--</span>
+      </div>
+      <div class="time-card" id="card-Canada">
+        <span class="flag">🇨🇦</span>
+        <span class="country-name">Canada PST</span>
+        <span class="time-text" id="time-Canada">--:--</span>
+      </div>
+      <div class="time-card" id="card-Thailand">
+        <span class="flag">🇹🇭</span>
+        <span class="country-name">Thailand ICT</span>
+        <span class="time-text" id="time-Thailand">--:--</span>
+      </div>
+      <div class="time-card" id="card-Europe">
+        <span class="flag">🇪🇺</span>
+        <span class="country-name">Europe CET</span>
+        <span class="time-text" id="time-Europe">--:--</span>
+      </div>
+      <div class="time-card" id="card-UK">
+        <span class="flag">🇬🇧</span>
+        <span class="country-name">UK GMT</span>
+        <span class="time-text" id="time-UK">--:--</span>
+      </div>
+      <div class="time-card" id="card-USA">
+        <span class="flag">🇺🇸</span>
+        <span class="country-name">USA EST</span>
+        <span class="time-text" id="time-USA">--:--</span>
+      </div>
+      <div class="time-card" id="card-Singapore">
+        <span class="flag">🇸🇬</span>
+        <span class="country-name">Singapore SGT</span>
+        <span class="time-text" id="time-Singapore">--:--</span>
+      </div>
+      <div class="time-card" id="card-Malaysia">
+        <span class="flag">🇲🇾</span>
+        <span class="country-name">Malaysia MYT</span>
+        <span class="time-text" id="time-Malaysia">--:--</span>
+      </div>
     </div>
   </div>
 
@@ -57,45 +128,35 @@
     const globeGroup = new THREE.Group();
     scene.add(globeGroup);
 
-    // 🗺️ EARTH ATLAS TEXTURE
+    // EARTH TEXTURE
     const textureLoader = new THREE.TextureLoader();
     textureLoader.load(
       'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Land_ocean_ice_2048.jpg/1024px-Land_ocean_ice_2048.jpg',
       (earthTexture) => {
-        const globeMaterial = new THREE.MeshLambertMaterial({ 
-          map: earthTexture,
-          transparent: true,
-          opacity: 0.95
-        });
-        const globe = new THREE.Mesh(new THREE.SphereGeometry(1, 64, 64), globeMaterial);
-        globeGroup.add(globe);
-      },
-      undefined,
-      () => {
-        // FALLBACK
-        globeGroup.add(new THREE.Mesh(
+        const globe = new THREE.Mesh(
           new THREE.SphereGeometry(1, 64, 64),
-          new THREE.MeshLambertMaterial({ color: 0x4169e1, emissive: 0x1e3a8a, emissiveIntensity: 0.3 })
-        ));
+          new THREE.MeshLambertMaterial({ map: earthTexture, transparent: true, opacity: 0.95 })
+        );
+        globeGroup.add(globe);
       }
     );
 
-    // ✅ YOUR EXACT GPS COORDINATES
+    // YOUR EXACT GPS COORDINATES
     const countries = [
-      {name: '🇮🇳 India IST', lat: 22, lng: 78, tz: 'Asia/Kolkata', color: 0xFF9933},
-      {name: '🇨🇦 Canada PST', lat: 56.1304, lng: -106.3468, tz: 'America/Vancouver', color: 0xff0000},
-      {name: '🇹🇭 Thailand ICT', lat: 13.7563, lng: 100.5018, tz: 'Asia/Bangkok', color: 0xffcc00},
-      {name: '🇪🇺 Europe CET', lat: 48.8566, lng: 2.3522, tz: 'Europe/Paris', color: 0x0000FF},
-      {name: '🇬🇧 UK GMT', lat: 53, lng: -0.1276, tz: 'Europe/London', color: 0x191970},
-      {name: '🇺🇸 USA EST', lat: 39.8283, lng: -98.5795, tz: 'America/New_York', color: 0x003366},
-      {name: '🇸🇬 Singapore SGT', lat: 1.35, lng: 103.8, tz: 'Asia/Singapore', color: 0xEE2536},
-      {name: '🇲🇾 Malaysia MYT', lat: 4, lng: 102, tz: 'Asia/Kuala_Lumpur', color: 0xFFD700}
+      {name: 'India IST', flag: '🇮🇳', lat: 22, lng: 78, tz: 'Asia/Kolkata', color: 0xFF9933, cardId: 'India'},
+      {name: 'Canada PST', flag: '🇨🇦', lat: 56.1304, lng: -106.3468, tz: 'America/Vancouver', color: 0xff0000, cardId: 'Canada'},
+      {name: 'Thailand ICT', flag: '🇹🇭', lat: 13.7563, lng: 100.5018, tz: 'Asia/Bangkok', color: 0xffcc00, cardId: 'Thailand'},
+      {name: 'Europe CET', flag: '🇪🇺', lat: 48.8566, lng: 2.3522, tz: 'Europe/Paris', color: 0x0000FF, cardId: 'Europe'},
+      {name: 'UK GMT', flag: '🇬🇧', lat: 53, lng: -0.1276, tz: 'Europe/London', color: 0x191970, cardId: 'UK'},
+      {name: 'USA EST', flag: '🇺🇸', lat: 39.8283, lng: -98.5795, tz: 'America/New_York', color: 0x003366, cardId: 'USA'},
+      {name: 'Singapore SGT', flag: '🇸🇬', lat: 1.35, lng: 103.8, tz: 'Asia/Singapore', color: 0xEE2536, cardId: 'Singapore'},
+      {name: 'Malaysia MYT', flag: '🇲🇾', lat: 4, lng: 102, tz: 'Asia/Kuala_Lumpur', color: 0xFFD700, cardId: 'Malaysia'}
     ];
 
     const clockMarkers = [];
     const clockTexts = [];
 
-    // YOUR EXACT GPS FUNCTION
+    // GPS FUNCTION
     function latLonToVector3(lat, lon, radius) {
       const phi = (90 - lat) * (Math.PI / 180);
       const theta = (lon + 180) * (Math.PI / 180);
@@ -106,7 +167,7 @@
       );
     }
 
-    // 🟡 COUNTRY SPHERE MARKERS (PERFECT PLACEMENT)
+    // COUNTRY SPHERES + FLAGS ON GLOBE
     countries.forEach((country, index) => {
       // GLOWING SPHERE
       const marker = new THREE.Mesh(
@@ -122,20 +183,27 @@
       globeGroup.add(marker);
       clockMarkers.push(marker);
 
-      // GLOW RING
-      const ring = new THREE.Mesh(
-        new THREE.RingGeometry(0.045, 0.06, 16),
-        new THREE.MeshBasicMaterial({
-          color: country.color,
-          side: THREE.DoubleSide,
-          transparent: true,
-          opacity: 0.6
-        })
-      );
-      ring.lookAt(0, 0, 0);
-      globeGroup.add(ring);
+      // FLAG EMOJI ON GLOBE (smaller canvas sprite)
+      const flagCanvas = document.createElement('canvas');
+      flagCanvas.width = 128; flagCanvas.height = 64;
+      const flagCtx = flagCanvas.getContext('2d');
+      flagCtx.fillStyle = 'rgba(0,0,0,0.9)';
+      flagCtx.fillRect(0, 0, 128, 64);
+      flagCtx.fillStyle = '#ffffff';
+      flagCtx.font = 'bold 32px Arial';
+      flagCtx.textAlign = 'center';
+      flagCtx.textBaseline = 'middle';
+      flagCtx.fillText(country.flag, 64, 32);
+      
+      const flagSprite = new THREE.Sprite(new THREE.SpriteMaterial({
+        map: new THREE.CanvasTexture(flagCanvas),
+        transparent: true
+      }));
+      flagSprite.position.copy(marker.position.clone().add(new THREE.Vector3(0, -0.08, 0)));
+      flagSprite.scale.set(0.12, 0.06, 1);
+      globeGroup.add(flagSprite);
 
-      // LIVE CLOCK (ALWAYS VISIBLE)
+      // TIME TEXT (above flag)
       const canvas = document.createElement('canvas');
       canvas.width = 256; canvas.height = 128;
       const ctx = canvas.getContext('2d');
@@ -150,15 +218,50 @@
       clockTexts.push({ canvas, ctx, sprite, country, index });
     });
 
-    // ✅ PAUSE BUTTON (FIXED - STOPS ALL ROTATION)
+    // PAUSE BUTTON
     let isPaused = false;
     document.getElementById('pauseRotate').onclick = () => {
       isPaused = !isPaused;
       controls.autoRotate = !isPaused;
       controls.enableDamping = !isPaused;
-      document.getElementById('pauseRotate').classList.toggle('active');
-      document.getElementById('pauseRotate').textContent = isPaused ? '▶️ Resume Rotation' : '⏸️ Pause Rotation';
+      const btn = document.getElementById('pauseRotate');
+      btn.classList.toggle('active');
+      btn.textContent = isPaused ? '▶️ Resume Rotation' : '⏸️ Pause Rotation';
     };
+
+    // UPDATE TIME CARDS + GLOBE CLOCKS
+    function updateTimes() {
+      countries.forEach((country, index) => {
+        const now = new Date();
+        const time = now.toLocaleTimeString('en-US', {
+          timeZone: country.tz,
+          hour12: false,
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+        
+        // UPDATE HTML CARDS
+        document.getElementById(`time-${country.cardId}`).textContent = time;
+        
+        // UPDATE GLOBE CLOCKS
+        const ct = clockTexts[index];
+        ct.ctx.clearRect(0, 0, 256, 128);
+        ct.ctx.fillStyle = 'rgba(0,0,0,0.92)';
+        ct.ctx.fillRect(0, 0, 256, 128);
+        ct.ctx.fillStyle = '#ffffff';
+        ct.ctx.font = 'bold 24px Arial';
+        ct.ctx.textAlign = 'center';
+        ct.ctx.textBaseline = 'middle';
+        ct.ctx.fillText(country.name.split(' ')[0], 128, 42);
+        ct.ctx.fillStyle = index === 0 ? '#FFD700' : '#00ff88';
+        ct.ctx.font = 'bold 32px Courier New';
+        ct.ctx.shadowColor = ct.ctx.fillStyle;
+        ct.ctx.shadowBlur = 8;
+        ct.ctx.fillText(time, 128, 90);
+        ct.ctx.shadowBlur = 0;
+        ct.sprite.material.map.needsUpdate = true;
+      });
+    }
 
     // RESIZE
     window.addEventListener('resize', () => {
@@ -167,57 +270,30 @@
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
 
-    // ANIMATION LOOP
+    // ANIMATION
     const clock = new THREE.Clock();
     function animate() {
       requestAnimationFrame(animate);
-      
-      // ONLY UPDATE CONTROLS (user drag/zoom still works)
       controls.update();
 
       const elapsed = clock.getElapsedTime();
 
-      // GLOBE ROTATION (STOPS WHEN PAUSED)
       if (!isPaused) {
         globeGroup.rotation.y = elapsed * 0.25;
       }
 
-      // LIVE CLOCKS (ALWAYS UPDATE)
-      clockTexts.forEach(ct => {
-        const now = new Date();
-        const time = now.toLocaleTimeString('en-US', {
-          timeZone: ct.country.tz,
-          hour12: false,
-          hour: '2-digit',
-          minute: '2-digit'
-        });
-        
-        ct.ctx.clearRect(0, 0, 256, 128);
-        ct.ctx.fillStyle = 'rgba(0,0,0,0.92)';
-        ct.ctx.fillRect(0, 0, 256, 128);
-        
-        ct.ctx.fillStyle = '#ffffff';
-        ct.ctx.font = 'bold 24px Arial';
-        ct.ctx.textAlign = 'center';
-        ct.ctx.textBaseline = 'middle';
-        ct.ctx.fillText(ct.country.name.split(' ')[1], 128, 42);
-        
-        ct.ctx.fillStyle = ct.index === 0 ? '#FFD700' : '#00ff88';
-        ct.ctx.font = 'bold 32px Courier New';
-        ct.ctx.shadowColor = ct.ctx.fillStyle;
-        ct.ctx.shadowBlur = 8;
-        ct.ctx.fillText(time, 128, 90);
-        ct.ctx.shadowBlur = 0;
-        
-        ct.sprite.material.map.needsUpdate = true;
-      });
-
-      // INDIA PULSE
+      // India pulse
       clockMarkers[0].scale.setScalar(1 + Math.sin(elapsed * 4) * 0.2);
       clockMarkers[0].rotation.y = elapsed * 2;
 
+      // Update times every second
+      if (Math.floor(elapsed) !== Math.floor(clock.getElapsedTime() - 1)) {
+        updateTimes();
+      }
+
       renderer.render(scene, camera);
     }
+    setInterval(updateTimes, 1000); // Precise 1-second updates
     animate();
   </script>
 </body>
