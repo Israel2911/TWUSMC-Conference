@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>🌍 3D World Globe + INDIA 100% IDENTICAL</title>
+  <title>🌍 3D World Globe + ALL IDENTICAL</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -114,7 +114,6 @@
       );
     }
 
-    // ✅ INDIA 100% IDENTICAL TO ALL OTHERS
     countries.forEach((country, index) => {
       const flagCanvas = document.createElement('canvas');
       flagCanvas.width = 420; flagCanvas.height = 220;
@@ -159,7 +158,6 @@
         minute: '2-digit'
       });
       
-      // ALL GREEN TIME - INDIA IDENTICAL
       flagCtx.fillStyle = '#00ff88';
       flagCtx.font = 'bold 70px Courier New';
       flagCtx.textAlign = 'right';
@@ -238,7 +236,6 @@
         flagData.ctx.textBaseline = 'middle';
         flagData.ctx.fillText(country.name, 160, 80);
         
-        // ALL GREEN TIME - IDENTICAL
         flagData.ctx.fillStyle = '#00ff88';
         flagData.ctx.font = 'bold 70px Courier New';
         flagData.ctx.textAlign = 'right';
@@ -269,8 +266,8 @@
       if (!isPaused) {
         globeGroup.rotation.y = elapsed * 0.25;
       }
-
-      cardFlags[0].sprite.scale.setScalar(1 + Math.sin(elapsed * 4) * 0.15);
+      
+      // NO PULSE - ALL IDENTICAL SIZE
       renderer.render(scene, camera);
     }
     
