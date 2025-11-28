@@ -2,68 +2,435 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>🌍 3D World Globe + ALL IDENTICAL</title>
+  <title>TWU-SMC 11th Annual Leadership Conference</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #000011; overflow: hidden; height: 100vh; font-family: -apple-system, Arial, sans-serif; }
-    
-    #container { position: relative; width: 100vw; height: 100vh; }
-    canvas { display: block; width: 100%; height: 100%; }
-    
-    .globe-controls { position: absolute; top: 20px; right: 20px; z-index: 100; }
-    .pause-btn { 
-      padding: 15px 25px; background: rgba(0,255,136,0.2); 
-      border: 2px solid #00ff88; color: white; border-radius: 30px; 
-      cursor: pointer; font-weight: bold; font-size: 16px;
-      backdrop-filter: blur(15px); transition: all 0.3s;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
+      font-family: 'Nunito', sans-serif;
+      color: #1a365d;
+      overflow-x: hidden;
+      line-height: 1.6;
     }
-    .pause-btn:hover { background: rgba(0,255,136,0.4); transform: scale(1.05); }
-    .pause-btn.active { background: #00ff88; color: black; }
+  
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 40px;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    .logo { 
+      font-size: 1.8rem; 
+      font-weight: 900; 
+      background: linear-gradient(135deg, #167690, #128fa7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .nav { display: flex; gap: 30px; }
+    .nav a { 
+      color: #167690; 
+      text-decoration: none; 
+      font-weight: 700; 
+      font-size: 1.1rem;
+      transition: color 0.3s;
+    }
+    .nav a:hover { color: #128fa7; }
 
-    .time-cards {
-      position: absolute; left: 20px; top: 50%; transform: translateY(-50%);
-      background: rgba(0,0,20,0.9); border: 1px solid rgba(0,255,136,0.3);
-      border-radius: 20px; padding: 20px; max-height: 80vh;
-      overflow-y: auto; backdrop-filter: blur(20px); z-index: 100;
-      min-width: 280px; box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    /* HERO WITH GLOBE */
+    .hero {
+      position: relative;
+      height: 100vh;
+      min-height: 700px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      text-align: center;
+      padding: 0 40px;
     }
-    .time-card { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(0,255,136,0.2); transition: all 0.3s; font-size: 16px; font-weight: 500; }
-    .time-card:last-child { border-bottom: none; }
-    .time-card:hover { background: rgba(0,255,136,0.1); padding-left: 8px; }
-    .flag { font-size: 28px; margin-right: 12px; }
-    .time-text { color: #00ff88; font-family: 'Courier New', monospace; font-weight: bold; }
-    .country-name { color: #ffffff; margin-right: 8px; }
+  
+    .hero img {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      filter: brightness(0.7) contrast(1.1);
+      z-index: 1;
+    }
+  
+    #heroGlobeContainer {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 2;
+    }
+  
+    .hero-content {
+      position: relative;
+      z-index: 4;
+      max-width: 1200px;
+    }
+  
+    .hero h1 {
+      font-size: clamp(3rem, 8vw, 5rem);
+      font-weight: 900;
+      background: linear-gradient(45deg, #ffd700, #ffed4a);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin: 0 0 20px 0;
+      text-shadow: 0 0 60px rgba(255,215,0,0.8);
+      line-height: 1.1;
+    }
+  
+    .hero h2 { 
+      font-size: clamp(1.6rem, 4vw, 2.5rem); 
+      font-weight: 700; 
+      color: white; 
+      margin: 0 0 40px 0; 
+      text-shadow: 0 0 30px rgba(0,0,0,0.8);
+    }
+  
+    .hero-meta {
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(20px);
+      padding: 25px 50px;
+      border-radius: 40px;
+      display: inline-block;
+      box-shadow: 0 30px 100px rgba(0,0,0,0.3);
+      border: 3px solid rgba(255,255,255,0.9);
+    }
+  
+    .hero p { 
+      font-size: 1.4rem; 
+      font-weight: 700; 
+      color: #167690; 
+      margin: 0;
+    }
+
+    /* GLOBE CONTROLS */
+    .globe-controls { 
+      position: absolute; 
+      top: 20px; 
+      right: 20px; 
+      z-index: 100; 
+    }
+    .pause-btn { 
+      padding: 12px 20px; 
+      background: rgba(0,255,136,0.2); 
+      border: 2px solid #00ff88; 
+      color: white; 
+      border-radius: 25px; 
+      cursor: pointer; 
+      font-weight: bold; 
+      font-size: 14px;
+      backdrop-filter: blur(15px); 
+      transition: all 0.3s;
+    }
+    .pause-btn:hover { 
+      background: rgba(0,255,136,0.4); 
+      transform: scale(1.05); 
+    }
+    .pause-btn.active { 
+      background: #00ff88; 
+      color: black; 
+    }
+
+    /* WORLD CLOCK */
+    .world-clock-section {
+      max-width: 500px;
+      margin: 60px auto;
+      padding: 0 20px;
+      text-align: center;
+    }
+    .clock-header {
+      font-size: 2.2rem;
+      background: linear-gradient(135deg, #167690, #128fa7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 30px;
+      font-weight: 900;
+    }
+    .world-clock-widget {
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(40px);
+      padding: 30px 25px;
+      border-radius: 30px;
+      box-shadow: 0 30px 100px rgba(0,0,0,0.2);
+      border: 2px solid rgba(255,255,255,0.95);
+      max-width: 450px;
+      margin: 0 auto;
+    }
+    .clock-stack { display: flex; flex-direction: column; gap: 12px; }
+    .clock-item {
+      display: flex; align-items: center; padding: 8px 12px;
+      background: transparent; border-radius: 15px;
+      transition: all 0.3s ease; font-weight: 700; font-size: 0.95rem;
+    }
+    .clock-item:hover { background: rgba(255,255,255,0.6); transform: scale(1.02); }
+    .clock-item.live { background: linear-gradient(135deg, #ff6b35, #ff8e53); color: white; box-shadow: 0 5px 20px rgba(255,107,53,0.4); }
+    .clock-flag { font-size: 1.6rem; margin-right: 10px; flex-shrink: 0; }
+    .clock-timezone { flex: 1; font-size: 0.9rem; font-weight: 600; }
+    .clock-time { font-size: 1.4rem; font-family: 'Courier New', monospace; font-weight: 900; color: #1a365d; min-width: 60px; text-align: right; }
+    .clock-item.live .clock-time { color: #ffd700; text-shadow: 0 0 10px rgba(255,215,0,0.8); }
+
+    /* SYNOPSIS */
+    .synopsis-section { max-width: 1200px; margin: 100px auto; padding: 0 40px; text-align: center; }
+    .synopsis-header {
+      font-size: 3.5rem; background: linear-gradient(135deg, #167690, #128fa7);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 60px; font-weight: 900;
+    }
+    .synopsis-content {
+      background: rgba(255,255,255,0.95); backdrop-filter: blur(40px);
+      padding: 80px; border-radius: 50px; box-shadow: 0 50px 160px rgba(0,0,0,0.25);
+      border: 3px solid rgba(255,255,255,0.95); font-size: 1.3rem;
+      line-height: 1.8; color: #1a365d; font-weight: 600;
+    }
+
+    /* AGENDA */
+    .agenda-section { max-width: 1300px; margin: 120px auto; padding: 0 40px; }
+    .agenda-header {
+      font-size: 3.5rem; text-align: center; margin-bottom: 80px;
+      background: linear-gradient(135deg, #167690, #128fa7);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900;
+    }
+    .agenda-table {
+      width: 100%; background: rgba(255,255,255,0.98); backdrop-filter: blur(40px);
+      border-radius: 50px; overflow: hidden; box-shadow: 0 60px 200px rgba(0,0,0,0.35);
+      border-collapse: collapse;
+    }
+    .agenda-table th {
+      background: linear-gradient(135deg, #167690, #128fa7); color: white;
+      padding: 35px 40px; font-weight: 900; font-size: 1.4rem; text-align: left;
+    }
+    .agenda-table td {
+      padding: 35px 40px; border-bottom: 1px solid rgba(255,255,255,0.6);
+      font-weight: 700; font-size: 1.2rem; vertical-align: top;
+    }
+    .agenda-table tr:nth-child(even) td { background: rgba(255,255,255,0.7); }
+    .time-col { width: 18%; font-family: 'Courier New', monospace; font-size: 1.4rem; color: #ff6b35; }
+
+    /* REGISTRATION */
+    .registration-section { max-width: 1200px; margin: 120px auto; padding: 0 40px; text-align: center; }
+    .registration-header {
+      font-size: 3.2rem; background: linear-gradient(135deg, #167690, #128fa7);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 80px; font-weight: 900;
+    }
+    .cards-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 60px; max-width: 1000px; margin: 0 auto;
+    }
+    .reg-card {
+      background: rgba(255,255,255,0.95); backdrop-filter: blur(40px);
+      padding: 60px 40px; border-radius: 40px; box-shadow: 0 40px 140px rgba(0,0,0,0.25);
+      border: 4px solid rgba(255,255,255,0.9); transition: all 0.6s cubic-bezier(0.25,0.46,0.45,0.94);
+      height: 100%; position: relative; overflow: hidden;
+    }
+    .reg-card:hover { transform: translateY(-20px); box-shadow: 0 70px 220px rgba(22,118,144,0.4); }
+    .reg-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      background: inherit; border-radius: 36px; padding: 4px;
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask-composite: exclude; opacity: 0; transition: opacity 0.6s ease; z-index: -1;
+    }
+    .reg-card:hover::before { opacity: 1; }
+    .card-icon { font-size: 4rem; display: block; margin-bottom: 25px; }
+    .card-title { font-size: 2rem; font-weight: 900; color: #167690; margin-bottom: 20px; }
+    .card-desc { font-size: 1.2rem; color: #1a365d; margin-bottom: 30px; font-weight: 600; }
+    .reg-btn {
+      display: inline-block; padding: 20px 50px;
+      background: linear-gradient(135deg, #167690, #128fa7); color: white;
+      text-decoration: none; border-radius: 50px; font-weight: 900; font-size: 1.3rem;
+      box-shadow: 0 20px 60px rgba(22,118,144,0.4); transition: all 0.4s ease;
+      border: 3px solid rgba(255,255,255,0.6);
+    }
+    .reg-btn:hover { transform: translateY(-8px); box-shadow: 0 30px 80px rgba(22,118,144,0.6); }
+    .book-card .card-icon { color: #ff6b35; }
+    .book-card .card-title { color: #ff6b35; }
+    .book-card .reg-btn { background: linear-gradient(135deg, #ff6b35, #ff8e53); box-shadow: 0 20px 60px rgba(255,107,53,0.4); }
+    .book-card:hover .reg-btn { box-shadow: 0 30px 80px rgba(255,107,53,0.6); }
+
+    /* BROCHURE */
+    .brochure-section { max-width: 1200px; margin: 120px auto 200px; padding: 0 40px; text-align: center; }
+    .brochure-header {
+      font-size: 3.2rem; background: linear-gradient(135deg, #167690, #128fa7);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 60px;
+    }
+    .brochure-preview-container {
+      background: rgba(255,255,255,0.95); backdrop-filter: blur(40px);
+      border-radius: 40px; padding: 60px; margin-bottom: 60px;
+      box-shadow: 0 50px 160px rgba(0,0,0,0.3); max-width: 1100px;
+      margin-left: auto; margin-right: auto;
+    }
+    .pdf-preview {
+      width: 100%; height: 700px; border: 4px solid rgba(22,118,144,0.3);
+      border-radius: 30px; box-shadow: 0 30px 120px rgba(0,0,0,0.25); background: white;
+    }
+    .download-btn {
+      display: inline-block; padding: 35px 100px;
+      background: linear-gradient(135deg, #167690, #128fa7); color: white;
+      text-decoration: none; border-radius: 60px; font-weight: 900; font-size: 1.8rem;
+      box-shadow: 0 50px 160px rgba(22,118,144,0.6);
+      transition: all 0.6s cubic-bezier(0.25,0.46,0.45,0.94);
+      border: 5px solid rgba(255,255,255,0.4);
+    }
+    .download-btn:hover { transform: translateY(-20px); box-shadow: 0 70px 240px rgba(22,118,144,0.8); }
+
+    @media (max-width: 768px) {
+      .cards-grid { grid-template-columns: 1fr; gap: 40px; }
+      .world-clock-section { margin: 40px auto; padding: 0 15px; }
+      .world-clock-widget { padding: 20px 15px; }
+      .hero-meta { padding: 20px 40px; }
+      .synopsis-content { padding: 40px 30px; font-size: 1.1rem; }
+      .pdf-preview { height: 500px; }
+      .reg-card { padding: 40px 25px; }
+      .globe-controls { top: 10px; right: 10px; }
+      .pause-btn { padding: 10px 16px; font-size: 13px; }
+    }
   </style>
 </head>
 <body>
-  <div id="container">
+  <header class="header">
+    <div class="logo">TWU-SMC × Leadership</div>
+    <nav class="nav">
+      <a href="#heroGlobe">🌍 Globe</a>
+      <a href="#worldclock">World Clock</a>
+      <a href="#synopsis">Overview</a>
+      <a href="#agenda">Agenda</a>
+      <a href="#register">Register</a>
+      <a href="#brochure">Brochure</a>
+    </nav>
+  </header>
+
+  <!-- HERO WITH 3D GLOBE -->
+  <section class="hero" id="heroGlobe">
+    <img src="humanintelligence.png" alt="Conference Hero Image" />
+    <div id="heroGlobeContainer"></div>
+    
     <div class="globe-controls">
-      <button class="pause-btn active" id="pauseRotate">⏸️ Pause Rotation</button>
+      <button class="pause-btn active" id="pauseRotate">⏸️ Pause Globe</button>
     </div>
 
-    <div class="time-cards" id="timeCards">
-      <div class="time-card" id="card-India"><span class="flag">🇮🇳</span><span class="country-name">India IST</span><span class="time-text" id="time-India">--:--</span></div>
-      <div class="time-card" id="card-Canada"><span class="flag">🇨🇦</span><span class="country-name">Canada PST</span><span class="time-text" id="time-Canada">--:--</span></div>
-      <div class="time-card" id="card-Thailand"><span class="flag">🇹🇭</span><span class="country-name">Thailand ICT</span><span class="time-text" id="time-Thailand">--:--</span></div>
-      <div class="time-card" id="card-Europe"><span class="flag">🇪🇺</span><span class="country-name">Europe CET</span><span class="time-text" id="time-Europe">--:--</span></div>
-      <div class="time-card" id="card-UK"><span class="flag">🇬🇧</span><span class="country-name">UK GMT</span><span class="time-text" id="time-UK">--:--</span></div>
-      <div class="time-card" id="card-USA"><span class="flag">🇺🇸</span><span class="country-name">USA EST</span><span class="time-text" id="time-USA">--:--</span></div>
-      <div class="time-card" id="card-Singapore"><span class="flag">🇸🇬</span><span class="country-name">Singapore SGT</span><span class="time-text" id="time-Singapore">--:--</span></div>
-      <div class="time-card" id="card-Malaysia"><span class="flag">🇲🇾</span><span class="country-name">Malaysia MYT</span><span class="time-text" id="time-Malaysia">--:--</span></div>
+    <div class="hero-content">
+      <h1>TWU-SMC 11th Annual<br>Leadership Conference</h1>
+      <h2>The Fifth Intelligence:<br>Integrating the Human Factor</h2>
+      <div class="hero-meta">
+        <p><strong>January 19, 2026 • 10:00 AM - 3:30 PM IST</strong><br>Dr. Laird • VP Innovation, Global & Academic Partnerships, TWU</p>
+      </div>
     </div>
-  </div>
+  </section>
+
+  <!-- WORLD CLOCK -->
+  <section class="world-clock-section" id="worldclock">
+    <h2 class="clock-header">🌍 Live World Clock</h2>
+    <div class="world-clock-widget">
+      <div class="clock-stack" id="clockStack"></div>
+    </div>
+  </section>
+
+  <!-- SYNOPSIS -->
+  <section class="synopsis-section" id="synopsis">
+    <h2 class="synopsis-header">Conference Overview</h2>
+    <div class="synopsis-content">
+      Join us as <strong>Dr. Laird</strong>, Vice President of Innovation, Global and Academic Partnerships at TWU, unveils concepts from his new book on "Fifth Intelligence." This landmark event explores the synergistic integration of human creativity, emotional intelligence, <strong>moral reasoning</strong>, and ethical judgment with AI's computational power and pattern recognition.
+      
+      Joined by industry experts, educators, and government leaders, engage in provocative panel discussions on disruptive, controversial conversations about AI's impact on human consciousness, its changes to human behaviors, the way we communicate, work, and organizational changes, governing dynamics of economies, institutions, and private/public sectors.
+      
+      Transformative insights from global thought leaders united by a shared vision for responsible AI leadership.
+    </div>
+  </section>
+
+  <!-- AGENDA -->
+  <section class="agenda-section" id="agenda">
+    <h2 class="agenda-header">📅 Detailed Conference Agenda</h2>
+    <table class="agenda-table">
+      <tr>
+        <th class="time-col">Time (IST)</th>
+        <th>Session</th>
+      </tr>
+      <tr>
+        <td class="time-col">10:00 AM - 11:00 AM</td>
+        <td><strong>Opening & Keynote:</strong> Dr. Laird presents "Fifth Intelligence" from his new book - revolutionary framework for human-AI symbiosis.</td>
+      </tr>
+      <tr>
+        <td class="time-col">11:15 AM - 12:00 PM</td>
+        <td><strong>AI + Human Integration Workshop:</strong> Practical tools for integrating AI with human decision-making processes.</td>
+      </tr>
+      <tr>
+        <td class="time-col">12:00 PM - 02:00 PM</td>
+        <td><strong>Networking Lunch:</strong> Global cuisine and strategic networking with international delegates.</td>
+      </tr>
+      <tr>
+        <td class="time-col">02:00 PM - 03:15 PM</td>
+        <td><strong>Global Industry Panel:</strong> Industry experts, educators, government leaders discuss AI's impact on consciousness, behavior, organizations, economies.</td>
+      </tr>
+      <tr>
+        <td class="time-col">03:30 PM - 04:30 PM</td>
+        <td><strong>Book Signing & Closing:</strong> Dr. Laird book signing, closing remarks, conference takeaways.</td>
+      </tr>
+    </table>
+  </section>
+
+  <!-- REGISTRATION -->
+  <section class="registration-section" id="register">
+    <h2 class="registration-header">🎫 Registration</h2>
+    <div class="cards-grid">
+      <div class="reg-card">
+        <div class="card-icon">📺</div>
+        <div class="card-title">Live Conference Access</div>
+        <div class="card-desc">Join our international audience for the live online conference experience. Full access to keynote, panels, and workshops.</div>
+        <a href="#conference-registration" class="reg-btn">Register Now</a>
+      </div>
+      
+      <div class="reg-card book-card">
+        <div class="card-icon">📖✨</div>
+        <div class="card-title">VIP Book Signing</div>
+        <div class="card-desc"><strong>Limited Seats!</strong> Pre-register for Dr. Laird's exclusive book signing after the conference. Priority access guaranteed.</div>
+        <a href="#book-signing-registration" class="reg-btn">Pre-Register VIP</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- BROCHURE -->
+  <section class="brochure-section" id="brochure">
+    <h2 class="brochure-header">📄 Conference Brochure</h2>
+    
+    <div class="brochure-preview-container">
+      <h3 style="font-size: 2rem; color: #167690; margin-bottom: 30px;">👁️ Live PDF Preview</h3>
+      <iframe 
+        src="GLOB SMC Leadership Conference 2025_Brochure_Final5.pdf#toolbar=0&navpanes=0&scrollbar=0&view=FitH" 
+        class="pdf-preview"
+        title="Conference Brochure Preview">
+      </iframe>
+    </div>
+    
+    <a href="GLOB SMC Leadership Conference 2025_Brochure_Final5.pdf" class="download-btn" download>
+      📥 Download Full Conference Brochure
+    </a>
+  </section>
 
   <script>
-    const container = document.getElementById('container');
+    // 3D GLOBE INTEGRATION
+    const heroContainer = document.getElementById('heroGlobeContainer');
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setClearColor(0x000011);
-    container.appendChild(renderer.domElement);
+    renderer.setClearColor(0x000000, 0);
+    heroContainer.appendChild(renderer.domElement);
 
     camera.position.set(0, 0, 2.8);
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -114,10 +481,28 @@
       );
     }
 
+    // Polyfill for roundRect
+    function createRoundRect(ctx) {
+      ctx.roundRect = ctx.roundRect || function(x, y, w, h, r) {
+        ctx.beginPath();
+        ctx.moveTo(x+r, y);
+        ctx.lineTo(x+w-r, y);
+        ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+        ctx.lineTo(x+w, y+h-r);
+        ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+        ctx.lineTo(x+r, y+h);
+        ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+        ctx.lineTo(x, y+r);
+        ctx.quadraticCurveTo(x, y, x+r, y);
+        ctx.closePath();
+      };
+    }
+
     countries.forEach((country, index) => {
       const flagCanvas = document.createElement('canvas');
       flagCanvas.width = 420; flagCanvas.height = 220;
       const flagCtx = flagCanvas.getContext('2d');
+      createRoundRect(flagCtx);
       
       const gradient = flagCtx.createLinearGradient(0, 0, 0, 220);
       gradient.addColorStop(0, 'rgba(20,20,40,0.98)');
@@ -128,7 +513,6 @@
       flagCtx.shadowColor = country.color + '33';
       flagCtx.shadowBlur = 30;
       flagCtx.shadowOffsetY = 12;
-      flagCtx.beginPath();
       flagCtx.roundRect(15, 15, 390, 190, 25);
       flagCtx.fill();
       flagCtx.restore();
@@ -187,10 +571,10 @@
       controls.enableDamping = !isPaused;
       const btn = document.getElementById('pauseRotate');
       btn.classList.toggle('active');
-      btn.textContent = isPaused ? '▶️ Resume Rotation' : '⏸️ Pause Rotation';
+      btn.textContent = isPaused ? '▶️ Resume Globe' : '⏸️ Pause Globe';
     };
 
-    function updateTimes() {
+    function updateGlobeTimes() {
       countries.forEach((country, index) => {
         const now = new Date();
         const time = now.toLocaleTimeString('en-US', {
@@ -200,9 +584,8 @@
           minute: '2-digit'
         });
         
-        document.getElementById(`time-${country.cardId}`).textContent = time;
-        
         const flagData = cardFlags[index];
+        createRoundRect(flagData.ctx);
         flagData.ctx.clearRect(0, 0, 420, 220);
         
         const gradient = flagData.ctx.createLinearGradient(0, 0, 0, 220);
@@ -214,7 +597,6 @@
         flagData.ctx.shadowColor = country.color + '33';
         flagData.ctx.shadowBlur = 30;
         flagData.ctx.shadowOffsetY = 12;
-        flagData.ctx.beginPath();
         flagData.ctx.roundRect(15, 15, 390, 190, 25);
         flagData.ctx.fill();
         flagData.ctx.restore();
@@ -251,6 +633,7 @@
       });
     }
 
+    // GLOBE RESIZE HANDLER
     window.addEventListener('resize', () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
@@ -261,18 +644,70 @@
     function animate() {
       requestAnimationFrame(animate);
       controls.update();
-
       const elapsed = clock.getElapsedTime();
       if (!isPaused) {
         globeGroup.rotation.y = elapsed * 0.25;
       }
-      
-      // NO PULSE - ALL IDENTICAL SIZE
       renderer.render(scene, camera);
     }
-    
-    setInterval(updateTimes, 1000);
+
+    setInterval(updateGlobeTimes, 1000);
     animate();
+
+    // WORLD CLOCK
+    const timezones = [
+      { name: 'India IST', flag: '🇮🇳', tz: 'Asia/Kolkata' },
+      { name: 'Canada PST', flag: '🇨🇦', tz: 'America/Vancouver' },
+      { name: 'Iran IRST', flag: '🇮🇷', tz: 'Asia/Tehran' },
+      { name: 'Thailand ICT', flag: '🇹🇭', tz: 'Asia/Bangkok' },
+      { name: 'Nigeria WAT', flag: '🇳🇬', tz: 'Africa/Lagos' },
+      { name: 'China CST', flag: '🇨🇳', tz: 'Asia/Shanghai' },
+      { name: 'S.Africa SAST', flag: '🇿🇦', tz: 'Africa/Johannesburg' },
+      { name: 'Kenya EAT', flag: '🇰🇪', tz: 'Africa/Nairobi' },
+      { name: 'Rwanda CAT', flag: '🇷🇼', tz: 'Africa/Kigali' }
+    ];
+
+    function createVerticalClock() {
+      const stack = document.getElementById('clockStack');
+      timezones.forEach((tz, index) => {
+        const item = document.createElement('div');
+        item.className = `clock-item ${tz.name.includes('India') ? 'live' : ''}`;
+        item.innerHTML = `
+          <span class="clock-flag">${tz.flag}</span>
+          <span class="clock-timezone">${tz.name}</span>
+          <span class="clock-time" id="time-${index}">--:--</span>
+        `;
+        stack.appendChild(item);
+      });
+    }
+
+    function updateVerticalClock() {
+      const now = new Date();
+      timezones.forEach((tz, index) => {
+        const timeEl = document.getElementById(`time-${index}`);
+        timeEl.textContent = now.toLocaleTimeString('en-GB', { 
+          timeZone: tz.tz, 
+          hour: '2-digit', 
+          minute: '2-digit',
+          hour12: false 
+        });
+      });
+    }
+
+    createVerticalClock();
+    updateVerticalClock();
+    setInterval(updateVerticalClock, 1000);
+
+    // Smooth scrolling for nav links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
   </script>
 </body>
 </html>
