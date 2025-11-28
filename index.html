@@ -35,7 +35,6 @@
       font-size: 1rem; transition: color 0.3s;
     }
     .nav a:hover { color: #128fa7; }
-    /* Live link hidden by default, shown when live */
     .live-link { color: #ff0000 !important; display: none; animation: pulse 2s infinite; }
 
     /* HERO SECTION */
@@ -74,7 +73,7 @@
       color: white; font-weight: 700; display: inline-block;
     }
 
-    /* LIVE STREAM CONTENT (Hidden by Default) */
+    /* LIVE STREAM CONTENT */
     .hero-content-live {
       position: relative; z-index: 10; width: 100%; max-width: 1400px;
       display: none; opacity: 0; transform: translateY(20px);
@@ -84,7 +83,6 @@
       display: grid; grid-template-columns: 2.5fr 1fr; gap: 30px;
       height: 75vh; min-height: 500px;
     }
-    
     .video-wrapper {
       background: #f0f0f0; border-radius: 20px; overflow: hidden;
       box-shadow: 0 20px 80px rgba(0,0,0,0.5); position: relative;
@@ -96,7 +94,6 @@
       border-radius: 5px; font-weight: bold; font-size: 0.9rem;
       animation: pulse 1.5s infinite; z-index: 10;
     }
-    
     .live-info-panel {
       background: rgba(0,0,0,0.6); backdrop-filter: blur(30px);
       padding: 30px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.15);
@@ -149,19 +146,39 @@
     .globe-time { font-family: 'Courier New', monospace; font-weight: 900; font-size: 1.4rem; color: #ff6b35; }
     .globe-time-item.india { border-left-color: #FF9933; background: #fffbf5; }
 
-    /* ADMIN PANEL (HIDDEN) */
+    /* SECTIONS */
+    .section { padding: 80px 40px; max-width: 1200px; margin: 0 auto; text-align: center; }
+    .section-header {
+      font-size: 2.5rem; font-weight: 900; margin-bottom: 40px;
+      background: linear-gradient(135deg, #167690, #128fa7);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .content-box {
+      background: white; padding: 60px; border-radius: 30px; 
+      box-shadow: 0 20px 60px rgba(0,0,0,0.05); font-size: 1.1rem; text-align: left;
+    }
+    .agenda-table { width: 100%; border-collapse: collapse; text-align: left; }
+    .agenda-table th { background: #167690; color: white; padding: 15px; }
+    .agenda-table td { padding: 15px; border-bottom: 1px solid #eee; }
+    .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px; }
+    .reg-card { background: white; padding: 40px; border-radius: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
+    .reg-btn {
+      display: inline-block; padding: 15px 40px; margin-top: 20px;
+      background: #167690; color: white; text-decoration: none; 
+      border-radius: 30px; font-weight: bold;
+    }
+
+    /* ADMIN PANEL (VISIBLE TO YOU) */
     .admin-panel {
       position: fixed; bottom: 20px; right: 20px; z-index: 9999;
-      display: none; /* HIDDEN BY DEFAULT */
-      flex-direction: column; gap: 10px;
-      background: rgba(0,0,0,0.8); padding: 20px; border-radius: 15px;
+      display: flex; gap: 15px;
     }
     .admin-btn {
       padding: 12px 24px; border-radius: 30px; cursor: pointer; 
       font-weight: bold; border: 2px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
       color: white; font-size: 1rem;
     }
-    .btn-live { background: #167690; }
+    .btn-live { background: #333; }
     .btn-kill { background: #ff0000; display: none; animation: pulse 2s infinite; }
 
     @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
@@ -175,12 +192,10 @@
 </head>
 <body>
 
-<!-- HIDDEN ADMIN PANEL -->
-<!-- Access by adding ?admin=true to your URL -->
+<!-- ALWAYS VISIBLE ADMIN CONTROLS -->
 <div class="admin-panel" id="adminPanel">
-  <div style="color:white; font-weight:bold; margin-bottom:10px; text-align:center;">🔒 Admin Controls</div>
-  <button class="admin-btn btn-live" id="liveToggle">🔴 Start Live Mode</button>
-  <button class="admin-btn btn-kill" id="killSwitch">⚠️ KILL STREAM (REVERT)</button>
+  <button class="admin-btn btn-live" id="liveToggle">🔴 Toggle "Go Live"</button>
+  <button class="admin-btn btn-kill" id="killSwitch">⚠️ KILL STREAM</button>
 </div>
 
 <header class="header">
@@ -282,18 +297,15 @@
 </section>
 
 <script>
-  // --- ADMIN ACCESS LOGIC ---
-  const urlParams = new URLSearchParams(window.location.search);
-  const adminPanel = document.getElementById('adminPanel');
-  if (urlParams.get('admin') === 'true') { adminPanel.style.display = 'flex'; }
-
   // --- LIVE MODE LOGIC ---
   const liveToggle = document.getElementById('liveToggle');
   const killSwitch = document.getElementById('killSwitch');
+  
   const standardHero = document.getElementById('heroStandard');
   const liveHero = document.getElementById('heroLive');
   const heroBg = document.getElementById('heroBg');
   const liveLink = document.querySelector('.live-link');
+  
   let isLive = false;
 
   function toggleLiveMode() {
@@ -309,8 +321,8 @@
       heroBg.style.filter = 'brightness(0.2) blur(10px)';
       liveLink.style.display = 'block';
       liveToggle.textContent = '⏹ Stop Live Mode';
-      liveToggle.style.background = '#ff0000';
-      killSwitch.style.display = 'block';
+      liveToggle.style.background = '#167690';
+      killSwitch.style.display = 'block'; // Show Kill Switch
     } else {
       // STOP LIVE (REVERT)
       liveHero.style.opacity = '0';
@@ -321,15 +333,15 @@
       }, 500);
       heroBg.style.filter = 'brightness(0.6) contrast(1.1)';
       liveLink.style.display = 'none';
-      liveToggle.textContent = '🔴 Start Live Mode';
-      liveToggle.style.background = '#167690';
-      killSwitch.style.display = 'none';
+      liveToggle.textContent = '🔴 Toggle "Go Live"';
+      liveToggle.style.background = '#333';
+      killSwitch.style.display = 'none'; // Hide Kill Switch
     }
   }
 
   liveToggle.addEventListener('click', toggleLiveMode);
   
-  // KILL SWITCH: Acts as "Stop Live Mode"
+  // KILL SWITCH: Reverts to Standard Mode
   killSwitch.addEventListener('click', () => {
     if(confirm("⚠️ EMERGENCY: Stop stream and revert to home page?")) {
       if(isLive) toggleLiveMode();
@@ -353,7 +365,7 @@
   const renderer = new THREE.WebGLRenderer({alpha: true, antialias: true});
   renderer.setSize(500, 500); container.appendChild(renderer.domElement);
   const controls = new THREE.OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true; controls.autoRotate = true; controls.enableZoom = false;
+  controls.enableDamping = true; controls.autoRotate = true; controls.autoRotateSpeed = 1.0; controls.enableZoom = false;
   scene.add(new THREE.AmbientLight(0xffffff, 1.0));
   const dLight = new THREE.DirectionalLight(0xffffff, 0.5); dLight.position.set(5,3,5); scene.add(dLight);
   const globeGroup = new THREE.Group(); scene.add(globeGroup);
