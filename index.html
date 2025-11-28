@@ -35,22 +35,27 @@
       font-size: 1rem; transition: color 0.3s;
     }
     .nav a:hover { color: #128fa7; }
+    .live-link { color: #ff0000 !important; display: none; } /* Hidden until live */
 
-    /* HERO SECTION - CLEAN */
+    /* HERO SECTION */
     .hero {
       position: relative; 
-      height: 85vh; 
-      min-height: 600px; 
+      height: 90vh; min-height: 700px; 
       display: flex; align-items: center; justify-content: center;
       overflow: hidden; text-align: center; padding: 0 40px;
+      transition: all 0.5s ease;
     }
-    .hero img {
+    .hero-bg {
       position: absolute; top: 0; left: 0; width: 100%; height: 100%;
       object-fit: cover; filter: brightness(0.6) contrast(1.1); z-index: 1;
+      transition: filter 0.5s ease;
     }
     
-    /* TITLE CONTENT */
-    .hero-content { position: relative; z-index: 4; max-width: 1200px; }
+    /* STANDARD HERO CONTENT */
+    .hero-content-standard { 
+      position: relative; z-index: 4; max-width: 1200px; 
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
     .hero h1 {
       font-size: 4.5rem; font-weight: 900;
       background: linear-gradient(45deg, #ffd700, #ffed4a);
@@ -68,78 +73,79 @@
       color: white; font-weight: 700; display: inline-block;
     }
 
-    /* GLOBAL CONNECT SECTION */
+    /* LIVE STREAM CONTENT (Hidden by Default) */
+    .hero-content-live {
+      position: relative; z-index: 10; width: 100%; max-width: 1400px;
+      display: none; opacity: 0; transform: translateY(20px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .live-grid {
+      display: grid; grid-template-columns: 2.5fr 1fr; gap: 30px;
+      height: 70vh; min-height: 500px;
+    }
+    .video-wrapper {
+      background: black; border-radius: 20px; overflow: hidden;
+      box-shadow: 0 20px 80px rgba(0,0,0,0.5); position: relative;
+      border: 2px solid #333;
+    }
+    .live-badge {
+      position: absolute; top: 20px; left: 20px;
+      background: #ff0000; color: white; padding: 5px 15px; 
+      border-radius: 5px; font-weight: bold; font-size: 0.9rem;
+      animation: pulse 1.5s infinite; z-index: 10;
+    }
+    .live-info-panel {
+      background: rgba(0,0,0,0.6); backdrop-filter: blur(30px);
+      padding: 30px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.15);
+      color: white; text-align: left; display: flex; flex-direction: column;
+    }
+    .live-title { font-size: 1.8rem; font-weight: 900; margin-bottom: 10px; color: #fff; }
+    .live-session { color: #ffd700; font-weight: bold; margin-bottom: 20px; font-size: 1.1rem; }
+    .live-speaker { display: flex; align-items: center; gap: 15px; margin-bottom: 30px; }
+    .speaker-avatar { width: 50px; height: 50px; background: #ddd; border-radius: 50%; }
+    .live-actions { margin-top: auto; display: flex; flex-direction: column; gap: 15px; }
+    .action-btn {
+      padding: 15px; border-radius: 12px; border: none;
+      background: #167690; color: white; font-weight: bold; cursor: pointer;
+      transition: all 0.2s; text-align: left; display: flex; align-items: center; gap: 10px;
+    }
+    .action-btn:hover { background: #128fa7; transform: translateX(5px); }
+    .action-btn.secondary { background: rgba(255,255,255,0.15); }
+    .action-btn.secondary:hover { background: rgba(255,255,255,0.25); }
+
+    /* GLOBAL CONNECT SECTION (Below Hero) */
     .global-connect-section {
-      background: white;
-      padding: 100px 40px;
+      background: white; padding: 100px 40px;
       max-width: 1400px; margin: 0 auto;
-      display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 60px;
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 80px;
     }
-
-    /* LEFT SIDE: GLOBE CONTAINER */
     .globe-wrapper {
-      position: relative;
-      width: 600px; height: 600px; /* Increased size */
-      /* Removed border-radius: 50% and overflow hidden so flags stick out */
-      display: flex; align-items: center; justify-content: center;
+      position: relative; width: 500px; height: 500px; border-radius: 50%;
+      border: 10px solid #f0f4f8; box-shadow: inset 0 0 60px rgba(0,0,0,0.1);
     }
-    /* The circular frame behind the globe */
-    .globe-frame {
-      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      width: 480px; height: 480px;
-      border-radius: 50%;
-      border: 2px dashed #e0e0e0; /* Subtle guide circle */
-      z-index: 0; pointer-events: none;
-    }
-    
-    #heroGlobeContainer {
-      width: 100%; height: 100%; z-index: 2; position: relative;
-    }
-    
-    .globe-controls { 
-      position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); z-index: 10; 
-    }
+    #heroGlobeContainer { width: 100%; height: 100%; border-radius: 50%; overflow: hidden; }
+    .globe-controls { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 10; }
     .pause-btn { 
-      padding: 8px 20px; background: #167690; color: white; 
+      padding: 8px 20px; background: rgba(255,255,255,0.9); color: #167690; 
       border: none; border-radius: 20px; cursor: pointer; font-weight: bold;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     }
-    .pause-btn:hover { background: #128fa7; }
 
-    /* RIGHT SIDE: TIME STACK */
-    .times-wrapper {
-      flex: 1; min-width: 350px; max-width: 450px;
-    }
-    .section-header-small {
-      font-size: 2rem; font-weight: 900; margin-bottom: 30px;
-      color: #167690; text-align: center;
-    }
-    .globe-times-stack {
-      display: flex; flex-direction: column; gap: 12px;
-    }
+    /* TIMES LIST */
+    .times-wrapper { flex: 1; min-width: 350px; max-width: 500px; }
+    .globe-times-stack { display: flex; flex-direction: column; gap: 12px; }
     .globe-time-item {
-      background: #f8fafc; 
-      padding: 15px 25px; 
-      border-radius: 15px; 
-      border-left: 5px solid #ddd;
-      display: flex; align-items: center; justify-content: space-between;
+      background: #f8fafc; padding: 15px 30px; border-radius: 15px; 
+      border-left: 5px solid #ddd; display: flex; align-items: center; justify-content: space-between;
       transition: all 0.2s;
     }
     .globe-time-item:hover { 
-      background: white; transform: translateX(5px); 
-      box-shadow: 0 5px 20px rgba(0,0,0,0.08); 
-      border-left-color: #167690;
+      background: white; transform: translateX(10px); 
+      box-shadow: 0 5px 20px rgba(0,0,0,0.08); border-left-color: #167690;
     }
-    .globe-flag { font-size: 1.8rem; }
-    .globe-info { display: flex; align-items: center; gap: 15px; }
+    .globe-flag { font-size: 1.8rem; margin-right: 15px; }
     .globe-timezone { font-size: 1.1rem; font-weight: 700; color: #1a365d; }
-    .globe-time { 
-      font-family: 'Courier New', monospace; font-weight: 900; 
-      font-size: 1.4rem; color: #ff6b35; 
-    }
-    .globe-time-item.india { 
-      border-left-color: #FF9933; background: #fffbf5; 
-    }
+    .globe-time { font-family: 'Courier New', monospace; font-weight: 900; font-size: 1.4rem; color: #ff6b35; }
+    .globe-time-item.india { border-left-color: #FF9933; background: #fffbf5; }
 
     /* SECTIONS */
     .section { padding: 80px 40px; max-width: 1200px; margin: 0 auto; text-align: center; }
@@ -149,118 +155,182 @@
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     }
     .content-box {
-      background: white; 
-      padding: 60px; border-radius: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.05);
-      font-size: 1.1rem; text-align: left;
+      background: white; padding: 60px; border-radius: 30px; 
+      box-shadow: 0 20px 60px rgba(0,0,0,0.05); font-size: 1.1rem; text-align: left;
     }
     .agenda-table { width: 100%; border-collapse: collapse; text-align: left; }
     .agenda-table th { background: #167690; color: white; padding: 15px; }
     .agenda-table td { padding: 15px; border-bottom: 1px solid #eee; }
-    
     .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px; }
-    .reg-card { 
-      background: white; padding: 40px; border-radius: 30px; 
-      box-shadow: 0 20px 50px rgba(0,0,0,0.1); 
-    }
+    .reg-card { background: white; padding: 40px; border-radius: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
     .reg-btn {
       display: inline-block; padding: 15px 40px; margin-top: 20px;
       background: #167690; color: white; text-decoration: none; 
       border-radius: 30px; font-weight: bold;
     }
 
-    @media (max-width: 768px) {
-      .hero h1 { font-size: 2.5rem; }
-      .global-connect-section { padding: 60px 20px; gap: 40px; }
-      .globe-wrapper { width: 350px; height: 350px; }
-      .globe-frame { width: 280px; height: 280px; }
+    /* SIMULATE BUTTON */
+    #admin-toggle {
+      position: fixed; bottom: 20px; right: 20px; z-index: 9999;
+      background: #333; color: white; padding: 10px 20px; border-radius: 30px;
+      cursor: pointer; border: 2px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    }
+
+    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+    @media (max-width: 1024px) {
+      .live-grid { grid-template-columns: 1fr; height: auto; }
+      .video-wrapper { aspect-ratio: 16/9; }
+      .hero { height: auto; padding: 100px 20px; }
+      .globe-wrapper { width: 320px; height: 320px; }
     }
   </style>
 </head>
 <body>
 
+<!-- ADMIN TOGGLE FOR DEMO -->
+<button id="admin-toggle">🔴 Toggle "Go Live"</button>
+
 <header class="header">
   <div class="logo">TWU-SMC Leadership</div>
   <nav class="nav">
+    <a href="#hero" class="live-link">🔴 LIVE STREAM</a>
     <a href="#hero">Home</a>
-    <a href="#global">Live</a>
-    <a href="#synopsis">Overview</a>
+    <a href="#global">Global</a>
     <a href="#agenda">Agenda</a>
     <a href="#register">Register</a>
   </nav>
 </header>
 
-<!-- HERO -->
 <section class="hero" id="hero">
-  <img src="humanintelligence.png" alt="Background">
-  <div class="hero-content">
+  <img src="humanintelligence.png" alt="Background" class="hero-bg" id="heroBg">
+  
+  <!-- STANDARD STATE (Pre-Event) -->
+  <div class="hero-content-standard" id="heroStandard">
     <h1>TWU-SMC Annual<br>Leadership Conference</h1>
     <h2>The Fifth Intelligence: Integrating the Human Factor</h2>
     <div class="hero-meta">January 19, 2026 • 10:00 AM IST</div>
   </div>
+
+  <!-- LIVE STATE (During Event) -->
+  <div class="hero-content-live" id="heroLive">
+    <div class="live-grid">
+      
+      <!-- Video Player -->
+      <div class="video-wrapper">
+        <div class="live-badge">🔴 LIVE NOW</div>
+        <!-- Placeholder for Stream -->
+        <div style="width:100%; height:100%; background:#000; display:flex; align-items:center; justify-content:center; color:#555;">
+          <h3 style="color:white;">[ Live Stream Video Player Embed Here ]</h3>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="live-info-panel">
+        <div class="live-title">The Fifth Intelligence</div>
+        <div class="live-session">CURRENT: Opening Keynote</div>
+        <div class="live-speaker">
+          <div class="speaker-avatar"></div>
+          <div>
+            <div style="font-weight:bold; font-size:1.1rem;">Dr. Laird</div>
+            <div style="font-size:0.9rem; opacity:0.8;">VP Innovation, TWU</div>
+          </div>
+        </div>
+        <div class="live-actions">
+          <button class="action-btn">💬 Open Live Chat</button>
+          <button class="action-btn secondary">🙋‍♂️ Ask a Question</button>
+          <button class="action-btn secondary">📄 Download Slides</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
 </section>
 
-<!-- GLOBAL CONNECT -->
+<!-- GLOBAL CONNECT SECTION -->
 <section class="global-connect-section" id="global">
-  
-  <!-- Left: Globe -->
   <div class="globe-wrapper">
-    <div class="globe-frame"></div> <!-- Subtle circle behind -->
     <div id="heroGlobeContainer"></div>
     <div class="globe-controls">
       <button class="pause-btn" id="pauseBtn">⏸ Pause Rotation</button>
     </div>
   </div>
-
-  <!-- Right: Times -->
   <div class="times-wrapper">
-    <h3 class="section-header-small">🌍 Live Global Connection</h3>
-    <div class="globe-times-stack" id="timeStack">
-      <!-- JS Injects Times Here -->
-    </div>
+    <h3 style="font-size: 2rem; color:#167690; margin-bottom:30px; font-weight:900; text-align:center;">🌍 Live Global Connection</h3>
+    <div class="globe-times-stack" id="timeStack"></div>
   </div>
-
 </section>
 
-<!-- CONTENT -->
+<!-- SECTIONS -->
 <section class="section" id="synopsis">
   <h2 class="section-header">Conference Overview</h2>
   <div class="content-box">
-    Join <strong>Dr. Laird</strong> as he unveils "Fifth Intelligence"—integrating human creativity, moral reasoning, and emotional intelligence with AI. Explore how we govern economies, institutions, and consciousness in an AI-driven world.
+    Join <strong>Dr. Laird</strong> as he unveils "Fifth Intelligence"—integrating human creativity, moral reasoning, and emotional intelligence with AI.
   </div>
 </section>
 
 <section class="section" id="agenda">
   <h2 class="section-header">Agenda</h2>
-  <div class="content-box" style="padding: 0; overflow: hidden;">
+  <div class="content-box" style="padding:0; overflow:hidden;">
     <table class="agenda-table">
       <tr><th>Time (IST)</th><th>Session</th></tr>
       <tr><td>10:00 AM</td><td><strong>Keynote:</strong> The Fifth Intelligence Framework</td></tr>
       <tr><td>11:15 AM</td><td><strong>Workshop:</strong> Human-AI Integration Tools</td></tr>
       <tr><td>12:00 PM</td><td><strong>Networking Lunch</strong></td></tr>
-      <tr><td>02:00 PM</td><td><strong>Panel:</strong> AI & Human Consciousness</td></tr>
       <tr><td>03:30 PM</td><td><strong>Closing & Book Signing</strong></td></tr>
     </table>
   </div>
 </section>
 
-<section class="section" id="register">
-  <h2 class="section-header">Registration</h2>
-  <div class="cards-grid">
-    <div class="reg-card">
-      <h3>Live Access</h3>
-      <p>Full online conference access.</p>
-      <a href="#" class="reg-btn">Register</a>
-    </div>
-    <div class="reg-card" style="border: 2px solid #ff6b35;">
-      <h3 style="color: #ff6b35;">VIP Book Signing</h3>
-      <p>Exclusive post-conference event.</p>
-      <a href="#" class="reg-btn" style="background: #ff6b35;">Pre-Order</a>
-    </div>
-  </div>
-</section>
-
 <script>
-  // DATA
+  // --- LIVE MODE TOGGLE LOGIC ---
+  const toggleBtn = document.getElementById('admin-toggle');
+  const standardHero = document.getElementById('heroStandard');
+  const liveHero = document.getElementById('heroLive');
+  const heroBg = document.getElementById('heroBg');
+  const liveLink = document.querySelector('.live-link');
+  let isLive = false;
+
+  toggleBtn.addEventListener('click', () => {
+    isLive = !isLive;
+    if (isLive) {
+      // Switch to Live
+      standardHero.style.opacity = '0';
+      standardHero.style.transform = 'translateY(-20px)';
+      setTimeout(() => {
+        standardHero.style.display = 'none';
+        liveHero.style.display = 'block';
+        // Small delay to allow display:block to render before opacity transition
+        requestAnimationFrame(() => {
+          liveHero.style.opacity = '1';
+          liveHero.style.transform = 'translateY(0)';
+        });
+      }, 500);
+      
+      heroBg.style.filter = 'brightness(0.2) blur(10px)'; // Darken BG for video focus
+      liveLink.style.display = 'block';
+      toggleBtn.textContent = '⏹ Stop Live Mode';
+      toggleBtn.style.background = '#ff0000';
+    } else {
+      // Revert to Standard
+      liveHero.style.opacity = '0';
+      liveHero.style.transform = 'translateY(20px)';
+      setTimeout(() => {
+        liveHero.style.display = 'none';
+        standardHero.style.display = 'block';
+        requestAnimationFrame(() => {
+          standardHero.style.opacity = '1';
+          standardHero.style.transform = 'translateY(0)';
+        });
+      }, 500);
+
+      heroBg.style.filter = 'brightness(0.6) contrast(1.1)';
+      liveLink.style.display = 'none';
+      toggleBtn.textContent = '🔴 Toggle "Go Live"';
+      toggleBtn.style.background = '#333';
+    }
+  });
+
+  // --- DATA & GLOBE CODE ---
   const countries = [
     {name: 'India', flag: '🇮🇳', tz: 'Asia/Kolkata', lat: 22, lng: 78, color: '#FF9933'},
     {name: 'Canada', flag: '🇨🇦', tz: 'America/Vancouver', lat: 56, lng: -106, color: '#ff0000'},
@@ -275,140 +345,74 @@
   // THREE.JS GLOBE
   const container = document.getElementById('heroGlobeContainer');
   const scene = new THREE.Scene();
-  // Field of View 45, Aspect Ratio 1 (square), Near 0.1, Far 1000
   const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000); 
-  camera.position.z = 3.5; // Pulled back camera to see orbital flags
-  
+  camera.position.z = 2.8;
   const renderer = new THREE.WebGLRenderer({alpha: true, antialias: true});
-  renderer.setSize(600, 600); // Large renderer to prevent clipping
+  renderer.setSize(500, 500);
   container.appendChild(renderer.domElement);
 
   const controls = new THREE.OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true;
-  controls.autoRotate = true;
-  controls.autoRotateSpeed = 1.2;
-  controls.enableZoom = false;
+  controls.enableDamping = true; controls.autoRotate = true; controls.autoRotateSpeed = 1.0; controls.enableZoom = false;
 
-  // Lights - Brighter ambient for visibility
-  scene.add(new THREE.AmbientLight(0xffffff, 1.4));
-  const dLight = new THREE.DirectionalLight(0xffffff, 0.6);
-  dLight.position.set(5,3,5);
-  scene.add(dLight);
+  scene.add(new THREE.AmbientLight(0xffffff, 1.0));
+  const dLight = new THREE.DirectionalLight(0xffffff, 0.5);
+  dLight.position.set(5,3,5); scene.add(dLight);
 
-  // Globe
-  const globeGroup = new THREE.Group();
-  scene.add(globeGroup);
-  
+  const globeGroup = new THREE.Group(); scene.add(globeGroup);
   new THREE.TextureLoader().load('https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Land_ocean_ice_2048.jpg/1024px-Land_ocean_ice_2048.jpg', tex => {
-    const globe = new THREE.Mesh(
-      new THREE.SphereGeometry(1, 64, 64),
-      new THREE.MeshPhongMaterial({map: tex, specular: 0x111111, shininess: 10})
-    );
+    const globe = new THREE.Mesh(new THREE.SphereGeometry(1, 64, 64), new THREE.MeshPhongMaterial({map: tex, specular: 0x111111, shininess: 5}));
     globeGroup.add(globe);
   });
 
-  // Markers
   const flagSprites = [];
   function latLonToVec3(lat, lon, r) {
-    const phi = (90 - lat) * (Math.PI/180);
-    const theta = (lon + 180) * (Math.PI/180);
-    return new THREE.Vector3(
-      -r * Math.sin(phi) * Math.cos(theta),
-      r * Math.cos(phi),
-      r * Math.sin(phi) * Math.sin(theta)
-    );
+    const phi = (90 - lat) * (Math.PI/180), theta = (lon + 180) * (Math.PI/180);
+    return new THREE.Vector3(-r * Math.sin(phi) * Math.cos(theta), r * Math.cos(phi), r * Math.sin(phi) * Math.sin(theta));
   }
 
   function createLabel(country) {
-    const canvas = document.createElement('canvas');
-    canvas.width = 256; canvas.height = 128;
+    const canvas = document.createElement('canvas'); canvas.width = 256; canvas.height = 128;
     const ctx = canvas.getContext('2d');
-    
-    // Simple background pill
-    ctx.fillStyle = 'rgba(0,0,0,0.6)';
-    ctx.beginPath(); ctx.roundRect(10, 20, 236, 88, 30); ctx.fill();
-    
-    // Text
-    ctx.fillStyle = 'white'; ctx.font = 'bold 24px Arial';
-    ctx.fillText(country.flag + ' ' + country.name, 30, 60);
-    ctx.fillStyle = '#00ff88'; ctx.font = 'bold 32px monospace';
-    ctx.fillText('--:--', 30, 95); 
-
     const tex = new THREE.CanvasTexture(canvas);
     const sprite = new THREE.Sprite(new THREE.SpriteMaterial({map: tex}));
-    const pos = latLonToVec3(country.lat, country.lng, 1.25); // Distance from center (1.0 is surface)
-    sprite.position.copy(pos);
-    sprite.scale.set(0.6, 0.3, 1);
-    globeGroup.add(sprite);
-    
-    return { sprite, ctx, canvas, country };
+    sprite.position.copy(latLonToVec3(country.lat, country.lng, 1.2));
+    sprite.scale.set(0.6, 0.3, 1); globeGroup.add(sprite);
+    return { sprite, ctx, country };
   }
 
   countries.forEach(c => flagSprites.push(createLabel(c)));
 
-  // INIT STACK HTML
   const stackEl = document.getElementById('timeStack');
   countries.forEach((c, i) => {
     const div = document.createElement('div');
     div.className = 'globe-time-item ' + (i===0 ? 'india' : '');
-    div.innerHTML = `
-      <div class="globe-info">
-        <span class="globe-flag">${c.flag}</span>
-        <span class="globe-timezone">${c.name}</span>
-      </div>
-      <span class="globe-time" id="stack-time-${i}">--:--</span>
-    `;
+    div.innerHTML = `<div><span class="globe-flag">${c.flag}</span><span class="globe-timezone">${c.name}</span></div><span class="globe-time" id="stack-time-${i}">--:--</span>`;
     stackEl.appendChild(div);
   });
 
-  // UPDATE LOOP
   function updateTimes() {
     const now = new Date();
-    
     flagSprites.forEach((item, i) => {
-      const timeStr = now.toLocaleTimeString('en-GB', {
-        timeZone: item.country.tz, hour:'2-digit', minute:'2-digit'
-      });
-
-      // Update Globe Sprite
-      const ctx = item.ctx;
-      ctx.clearRect(0,0,256,128);
-      
-      ctx.fillStyle = 'rgba(20,30,50,0.85)';
-      ctx.beginPath(); ctx.roundRect(10, 20, 236, 88, 30); ctx.fill();
-      ctx.lineWidth=4; ctx.strokeStyle = item.country.color; ctx.stroke();
-
-      ctx.fillStyle = '#fff'; ctx.font = 'bold 28px Nunito';
-      ctx.fillText(item.country.flag, 30, 75);
-      ctx.font = 'bold 24px Nunito';
-      ctx.fillText(item.country.name.split(' ')[0], 70, 60);
-      
-      ctx.fillStyle = '#00ff88'; ctx.font = 'bold 34px Courier New';
-      ctx.fillText(timeStr, 130, 95);
-      
+      const timeStr = now.toLocaleTimeString('en-GB', { timeZone: item.country.tz, hour:'2-digit', minute:'2-digit' });
+      const ctx = item.ctx; ctx.clearRect(0,0,256,128);
+      ctx.fillStyle = 'rgba(20,30,50,0.8)'; ctx.beginPath(); ctx.roundRect(10, 20, 236, 88, 30); ctx.fill();
+      ctx.lineWidth=2; ctx.strokeStyle = item.country.color; ctx.stroke();
+      ctx.fillStyle = '#fff'; ctx.font = 'bold 28px Nunito'; ctx.fillText(item.country.flag, 30, 75);
+      ctx.font = 'bold 22px Nunito'; ctx.fillText(item.country.name.split(' ')[0], 70, 60);
+      ctx.fillStyle = '#00ff88'; ctx.font = 'bold 34px Courier New'; ctx.fillText(timeStr, 130, 95);
       item.sprite.material.map.needsUpdate = true;
-
-      // Update Stack
       document.getElementById(`stack-time-${i}`).innerText = timeStr;
     });
   }
 
-  setInterval(updateTimes, 1000);
-  updateTimes();
+  setInterval(updateTimes, 1000); updateTimes();
 
-  // ANIMATION LOOP
   let paused = false;
   document.getElementById('pauseBtn').onclick = function() {
-    paused = !paused;
-    this.innerText = paused ? '▶ Resume' : '⏸ Pause Rotation';
-    controls.autoRotate = !paused;
+    paused = !paused; this.innerText = paused ? '▶ Resume' : '⏸ Pause Rotation'; controls.autoRotate = !paused;
   };
 
-  function animate() {
-    requestAnimationFrame(animate);
-    controls.update();
-    renderer.render(scene, camera);
-  }
+  function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); }
   animate();
 </script>
 </body>
