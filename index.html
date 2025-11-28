@@ -47,7 +47,7 @@
     }
     .nav a:hover { color: #128fa7; }
 
-    /* HERO WITH GLOBE */
+    /* HERO WITH FRAMED GLOBE */
     .hero {
       position: relative;
       height: 100vh;
@@ -71,9 +71,17 @@
   
     #heroGlobeContainer {
       position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      z-index: 2;
+      top: 50%; left: 50%;
+      width: 650px; height: 650px;
+      transform: translate(-50%, -50%);
+      z-index: 3;
+      border-radius: 50%;
+      border: 8px solid rgba(255,255,255,0.3);
+      box-shadow: 
+        0 0 100px rgba(255,255,255,0.4),
+        inset 0 0 100px rgba(0,0,0,0.3),
+        0 20px 80px rgba(0,0,0,0.5);
+      backdrop-filter: blur(20px);
     }
   
     .hero-content {
@@ -147,12 +155,56 @@
       color: black; 
     }
 
+    /* TIMES STACK - VERTICAL TIMES BELOW GLOBE */
+    .globe-times-stack {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-width: 500px;
+      width: 90%;
+    }
+    .globe-time-item {
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(20px);
+      padding: 12px 20px;
+      border-radius: 20px;
+      border: 2px solid rgba(255,255,255,0.6);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      font-weight: 700;
+      transition: all 0.3s;
+    }
+    .globe-time-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+    }
+    .globe-flag { font-size: 1.8rem; margin-right: 12px; flex-shrink: 0; }
+    .globe-timezone { font-size: 0.95rem; color: #167690; flex: 1; }
+    .globe-time { 
+      font-size: 1.5rem; 
+      font-family: 'Courier New', monospace; 
+      font-weight: 900; 
+      color: #ff6b35; 
+      min-width: 70px; 
+      text-align: right;
+      text-shadow: 0 0 10px rgba(255,107,53,0.5);
+    }
+    .globe-time-item.india { border-color: #FF9933; background: rgba(255,153,51,0.1); }
+    .globe-time-item.india .globe-time { color: #FF9933; }
+
     /* WORLD CLOCK */
     .world-clock-section {
       max-width: 500px;
       margin: 60px auto;
       padding: 0 20px;
       text-align: center;
+      display: none; /* HIDDEN - globe times replace it */
     }
     .clock-header {
       font-size: 2.2rem;
@@ -186,110 +238,235 @@
     .clock-item.live .clock-time { color: #ffd700; text-shadow: 0 0 10px rgba(255,215,0,0.8); }
 
     /* SYNOPSIS */
-    .synopsis-section { max-width: 1200px; margin: 100px auto; padding: 0 40px; text-align: center; }
+    .synopsis-section { 
+      max-width: 1200px; 
+      margin: 100px auto; 
+      padding: 0 40px; 
+      text-align: center; 
+    }
     .synopsis-header {
-      font-size: 3.5rem; background: linear-gradient(135deg, #167690, #128fa7);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      margin-bottom: 60px; font-weight: 900;
+      font-size: 3.5rem; 
+      background: linear-gradient(135deg, #167690, #128fa7);
+      -webkit-background-clip: text; 
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 60px; 
+      font-weight: 900;
     }
     .synopsis-content {
-      background: rgba(255,255,255,0.95); backdrop-filter: blur(40px);
-      padding: 80px; border-radius: 50px; box-shadow: 0 50px 160px rgba(0,0,0,0.25);
-      border: 3px solid rgba(255,255,255,0.95); font-size: 1.3rem;
-      line-height: 1.8; color: #1a365d; font-weight: 600;
+      background: rgba(255,255,255,0.95); 
+      backdrop-filter: blur(40px);
+      padding: 80px; 
+      border-radius: 50px; 
+      box-shadow: 0 50px 160px rgba(0,0,0,0.25);
+      border: 3px solid rgba(255,255,255,0.95); 
+      font-size: 1.3rem;
+      line-height: 1.8; 
+      color: #1a365d; 
+      font-weight: 600;
     }
 
     /* AGENDA */
-    .agenda-section { max-width: 1300px; margin: 120px auto; padding: 0 40px; }
+    .agenda-section { 
+      max-width: 1300px; 
+      margin: 120px auto; 
+      padding: 0 40px; 
+    }
     .agenda-header {
-      font-size: 3.5rem; text-align: center; margin-bottom: 80px;
+      font-size: 3.5rem; 
+      text-align: center; 
+      margin-bottom: 80px;
       background: linear-gradient(135deg, #167690, #128fa7);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900;
+      -webkit-background-clip: text; 
+      -webkit-text-fill-color: transparent; 
+      font-weight: 900;
     }
     .agenda-table {
-      width: 100%; background: rgba(255,255,255,0.98); backdrop-filter: blur(40px);
-      border-radius: 50px; overflow: hidden; box-shadow: 0 60px 200px rgba(0,0,0,0.35);
+      width: 100%; 
+      background: rgba(255,255,255,0.98); 
+      backdrop-filter: blur(40px);
+      border-radius: 50px; 
+      overflow: hidden; 
+      box-shadow: 0 60px 200px rgba(0,0,0,0.35);
       border-collapse: collapse;
     }
     .agenda-table th {
-      background: linear-gradient(135deg, #167690, #128fa7); color: white;
-      padding: 35px 40px; font-weight: 900; font-size: 1.4rem; text-align: left;
+      background: linear-gradient(135deg, #167690, #128fa7); 
+      color: white;
+      padding: 35px 40px; 
+      font-weight: 900; 
+      font-size: 1.4rem; 
+      text-align: left;
     }
     .agenda-table td {
-      padding: 35px 40px; border-bottom: 1px solid rgba(255,255,255,0.6);
-      font-weight: 700; font-size: 1.2rem; vertical-align: top;
+      padding: 35px 40px; 
+      border-bottom: 1px solid rgba(255,255,255,0.6);
+      font-weight: 700; 
+      font-size: 1.2rem; 
+      vertical-align: top;
     }
-    .agenda-table tr:nth-child(even) td { background: rgba(255,255,255,0.7); }
-    .time-col { width: 18%; font-family: 'Courier New', monospace; font-size: 1.4rem; color: #ff6b35; }
+    .agenda-table tr:nth-child(even) td { 
+      background: rgba(255,255,255,0.7); 
+    }
+    .time-col { 
+      width: 18%; 
+      font-family: 'Courier New', monospace; 
+      font-size: 1.4rem; 
+      color: #ff6b35; 
+    }
 
     /* REGISTRATION */
-    .registration-section { max-width: 1200px; margin: 120px auto; padding: 0 40px; text-align: center; }
+    .registration-section { 
+      max-width: 1200px; 
+      margin: 120px auto; 
+      padding: 0 40px; 
+      text-align: center; 
+    }
     .registration-header {
-      font-size: 3.2rem; background: linear-gradient(135deg, #167690, #128fa7);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      margin-bottom: 80px; font-weight: 900;
+      font-size: 3.2rem; 
+      background: linear-gradient(135deg, #167690, #128fa7);
+      -webkit-background-clip: text; 
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 80px; 
+      font-weight: 900;
     }
     .cards-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-      gap: 60px; max-width: 1000px; margin: 0 auto;
+      display: grid; 
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 60px; 
+      max-width: 1000px; 
+      margin: 0 auto;
     }
     .reg-card {
-      background: rgba(255,255,255,0.95); backdrop-filter: blur(40px);
-      padding: 60px 40px; border-radius: 40px; box-shadow: 0 40px 140px rgba(0,0,0,0.25);
-      border: 4px solid rgba(255,255,255,0.9); transition: all 0.6s cubic-bezier(0.25,0.46,0.45,0.94);
-      height: 100%; position: relative; overflow: hidden;
+      background: rgba(255,255,255,0.95); 
+      backdrop-filter: blur(40px);
+      padding: 60px 40px; 
+      border-radius: 40px; 
+      box-shadow: 0 40px 140px rgba(0,0,0,0.25);
+      border: 4px solid rgba(255,255,255,0.9); 
+      transition: all 0.6s cubic-bezier(0.25,0.46,0.45,0.94);
+      height: 100%; 
+      position: relative; 
+      overflow: hidden;
     }
-    .reg-card:hover { transform: translateY(-20px); box-shadow: 0 70px 220px rgba(22,118,144,0.4); }
+    .reg-card:hover { 
+      transform: translateY(-20px); 
+      box-shadow: 0 70px 220px rgba(22,118,144,0.4); 
+    }
     .reg-card::before {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-      background: inherit; border-radius: 36px; padding: 4px;
+      content: ''; 
+      position: absolute; 
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: inherit; 
+      border-radius: 36px; 
+      padding: 4px;
       mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-      mask-composite: exclude; opacity: 0; transition: opacity 0.6s ease; z-index: -1;
+      mask-composite: exclude; 
+      opacity: 0; 
+      transition: opacity 0.6s ease; 
+      z-index: -1;
     }
     .reg-card:hover::before { opacity: 1; }
-    .card-icon { font-size: 4rem; display: block; margin-bottom: 25px; }
-    .card-title { font-size: 2rem; font-weight: 900; color: #167690; margin-bottom: 20px; }
-    .card-desc { font-size: 1.2rem; color: #1a365d; margin-bottom: 30px; font-weight: 600; }
+    .card-icon { 
+      font-size: 4rem; 
+      display: block; 
+      margin-bottom: 25px; 
+    }
+    .card-title { 
+      font-size: 2rem; 
+      font-weight: 900; 
+      color: #167690; 
+      margin-bottom: 20px;
+    }
+    .card-desc { 
+      font-size: 1.2rem; 
+      color: #1a365d; 
+      margin-bottom: 30px; 
+      font-weight: 600;
+    }
     .reg-btn {
-      display: inline-block; padding: 20px 50px;
-      background: linear-gradient(135deg, #167690, #128fa7); color: white;
-      text-decoration: none; border-radius: 50px; font-weight: 900; font-size: 1.3rem;
-      box-shadow: 0 20px 60px rgba(22,118,144,0.4); transition: all 0.4s ease;
+      display: inline-block; 
+      padding: 20px 50px;
+      background: linear-gradient(135deg, #167690, #128fa7); 
+      color: white;
+      text-decoration: none; 
+      border-radius: 50px; 
+      font-weight: 900; 
+      font-size: 1.3rem;
+      box-shadow: 0 20px 60px rgba(22,118,144,0.4); 
+      transition: all 0.4s ease;
       border: 3px solid rgba(255,255,255,0.6);
     }
-    .reg-btn:hover { transform: translateY(-8px); box-shadow: 0 30px 80px rgba(22,118,144,0.6); }
+    .reg-btn:hover { 
+      transform: translateY(-8px); 
+      box-shadow: 0 30px 80px rgba(22,118,144,0.6); 
+    }
     .book-card .card-icon { color: #ff6b35; }
     .book-card .card-title { color: #ff6b35; }
-    .book-card .reg-btn { background: linear-gradient(135deg, #ff6b35, #ff8e53); box-shadow: 0 20px 60px rgba(255,107,53,0.4); }
-    .book-card:hover .reg-btn { box-shadow: 0 30px 80px rgba(255,107,53,0.6); }
+    .book-card .reg-btn { 
+      background: linear-gradient(135deg, #ff6b35, #ff8e53); 
+      box-shadow: 0 20px 60px rgba(255,107,53,0.4);
+    }
+    .book-card:hover .reg-btn { 
+      box-shadow: 0 30px 80px rgba(255,107,53,0.6); 
+    }
 
     /* BROCHURE */
-    .brochure-section { max-width: 1200px; margin: 120px auto 200px; padding: 0 40px; text-align: center; }
+    .brochure-section { 
+      max-width: 1200px; 
+      margin: 120px auto 200px; 
+      padding: 0 40px; 
+      text-align: center; 
+    }
     .brochure-header {
-      font-size: 3.2rem; background: linear-gradient(135deg, #167690, #128fa7);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 60px;
+      font-size: 3.2rem; 
+      background: linear-gradient(135deg, #167690, #128fa7);
+      -webkit-background-clip: text; 
+      -webkit-text-fill-color: transparent; 
+      margin-bottom: 60px;
     }
     .brochure-preview-container {
-      background: rgba(255,255,255,0.95); backdrop-filter: blur(40px);
-      border-radius: 40px; padding: 60px; margin-bottom: 60px;
-      box-shadow: 0 50px 160px rgba(0,0,0,0.3); max-width: 1100px;
-      margin-left: auto; margin-right: auto;
+      background: rgba(255,255,255,0.95); 
+      backdrop-filter: blur(40px);
+      border-radius: 40px; 
+      padding: 60px; 
+      margin-bottom: 60px;
+      box-shadow: 0 50px 160px rgba(0,0,0,0.3); 
+      max-width: 1100px;
+      margin-left: auto; 
+      margin-right: auto;
     }
     .pdf-preview {
-      width: 100%; height: 700px; border: 4px solid rgba(22,118,144,0.3);
-      border-radius: 30px; box-shadow: 0 30px 120px rgba(0,0,0,0.25); background: white;
+      width: 100%; 
+      height: 700px; 
+      border: 4px solid rgba(22,118,144,0.3);
+      border-radius: 30px; 
+      box-shadow: 0 30px 120px rgba(0,0,0,0.25); 
+      background: white;
     }
     .download-btn {
-      display: inline-block; padding: 35px 100px;
-      background: linear-gradient(135deg, #167690, #128fa7); color: white;
-      text-decoration: none; border-radius: 60px; font-weight: 900; font-size: 1.8rem;
+      display: inline-block; 
+      padding: 35px 100px;
+      background: linear-gradient(135deg, #167690, #128fa7); 
+      color: white;
+      text-decoration: none; 
+      border-radius: 60px; 
+      font-weight: 900; 
+      font-size: 1.8rem;
       box-shadow: 0 50px 160px rgba(22,118,144,0.6);
       transition: all 0.6s cubic-bezier(0.25,0.46,0.45,0.94);
       border: 5px solid rgba(255,255,255,0.4);
     }
-    .download-btn:hover { transform: translateY(-20px); box-shadow: 0 70px 240px rgba(22,118,144,0.8); }
+    .download-btn:hover { 
+      transform: translateY(-20px); 
+      box-shadow: 0 70px 240px rgba(22,118,144,0.8); 
+    }
 
     @media (max-width: 768px) {
+      #heroGlobeContainer { width: 500px; height: 500px; }
+      .globe-times-stack { bottom: 20px; gap: 6px; }
+      .globe-time-item { padding: 10px 16px; }
+      .globe-flag { font-size: 1.5rem; }
+      .globe-time { font-size: 1.3rem; }
       .cards-grid { grid-template-columns: 1fr; gap: 40px; }
       .world-clock-section { margin: 40px auto; padding: 0 15px; }
       .world-clock-widget { padding: 20px 15px; }
@@ -307,7 +484,6 @@
     <div class="logo">TWU-SMC × Leadership</div>
     <nav class="nav">
       <a href="#heroGlobe">🌍 Globe</a>
-      <a href="#worldclock">World Clock</a>
       <a href="#synopsis">Overview</a>
       <a href="#agenda">Agenda</a>
       <a href="#register">Register</a>
@@ -315,7 +491,7 @@
     </nav>
   </header>
 
-  <!-- HERO WITH 3D GLOBE -->
+  <!-- HERO WITH FRAMED GLOBE + TIMES STACK -->
   <section class="hero" id="heroGlobe">
     <img src="humanintelligence.png" alt="Conference Hero Image" />
     <div id="heroGlobeContainer"></div>
@@ -324,20 +500,15 @@
       <button class="pause-btn active" id="pauseRotate">⏸️ Pause Globe</button>
     </div>
 
+    <!-- VERTICAL TIMES STACK BELOW GLOBE -->
+    <div class="globe-times-stack" id="globeTimesStack"></div>
+
     <div class="hero-content">
       <h1>TWU-SMC 11th Annual<br>Leadership Conference</h1>
       <h2>The Fifth Intelligence:<br>Integrating the Human Factor</h2>
       <div class="hero-meta">
         <p><strong>January 19, 2026 • 10:00 AM - 3:30 PM IST</strong><br>Dr. Laird • VP Innovation, Global & Academic Partnerships, TWU</p>
       </div>
-    </div>
-  </section>
-
-  <!-- WORLD CLOCK -->
-  <section class="world-clock-section" id="worldclock">
-    <h2 class="clock-header">🌍 Live World Clock</h2>
-    <div class="world-clock-widget">
-      <div class="clock-stack" id="clockStack"></div>
     </div>
   </section>
 
@@ -423,12 +594,24 @@
   </section>
 
   <script>
-    // 3D GLOBE INTEGRATION
+    // GLOBE COUNTRIES DATA
+    const countries = [
+      {name: 'India IST', flag: '🇮🇳', lat: 22, lng: 78, tz: 'Asia/Kolkata', color: 0xFF9933, cardId: 'India'},
+      {name: 'Canada PST', flag: '🇨🇦', lat: 56.1304, lng: -106.3468, tz: 'America/Vancouver', color: 0xff0000, cardId: 'Canada'},
+      {name: 'Thailand ICT', flag: '🇹🇭', lat: 13.7563, lng: 100.5018, tz: 'Asia/Bangkok', color: 0xffcc00, cardId: 'Thailand'},
+      {name: 'Europe CET', flag: '🇪🇺', lat: 48.8566, lng: 2.3522, tz: 'Europe/Paris', color: 0x0000FF, cardId: 'Europe'},
+      {name: 'UK GMT', flag: '🇬🇧', lat: 53, lng: -0.1276, tz: 'Europe/London', color: 0x191970, cardId: 'UK'},
+      {name: 'USA EST', flag: '🇺🇸', lat: 39.8283, lng: -98.5795, tz: 'America/New_York', color: 0x003366, cardId: 'USA'},
+      {name: 'Singapore SGT', flag: '🇸🇬', lat: 1.35, lng: 103.8, tz: 'Asia/Singapore', color: 0xEE2536, cardId: 'Singapore'},
+      {name: 'Malaysia MYT', flag: '🇲🇾', lat: 4, lng: 102, tz: 'Asia/Kuala_Lumpur', color: 0xFFD700, cardId: 'Malaysia'}
+    ];
+
+    // 3D GLOBE SETUP
     const heroContainer = document.getElementById('heroGlobeContainer');
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    const camera = new THREE.PerspectiveCamera(75, 650 / 650, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(650, 650);
     renderer.setClearColor(0x000000, 0);
     heroContainer.appendChild(renderer.domElement);
 
@@ -457,17 +640,6 @@
         ));
       }
     );
-
-    const countries = [
-      {name: 'India', flag: '🇮🇳', lat: 22, lng: 78, tz: 'Asia/Kolkata', color: 0xFF9933, cardId: 'India'},
-      {name: 'Canada', flag: '🇨🇦', lat: 56.1304, lng: -106.3468, tz: 'America/Vancouver', color: 0xff0000, cardId: 'Canada'},
-      {name: 'Thailand', flag: '🇹🇭', lat: 13.7563, lng: 100.5018, tz: 'Asia/Bangkok', color: 0xffcc00, cardId: 'Thailand'},
-      {name: 'Europe', flag: '🇪🇺', lat: 48.8566, lng: 2.3522, tz: 'Europe/Paris', color: 0x0000FF, cardId: 'Europe'},
-      {name: 'UK', flag: '🇬🇧', lat: 53, lng: -0.1276, tz: 'Europe/London', color: 0x191970, cardId: 'UK'},
-      {name: 'USA', flag: '🇺🇸', lat: 39.8283, lng: -98.5795, tz: 'America/New_York', color: 0x003366, cardId: 'USA'},
-      {name: 'Singapore', flag: '🇸🇬', lat: 1.35, lng: 103.8, tz: 'Asia/Singapore', color: 0xEE2536, cardId: 'Singapore'},
-      {name: 'Malaysia', flag: '🇲🇾', lat: 4, lng: 102, tz: 'Asia/Kuala_Lumpur', color: 0xFFD700, cardId: 'Malaysia'}
-    ];
 
     const cardFlags = [];
 
@@ -498,6 +670,7 @@
       };
     }
 
+    // CREATE GLOBE FLAGS
     countries.forEach((country, index) => {
       const flagCanvas = document.createElement('canvas');
       flagCanvas.width = 420; flagCanvas.height = 220;
@@ -510,7 +683,7 @@
       flagCtx.fillStyle = gradient;
       
       flagCtx.save();
-      flagCtx.shadowColor = country.color + '33';
+      flagCtx.shadowColor = '#' + country.color.toString(16).padStart(6, '0') + '33';
       flagCtx.shadowBlur = 30;
       flagCtx.shadowOffsetY = 12;
       flagCtx.roundRect(15, 15, 390, 190, 25);
@@ -564,6 +737,7 @@
       cardFlags.push({ canvas: flagCanvas, ctx: flagCtx, sprite: cardFlag, country, index });
     });
 
+    // GLOBE CONTROLS
     let isPaused = false;
     document.getElementById('pauseRotate').onclick = () => {
       isPaused = !isPaused;
@@ -574,70 +748,98 @@
       btn.textContent = isPaused ? '▶️ Resume Globe' : '⏸️ Pause Globe';
     };
 
-    function updateGlobeTimes() {
+    // CREATE TIMES STACK
+    function createGlobeTimesStack() {
+      const stack = document.getElementById('globeTimesStack');
       countries.forEach((country, index) => {
-        const now = new Date();
-        const time = now.toLocaleTimeString('en-US', {
+        const item = document.createElement('div');
+        item.className = `globe-time-item ${country.cardId.toLowerCase()}`;
+        item.id = `globe-time-${index}`;
+        item.innerHTML = `
+          <span class="globe-flag">${country.flag}</span>
+          <span class="globe-timezone">${country.name}</span>
+          <span class="globe-time">--:--</span>
+        `;
+        stack.appendChild(item);
+      });
+    }
+
+    // UPDATE ALL TIMES (GLOBE FLAGS + TIMES STACK)
+    function updateAllTimes() {
+      const now = new Date();
+      countries.forEach((country, index) => {
+        const timeStr = now.toLocaleTimeString('en-US', {
           timeZone: country.tz,
           hour12: false,
           hour: '2-digit',
           minute: '2-digit'
         });
-        
-        const flagData = cardFlags[index];
-        createRoundRect(flagData.ctx);
-        flagData.ctx.clearRect(0, 0, 420, 220);
-        
-        const gradient = flagData.ctx.createLinearGradient(0, 0, 0, 220);
-        gradient.addColorStop(0, 'rgba(20,20,40,0.98)');
-        gradient.addColorStop(1, 'rgba(0,0,20,0.98)');
-        flagData.ctx.fillStyle = gradient;
-        
-        flagData.ctx.save();
-        flagData.ctx.shadowColor = country.color + '33';
-        flagData.ctx.shadowBlur = 30;
-        flagData.ctx.shadowOffsetY = 12;
-        flagData.ctx.roundRect(15, 15, 390, 190, 25);
-        flagData.ctx.fill();
-        flagData.ctx.restore();
-        
-        flagData.ctx.strokeStyle = 'rgba(255,255,255,0.3)';
-        flagData.ctx.lineWidth = 2;
-        flagData.ctx.lineJoin = 'round';
-        flagData.ctx.stroke();
-        
-        flagData.ctx.fillStyle = '#ffffff';
-        flagData.ctx.font = 'bold 85px Arial';
-        flagData.ctx.textAlign = 'left';
-        flagData.ctx.textBaseline = 'middle';
-        flagData.ctx.fillText(country.flag, 45, 80);
-        
-        flagData.ctx.fillStyle = '#e0e0ff';
-        flagData.ctx.font = 'bold 38px Arial';
-        flagData.ctx.textAlign = 'left';
-        flagData.ctx.textBaseline = 'middle';
-        flagData.ctx.fillText(country.name, 160, 80);
-        
-        flagData.ctx.fillStyle = '#00ff88';
-        flagData.ctx.font = 'bold 70px Courier New';
-        flagData.ctx.textAlign = 'right';
-        flagData.ctx.textBaseline = 'middle';
-        flagData.ctx.shadowColor = '#00ff88';
-        flagData.ctx.shadowBlur = 25;
-        flagData.ctx.shadowOffsetX = 3;
-        flagData.ctx.shadowOffsetY = 3;
-        flagData.ctx.fillText(time, 375, 120);
-        flagData.ctx.shadowBlur = 0;
-        
-        flagData.sprite.material.map.needsUpdate = true;
+
+        // Update globe flag canvas
+        if (cardFlags[index]) {
+          const flagData = cardFlags[index];
+          createRoundRect(flagData.ctx);
+          flagData.ctx.clearRect(0, 0, 420, 220);
+          
+          const gradient = flagData.ctx.createLinearGradient(0, 0, 0, 220);
+          gradient.addColorStop(0, 'rgba(20,20,40,0.98)');
+          gradient.addColorStop(1, 'rgba(0,0,20,0.98)');
+          flagData.ctx.fillStyle = gradient;
+          
+          flagData.ctx.save();
+          flagData.ctx.shadowColor = '#' + country.color.toString(16).padStart(6, '0') + '33';
+          flagData.ctx.shadowBlur = 30;
+          flagData.ctx.shadowOffsetY = 12;
+          flagData.ctx.roundRect(15, 15, 390, 190, 25);
+          flagData.ctx.fill();
+          flagData.ctx.restore();
+          
+          flagData.ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+          flagData.ctx.lineWidth = 2;
+          flagData.ctx.lineJoin = 'round';
+          flagData.ctx.stroke();
+          
+          flagData.ctx.fillStyle = '#ffffff';
+          flagData.ctx.font = 'bold 85px Arial';
+          flagData.ctx.textAlign = 'left';
+          flagData.ctx.textBaseline = 'middle';
+          flagData.ctx.fillText(country.flag, 45, 80);
+          
+          flagData.ctx.fillStyle = '#e0e0ff';
+          flagData.ctx.font = 'bold 38px Arial';
+          flagData.ctx.textAlign = 'left';
+          flagData.ctx.textBaseline = 'middle';
+          flagData.ctx.fillText(country.name, 160, 80);
+          
+          flagData.ctx.fillStyle = '#00ff88';
+          flagData.ctx.font = 'bold 70px Courier New';
+          flagData.ctx.textAlign = 'right';
+          flagData.ctx.textBaseline = 'middle';
+          flagData.ctx.shadowColor = '#00ff88';
+          flagData.ctx.shadowBlur = 25;
+          flagData.ctx.shadowOffsetX = 3;
+          flagData.ctx.shadowOffsetY = 3;
+          flagData.ctx.fillText(timeStr, 375, 120);
+          flagData.ctx.shadowBlur = 0;
+          
+          flagData.sprite.material.map.needsUpdate = true;
+        }
+
+        // Update times stack
+        const timeEl = document.getElementById(`globe-time-${index}`);
+        if (timeEl) {
+          timeEl.querySelector('.globe-time').textContent = timeStr;
+        }
       });
     }
 
-    // GLOBE RESIZE HANDLER
+    // GLOBE RESIZE & ANIMATION
     window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
+      const width = 650;
+      const height = 650;
+      camera.aspect = width / height;
       camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setSize(width, height);
     });
 
     const clock = new THREE.Clock();
@@ -651,54 +853,7 @@
       renderer.render(scene, camera);
     }
 
-    setInterval(updateGlobeTimes, 1000);
-    animate();
-
-    // WORLD CLOCK
-    const timezones = [
-      { name: 'India IST', flag: '🇮🇳', tz: 'Asia/Kolkata' },
-      { name: 'Canada PST', flag: '🇨🇦', tz: 'America/Vancouver' },
-      { name: 'Iran IRST', flag: '🇮🇷', tz: 'Asia/Tehran' },
-      { name: 'Thailand ICT', flag: '🇹🇭', tz: 'Asia/Bangkok' },
-      { name: 'Nigeria WAT', flag: '🇳🇬', tz: 'Africa/Lagos' },
-      { name: 'China CST', flag: '🇨🇳', tz: 'Asia/Shanghai' },
-      { name: 'S.Africa SAST', flag: '🇿🇦', tz: 'Africa/Johannesburg' },
-      { name: 'Kenya EAT', flag: '🇰🇪', tz: 'Africa/Nairobi' },
-      { name: 'Rwanda CAT', flag: '🇷🇼', tz: 'Africa/Kigali' }
-    ];
-
-    function createVerticalClock() {
-      const stack = document.getElementById('clockStack');
-      timezones.forEach((tz, index) => {
-        const item = document.createElement('div');
-        item.className = `clock-item ${tz.name.includes('India') ? 'live' : ''}`;
-        item.innerHTML = `
-          <span class="clock-flag">${tz.flag}</span>
-          <span class="clock-timezone">${tz.name}</span>
-          <span class="clock-time" id="time-${index}">--:--</span>
-        `;
-        stack.appendChild(item);
-      });
-    }
-
-    function updateVerticalClock() {
-      const now = new Date();
-      timezones.forEach((tz, index) => {
-        const timeEl = document.getElementById(`time-${index}`);
-        timeEl.textContent = now.toLocaleTimeString('en-GB', { 
-          timeZone: tz.tz, 
-          hour: '2-digit', 
-          minute: '2-digit',
-          hour12: false 
-        });
-      });
-    }
-
-    createVerticalClock();
-    updateVerticalClock();
-    setInterval(updateVerticalClock, 1000);
-
-    // Smooth scrolling for nav links
+    // SMOOTH SCROLLING
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
       anchor.addEventListener('click', function (e) {
         e.preventDefault();
@@ -708,6 +863,11 @@
         }
       });
     });
+
+    // INITIALIZE
+    createGlobeTimesStack();
+    setInterval(updateAllTimes, 1000);
+    animate();
   </script>
 </body>
 </html>
