@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>🌍 3D World Globe + LARGER Flags</title>
+  <title>🌍 3D World Globe + SINGLE BLACK FLAG</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -14,9 +14,7 @@
     canvas { display: block; width: 100%; height: 100%; }
     
     /* GLOBE CONTROLS */
-    .globe-controls { 
-      position: absolute; top: 20px; right: 20px; z-index: 100;
-    }
+    .globe-controls { position: absolute; top: 20px; right: 20px; z-index: 100; }
     .pause-btn { 
       padding: 15px 25px; background: rgba(0,255,136,0.2); 
       border: 2px solid #00ff88; color: white; border-radius: 30px; 
@@ -26,7 +24,7 @@
     .pause-btn:hover { background: rgba(0,255,136,0.4); transform: scale(1.05); }
     .pause-btn.active { background: #00ff88; color: black; }
 
-    /* TIME CARDS PANEL */
+    /* TIME CARDS */
     .time-cards {
       position: absolute; left: 20px; top: 50%; transform: translateY(-50%);
       background: rgba(0,0,20,0.9); border: 1px solid rgba(0,255,136,0.3);
@@ -34,72 +32,29 @@
       overflow-y: auto; backdrop-filter: blur(20px); z-index: 100;
       min-width: 280px; box-shadow: 0 20px 40px rgba(0,0,0,0.5);
     }
-    .time-card {
-      display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(0,255,136,0.2);
-      transition: all 0.3s; font-size: 16px; font-weight: 500;
-    }
+    .time-card { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(0,255,136,0.2); transition: all 0.3s; font-size: 16px; font-weight: 500; }
     .time-card:last-child { border-bottom: none; }
     .time-card:hover { background: rgba(0,255,136,0.1); padding-left: 8px; }
-    .flag { font-size: 28px; margin-right: 12px; } /* LARGER FLAGS */
+    .flag { font-size: 28px; margin-right: 12px; }
     .time-text { color: #00ff88; font-family: 'Courier New', monospace; font-weight: bold; }
     .country-name { color: #ffffff; margin-right: 8px; }
-    
-    @media (max-width: 768px) {
-      .time-cards { left: 10px; min-width: 240px; padding: 15px; }
-      .time-card { font-size: 14px; }
-      .flag { font-size: 24px; }
-    }
   </style>
 </head>
 <body>
   <div id="container">
-    <!-- GLOBE CONTROLS -->
     <div class="globe-controls">
       <button class="pause-btn active" id="pauseRotate">⏸️ Pause Rotation</button>
     </div>
 
-    <!-- TIME CARDS -->
     <div class="time-cards" id="timeCards">
-      <div class="time-card" id="card-India">
-        <span class="flag">🇮🇳</span>
-        <span class="country-name">India IST</span>
-        <span class="time-text" id="time-India">--:--</span>
-      </div>
-      <div class="time-card" id="card-Canada">
-        <span class="flag">🇨🇦</span>
-        <span class="country-name">Canada PST</span>
-        <span class="time-text" id="time-Canada">--:--</span>
-      </div>
-      <div class="time-card" id="card-Thailand">
-        <span class="flag">🇹🇭</span>
-        <span class="country-name">Thailand ICT</span>
-        <span class="time-text" id="time-Thailand">--:--</span>
-      </div>
-      <div class="time-card" id="card-Europe">
-        <span class="flag">🇪🇺</span>
-        <span class="country-name">Europe CET</span>
-        <span class="time-text" id="time-Europe">--:--</span>
-      </div>
-      <div class="time-card" id="card-UK">
-        <span class="flag">🇬🇧</span>
-        <span class="country-name">UK GMT</span>
-        <span class="time-text" id="time-UK">--:--</span>
-      </div>
-      <div class="time-card" id="card-USA">
-        <span class="flag">🇺🇸</span>
-        <span class="country-name">USA EST</span>
-        <span class="time-text" id="time-USA">--:--</span>
-      </div>
-      <div class="time-card" id="card-Singapore">
-        <span class="flag">🇸🇬</span>
-        <span class="country-name">Singapore SGT</span>
-        <span class="time-text" id="time-Singapore">--:--</span>
-      </div>
-      <div class="time-card" id="card-Malaysia">
-        <span class="flag">🇲🇾</span>
-        <span class="country-name">Malaysia MYT</span>
-        <span class="time-text" id="time-Malaysia">--:--</span>
-      </div>
+      <div class="time-card" id="card-India"><span class="flag">🇮🇳</span><span class="country-name">India IST</span><span class="time-text" id="time-India">--:--</span></div>
+      <div class="time-card" id="card-Canada"><span class="flag">🇨🇦</span><span class="country-name">Canada PST</span><span class="time-text" id="time-Canada">--:--</span></div>
+      <div class="time-card" id="card-Thailand"><span class="flag">🇹🇭</span><span class="country-name">Thailand ICT</span><span class="time-text" id="time-Thailand">--:--</span></div>
+      <div class="time-card" id="card-Europe"><span class="flag">🇪🇺</span><span class="country-name">Europe CET</span><span class="time-text" id="time-Europe">--:--</span></div>
+      <div class="time-card" id="card-UK"><span class="flag">🇬🇧</span><span class="country-name">UK GMT</span><span class="time-text" id="time-UK">--:--</span></div>
+      <div class="time-card" id="card-USA"><span class="flag">🇺🇸</span><span class="country-name">USA EST</span><span class="time-text" id="time-USA">--:--</span></div>
+      <div class="time-card" id="card-Singapore"><span class="flag">🇸🇬</span><span class="country-name">Singapore SGT</span><span class="time-text" id="time-Singapore">--:--</span></div>
+      <div class="time-card" id="card-Malaysia"><span class="flag">🇲🇾</span><span class="country-name">Malaysia MYT</span><span class="time-text" id="time-Malaysia">--:--</span></div>
     </div>
   </div>
 
@@ -112,7 +67,6 @@
     renderer.setClearColor(0x000011);
     container.appendChild(renderer.domElement);
 
-    // CAMERA + CONTROLS
     camera.position.set(0, 0, 2.8);
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
@@ -120,7 +74,6 @@
     controls.autoRotate = true;
     controls.autoRotateSpeed = 0.8;
 
-    // LIGHTING
     scene.add(new THREE.AmbientLight(0xffffff, 0.8));
     const dirLight = new THREE.DirectionalLight(0xffffff, 1.8);
     dirLight.position.set(2, 2, 2);
@@ -129,20 +82,17 @@
     const globeGroup = new THREE.Group();
     scene.add(globeGroup);
 
-    // EARTH TEXTURE
     const textureLoader = new THREE.TextureLoader();
     textureLoader.load(
       'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Land_ocean_ice_2048.jpg/1024px-Land_ocean_ice_2048.jpg',
       (earthTexture) => {
-        const globe = new THREE.Mesh(
+        globeGroup.add(new THREE.Mesh(
           new THREE.SphereGeometry(1, 64, 64),
           new THREE.MeshLambertMaterial({ map: earthTexture, transparent: true, opacity: 0.95 })
-        );
-        globeGroup.add(globe);
+        ));
       }
     );
 
-    // YOUR EXACT GPS COORDINATES
     const countries = [
       {name: 'India IST', flag: '🇮🇳', lat: 22, lng: 78, tz: 'Asia/Kolkata', color: 0xFF9933, cardId: 'India'},
       {name: 'Canada PST', flag: '🇨🇦', lat: 56.1304, lng: -106.3468, tz: 'America/Vancouver', color: 0xff0000, cardId: 'Canada'},
@@ -155,10 +105,8 @@
     ];
 
     const clockMarkers = [];
-    const clockTexts = [];
-    const flagSprites = [];
+    const combinedFlags = []; // SINGLE BLACK FLAG per country
 
-    // GPS FUNCTION
     function latLonToVector3(lat, lon, radius) {
       const phi = (90 - lat) * (Math.PI / 180);
       const theta = (lon + 180) * (Math.PI / 180);
@@ -169,9 +117,9 @@
       );
     }
 
-    // COUNTRY SPHERES + LARGER FLAGS ON GLOBE
+    // ✅ SINGLE BLACK FLAG = SPHERE + FLAG + TIME
     countries.forEach((country, index) => {
-      // 🔴 LARGER GLOWING SPHERE (0.045 → 0.055)
+      // GLOWING SPHERE (behind flag)
       const marker = new THREE.Mesh(
         new THREE.SphereGeometry(0.055, 20, 20),
         new THREE.MeshLambertMaterial({
@@ -185,40 +133,46 @@
       globeGroup.add(marker);
       clockMarkers.push(marker);
 
-      // 🟡 LARGER FLAG EMOJI ON GLOBE (0.12→0.20, 0.06→0.10)
+      // 🟢 SINGLE BLACK FLAG CANVAS (FLAG + TIME TOGETHER)
       const flagCanvas = document.createElement('canvas');
-      flagCanvas.width = 256; flagCanvas.height = 128; // LARGER CANVAS
+      flagCanvas.width = 320; flagCanvas.height = 180; // LARGER
       const flagCtx = flagCanvas.getContext('2d');
-      flagCtx.fillStyle = 'rgba(0,0,0,0.9)';
-      flagCtx.fillRect(0, 0, 256, 128);
+      
+      // BLACK BACKGROUND
+      flagCtx.fillStyle = 'rgba(0,0,0,0.95)';
+      flagCtx.fillRect(0, 0, 320, 180);
+      
+      // COUNTRY FLAG (TOP)
       flagCtx.fillStyle = '#ffffff';
-      flagCtx.font = 'bold 64px Arial'; // LARGER FONT
+      flagCtx.font = 'bold 72px Arial';
       flagCtx.textAlign = 'center';
       flagCtx.textBaseline = 'middle';
-      flagCtx.fillText(country.flag, 128, 64);
+      flagCtx.fillText(country.flag, 160, 60);
       
-      const flagSprite = new THREE.Sprite(new THREE.SpriteMaterial({
+      // TIME TEXT (BOTTOM)
+      const now = new Date();
+      const time = now.toLocaleTimeString('en-US', {
+        timeZone: country.tz,
+        hour12: false,
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+      
+      flagCtx.fillStyle = index === 0 ? '#FFD700' : '#00ff88';
+      flagCtx.font = 'bold 48px Courier New';
+      flagCtx.shadowColor = flagCtx.fillStyle;
+      flagCtx.shadowBlur = 12;
+      flagCtx.fillText(time, 160, 130);
+      flagCtx.shadowBlur = 0;
+      
+      const combinedFlag = new THREE.Sprite(new THREE.SpriteMaterial({
         map: new THREE.CanvasTexture(flagCanvas),
         transparent: true
       }));
-      flagSprite.position.copy(marker.position.clone().add(new THREE.Vector3(0, -0.10, 0)));
-      flagSprite.scale.set(0.20, 0.10, 1); // LARGER SCALE
-      globeGroup.add(flagSprite);
-      flagSprites.push(flagSprite);
-
-      // TIME TEXT (above larger flag)
-      const canvas = document.createElement('canvas');
-      canvas.width = 256; canvas.height = 128;
-      const ctx = canvas.getContext('2d');
-      const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
-        map: new THREE.CanvasTexture(canvas),
-        transparent: true
-      }));
-      sprite.position.copy(marker.position.clone().add(new THREE.Vector3(0, 0.16, 0))); // ADJUSTED FOR LARGER FLAG
-      sprite.scale.set(0.18, 0.09, 1);
-      globeGroup.add(sprite);
-
-      clockTexts.push({ canvas, ctx, sprite, country, index });
+      combinedFlag.position.copy(marker.position.clone().add(new THREE.Vector3(0, 0, 0.02)));
+      combinedFlag.scale.set(0.28, 0.16, 1); // PERFECT SIZE
+      globeGroup.add(combinedFlag);
+      combinedFlags.push({ canvas: flagCanvas, ctx: flagCtx, sprite: combinedFlag, country, index });
     });
 
     // PAUSE BUTTON
@@ -232,7 +186,7 @@
       btn.textContent = isPaused ? '▶️ Resume Rotation' : '⏸️ Pause Rotation';
     };
 
-    // UPDATE TIME CARDS + GLOBE CLOCKS
+    // UPDATE TIMES (CARDS + FLAGS)
     function updateTimes() {
       countries.forEach((country, index) => {
         const now = new Date();
@@ -243,54 +197,54 @@
           minute: '2-digit'
         });
         
-        // UPDATE HTML CARDS
+        // HTML CARDS
         document.getElementById(`time-${country.cardId}`).textContent = time;
         
-        // UPDATE GLOBE CLOCKS
-        const ct = clockTexts[index];
-        ct.ctx.clearRect(0, 0, 256, 128);
-        ct.ctx.fillStyle = 'rgba(0,0,0,0.92)';
-        ct.ctx.fillRect(0, 0, 256, 128);
-        ct.ctx.fillStyle = '#ffffff';
-        ct.ctx.font = 'bold 24px Arial';
-        ct.ctx.textAlign = 'center';
-        ct.ctx.textBaseline = 'middle';
-        ct.ctx.fillText(country.name.split(' ')[0], 128, 42);
-        ct.ctx.fillStyle = index === 0 ? '#FFD700' : '#00ff88';
-        ct.ctx.font = 'bold 32px Courier New';
-        ct.ctx.shadowColor = ct.ctx.fillStyle;
-        ct.ctx.shadowBlur = 8;
-        ct.ctx.fillText(time, 128, 90);
-        ct.ctx.shadowBlur = 0;
-        ct.sprite.material.map.needsUpdate = true;
+        // UPDATE SINGLE BLACK FLAGS
+        const flagData = combinedFlags[index];
+        flagData.ctx.clearRect(0, 0, 320, 180);
+        flagData.ctx.fillStyle = 'rgba(0,0,0,0.95)';
+        flagData.ctx.fillRect(0, 0, 320, 180);
+        
+        flagData.ctx.fillStyle = '#ffffff';
+        flagData.ctx.font = 'bold 72px Arial';
+        flagData.ctx.textAlign = 'center';
+        flagData.ctx.textBaseline = 'middle';
+        flagData.ctx.fillText(country.flag, 160, 60);
+        
+        flagData.ctx.fillStyle = index === 0 ? '#FFD700' : '#00ff88';
+        flagData.ctx.font = 'bold 48px Courier New';
+        flagData.ctx.shadowColor = flagData.ctx.fillStyle;
+        flagData.ctx.shadowBlur = 12;
+        flagData.ctx.fillText(time, 160, 130);
+        flagData.ctx.shadowBlur = 0;
+        
+        flagData.sprite.material.map.needsUpdate = true;
       });
     }
 
-    // RESIZE
     window.addEventListener('resize', () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
 
-    // ANIMATION
     const clock = new THREE.Clock();
     function animate() {
       requestAnimationFrame(animate);
       controls.update();
 
       const elapsed = clock.getElapsedTime();
-
       if (!isPaused) {
         globeGroup.rotation.y = elapsed * 0.25;
       }
 
-      // India pulse (LARGE sphere)
       clockMarkers[0].scale.setScalar(1 + Math.sin(elapsed * 4) * 0.2);
       clockMarkers[0].rotation.y = elapsed * 2;
 
       renderer.render(scene, camera);
     }
+    
     setInterval(updateTimes, 1000);
     animate();
   </script>
