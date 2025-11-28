@@ -97,7 +97,7 @@
       animation: pulse 1.5s infinite; z-index: 10;
     }
     
-    /* Sidebar with Teams Link */
+    /* Sidebar */
     .live-info-panel {
       background: rgba(0,0,0,0.6); backdrop-filter: blur(30px);
       padding: 30px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.15);
@@ -110,7 +110,7 @@
     
     .live-actions { margin-top: auto; display: flex; flex-direction: column; gap: 15px; }
     .teams-btn {
-      background: #464eb8; color: white; /* Teams Color */
+      background: #464eb8; color: white; 
       padding: 15px; border-radius: 12px; border: none;
       font-weight: bold; cursor: pointer; text-decoration: none;
       transition: all 0.2s; display: flex; align-items: center; gap: 10px;
@@ -174,19 +174,20 @@
       border-radius: 30px; font-weight: bold;
     }
 
-    /* ADMIN PANEL (HIDDEN BY DEFAULT) */
+    /* ADMIN PANEL */
     .admin-panel {
       position: fixed; bottom: 20px; right: 20px; z-index: 9999;
-      display: none; /* HIDDEN */
-      flex-direction: column; gap: 10px;
+      display: flex; gap: 15px;
     }
     .admin-btn {
       padding: 12px 24px; border-radius: 30px; cursor: pointer; 
       font-weight: bold; border: 2px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
       color: white; font-size: 1rem;
     }
-    .btn-live { background: #333; }
-    .btn-kill { background: #ff0000; display: none; animation: pulse 2s infinite; } /* Hidden initially */
+    .btn-live { background: #333; } /* Always visible */
+    
+    /* KILL SWITCH HIDDEN BY DEFAULT */
+    .btn-kill { background: #ff0000; display: none; animation: pulse 2s infinite; } 
 
     @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
     @media (max-width: 1024px) {
@@ -201,7 +202,10 @@
 
 <!-- ADMIN CONTROLS -->
 <div class="admin-panel" id="adminPanel">
+  <!-- Toggle is ALWAYS visible for you to start the show -->
   <button class="admin-btn btn-live" id="liveToggle">🔴 Toggle "Go Live"</button>
+  
+  <!-- Kill Switch is HIDDEN until you use the magic link -->
   <button class="admin-btn btn-kill" id="killSwitch">⚠️ KILL STREAM</button>
 </div>
 
@@ -233,6 +237,7 @@
       <!-- YOUTUBE WATCH -->
       <div class="video-wrapper">
         <div class="live-badge">🔴 LIVE ON YOUTUBE</div>
+        <!-- Replace VIDEO_ID_HERE with your actual YouTube ID -->
         <iframe 
           width="100%" height="100%" 
           src="https://www.youtube.com/embed/live_stream?channel=YOUR_CHANNEL_ID" 
@@ -304,24 +309,24 @@
 </section>
 
 <script>
-  // --- DEVICE SPECIFIC SECURITY ---
-  // 1. Check URL for magic key ?mode=admin
+  // --- SECURITY LOGIC ---
+  // 1. Detect ?mode=admin in URL
   const urlParams = new URLSearchParams(window.location.search);
+  const killSwitch = document.getElementById('killSwitch');
+
   if (urlParams.get('mode') === 'admin') {
-    localStorage.setItem('siteAdmin', 'true'); // SAVE KEY
-    // Clean URL for aesthetics (optional)
+    localStorage.setItem('siteAdmin', 'true'); // Unlock for this device
+    // Clean URL
     window.history.replaceState({}, document.title, window.location.pathname);
   }
 
-  // 2. Check LocalStorage to Show Controls
-  const adminPanel = document.getElementById('adminPanel');
+  // 2. Show Kill Switch if unlocked
   if (localStorage.getItem('siteAdmin') === 'true') {
-    adminPanel.style.display = 'flex'; // Only visible on THIS device
+    killSwitch.style.display = 'block';
   }
 
   // --- LIVE MODE LOGIC ---
   const liveToggle = document.getElementById('liveToggle');
-  const killSwitch = document.getElementById('killSwitch');
   const standardHero = document.getElementById('heroStandard');
   const liveHero = document.getElementById('heroLive');
   const heroBg = document.getElementById('heroBg');
@@ -331,6 +336,7 @@
   function toggleLiveMode() {
     isLive = !isLive;
     if (isLive) {
+      // START LIVE
       standardHero.style.opacity = '0';
       setTimeout(() => {
         standardHero.style.display = 'none';
@@ -341,8 +347,8 @@
       liveLink.style.display = 'block';
       liveToggle.textContent = '⏹ Stop Live Mode';
       liveToggle.style.background = '#ff0000';
-      killSwitch.style.display = 'block';
     } else {
+      // STOP LIVE (REVERT)
       liveHero.style.opacity = '0';
       setTimeout(() => {
         liveHero.style.display = 'none';
@@ -353,7 +359,6 @@
       liveLink.style.display = 'none';
       liveToggle.textContent = '🔴 Toggle "Go Live"';
       liveToggle.style.background = '#333';
-      killSwitch.style.display = 'none';
     }
   }
 
