@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>🌍 3D World Globe + UNIFORM CARDS</title>
+  <title>🌍 3D World Globe + CARD MARKERS</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -92,14 +92,14 @@
     );
 
     const countries = [
-      {name: 'India', flag: '🇮🇳', lat: 22, lng: 78, tz: 'Asia/Kolkata', color: 0xFF9933, cardId: 'India', isKey: true},
-      {name: 'Canada', flag: '🇨🇦', lat: 56.1304, lng: -106.3468, tz: 'America/Vancouver', color: 0xff0000, cardId: 'Canada', isKey: true},
-      {name: 'Thailand', flag: '🇹🇭', lat: 13.7563, lng: 100.5018, tz: 'Asia/Bangkok', color: 0xffcc00, cardId: 'Thailand', isKey: false},
-      {name: 'Europe', flag: '🇪🇺', lat: 48.8566, lng: 2.3522, tz: 'Europe/Paris', color: 0x0000FF, cardId: 'Europe', isKey: false},
-      {name: 'UK', flag: '🇬🇧', lat: 53, lng: -0.1276, tz: 'Europe/London', color: 0x191970, cardId: 'UK', isKey: false},
-      {name: 'USA', flag: '🇺🇸', lat: 39.8283, lng: -98.5795, tz: 'America/New_York', color: 0x003366, cardId: 'USA', isKey: false},
-      {name: 'Singapore', flag: '🇸🇬', lat: 1.35, lng: 103.8, tz: 'Asia/Singapore', color: 0xEE2536, cardId: 'Singapore', isKey: false},
-      {name: 'Malaysia', flag: '🇲🇾', lat: 4, lng: 102, tz: 'Asia/Kuala_Lumpur', color: 0xFFD700, cardId: 'Malaysia', isKey: false}
+      {name: 'India', flag: '🇮🇳', lat: 22, lng: 78, tz: 'Asia/Kolkata', color: 0xFF9933, cardId: 'India'},
+      {name: 'Canada', flag: '🇨🇦', lat: 56.1304, lng: -106.3468, tz: 'America/Vancouver', color: 0xff0000, cardId: 'Canada'},
+      {name: 'Thailand', flag: '🇹🇭', lat: 13.7563, lng: 100.5018, tz: 'Asia/Bangkok', color: 0xffcc00, cardId: 'Thailand'},
+      {name: 'Europe', flag: '🇪🇺', lat: 48.8566, lng: 2.3522, tz: 'Europe/Paris', color: 0x0000FF, cardId: 'Europe'},
+      {name: 'UK', flag: '🇬🇧', lat: 53, lng: -0.1276, tz: 'Europe/London', color: 0x191970, cardId: 'UK'},
+      {name: 'USA', flag: '🇺🇸', lat: 39.8283, lng: -98.5795, tz: 'America/New_York', color: 0x003366, cardId: 'USA'},
+      {name: 'Singapore', flag: '🇸🇬', lat: 1.35, lng: 103.8, tz: 'Asia/Singapore', color: 0xEE2536, cardId: 'Singapore'},
+      {name: 'Malaysia', flag: '🇲🇾', lat: 4, lng: 102, tz: 'Asia/Kuala_Lumpur', color: 0xFFD700, cardId: 'Malaysia'}
     ];
 
     const cardFlags = [];
@@ -114,27 +114,23 @@
       );
     }
 
-    // ✅ ALL CARDS SAME SIZE - India/Canada just glow brighter
-    const UNIFORM_WIDTH = 420;
-    const UNIFORM_HEIGHT = 220;
-    
+    // ✅ ONLY CARD FLAGS (NO SPHERES)
     countries.forEach((country, index) => {
+      // 🟢 STYLED CARD FLAG (ONLY MARKER)
       const flagCanvas = document.createElement('canvas');
-      flagCanvas.width = UNIFORM_WIDTH;
-      flagCanvas.height = UNIFORM_HEIGHT;
+      flagCanvas.width = 420; flagCanvas.height = 220;
       const flagCtx = flagCanvas.getContext('2d');
       
       // CARD BACKGROUND
-      const gradient = flagCtx.createLinearGradient(0, 0, 0, UNIFORM_HEIGHT);
+      const gradient = flagCtx.createLinearGradient(0, 0, 0, 220);
       gradient.addColorStop(0, 'rgba(20,20,40,0.98)');
       gradient.addColorStop(1, 'rgba(0,0,20,0.98)');
       flagCtx.fillStyle = gradient;
       
-      // ROUNDED CARD + GLOW (India/Canada = BRIGHTER GLOW)
+      // ROUNDED CARD + GLOW
       flagCtx.save();
-      const glowOpacity = country.isKey ? '66' : '33';
-      flagCtx.shadowColor = country.color + glowOpacity;
-      flagCtx.shadowBlur = country.isKey ? 45 : 30;
+      flagCtx.shadowColor = country.color + '33'; // Use country color for glow
+      flagCtx.shadowBlur = 30;
       flagCtx.shadowOffsetY = 12;
       
       flagCtx.beginPath();
@@ -153,16 +149,14 @@
       flagCtx.font = 'bold 85px Arial';
       flagCtx.textAlign = 'left';
       flagCtx.textBaseline = 'middle';
-      flagCtx.fillText(country.flag, 45, 110);
+      flagCtx.fillText(country.flag, 45, 80);
       
-      // COUNTRY NAME (more spacing)
+      // COUNTRY NAME
       flagCtx.fillStyle = '#e0e0ff';
       flagCtx.font = 'bold 38px Arial';
-      flagCtx.textAlign = 'left';
-      flagCtx.textBaseline = 'middle';
-      flagCtx.fillText(country.name, 160, 110);
+      flagCtx.fillText(country.name, 160, 80);
       
-      // TIME (RIGHT - NO OVERLAP)
+      // TIME (GLOWING)
       const now = new Date();
       const time = now.toLocaleTimeString('en-US', {
         timeZone: country.tz,
@@ -179,7 +173,7 @@
       flagCtx.shadowBlur = 25;
       flagCtx.shadowOffsetX = 3;
       flagCtx.shadowOffsetY = 3;
-      flagCtx.fillText(time, 375, 115);
+      flagCtx.fillText(time, 375, 120);
       flagCtx.shadowBlur = 0;
       
       const cardFlag = new THREE.Sprite(new THREE.SpriteMaterial({
@@ -204,7 +198,7 @@
       btn.textContent = isPaused ? '▶️ Resume Rotation' : '⏸️ Pause Rotation';
     };
 
-    // UPDATE UNIFORM CARDS
+    // UPDATE CARD FLAGS
     function updateTimes() {
       countries.forEach((country, index) => {
         const now = new Date();
@@ -218,18 +212,17 @@
         document.getElementById(`time-${country.cardId}`).textContent = time;
         
         const flagData = cardFlags[index];
-        flagData.ctx.clearRect(0, 0, UNIFORM_WIDTH, UNIFORM_HEIGHT);
+        flagData.ctx.clearRect(0, 0, 420, 220);
         
-        // RECREATE SAME SIZE
-        const gradient = flagData.ctx.createLinearGradient(0, 0, 0, UNIFORM_HEIGHT);
+        // RECREATE CARD (country-colored glow)
+        const gradient = flagData.ctx.createLinearGradient(0, 0, 0, 220);
         gradient.addColorStop(0, 'rgba(20,20,40,0.98)');
         gradient.addColorStop(1, 'rgba(0,0,20,0.98)');
         flagData.ctx.fillStyle = gradient;
         
         flagData.ctx.save();
-        const glowOpacity = country.isKey ? '66' : '33';
-        flagData.ctx.shadowColor = country.color + glowOpacity;
-        flagData.ctx.shadowBlur = country.isKey ? 45 : 30;
+        flagData.ctx.shadowColor = country.color + '33';
+        flagData.ctx.shadowBlur = 30;
         flagData.ctx.shadowOffsetY = 12;
         flagData.ctx.beginPath();
         flagData.ctx.roundRect(15, 15, 390, 190, 25);
@@ -241,18 +234,16 @@
         flagData.ctx.lineJoin = 'round';
         flagData.ctx.stroke();
         
-        // CONTENT (perfect spacing)
+        // CONTENT
         flagData.ctx.fillStyle = '#ffffff';
         flagData.ctx.font = 'bold 85px Arial';
         flagData.ctx.textAlign = 'left';
         flagData.ctx.textBaseline = 'middle';
-        flagData.ctx.fillText(country.flag, 45, 110);
+        flagData.ctx.fillText(country.flag, 45, 80);
         
         flagData.ctx.fillStyle = '#e0e0ff';
         flagData.ctx.font = 'bold 38px Arial';
-        flagData.ctx.textAlign = 'left';
-        flagData.ctx.textBaseline = 'middle';
-        flagData.ctx.fillText(country.name, 160, 110);
+        flagData.ctx.fillText(country.name, 160, 80);
         
         flagData.ctx.fillStyle = index === 0 ? '#FFD700' : '#00ff88';
         flagData.ctx.font = 'bold 70px Courier New';
@@ -262,7 +253,7 @@
         flagData.ctx.shadowBlur = 25;
         flagData.ctx.shadowOffsetX = 3;
         flagData.ctx.shadowOffsetY = 3;
-        flagData.ctx.fillText(time, 375, 115);
+        flagData.ctx.fillText(time, 375, 120);
         flagData.ctx.shadowBlur = 0;
         
         flagData.sprite.material.map.needsUpdate = true;
@@ -285,9 +276,8 @@
         globeGroup.rotation.y = elapsed * 0.25;
       }
 
-      // India + Canada subtle pulse
-      cardFlags[0].sprite.scale.setScalar(1 + Math.sin(elapsed * 4) * 0.12);
-      cardFlags[1].sprite.scale.setScalar(1 + Math.sin(elapsed * 3) * 0.10);
+      // India card pulse
+      cardFlags[0].sprite.scale.setScalar(1 + Math.sin(elapsed * 4) * 0.15);
 
       renderer.render(scene, camera);
     }
