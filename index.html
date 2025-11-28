@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>🌍 3D World Globe + IDENTICAL SIZE</title>
+  <title>🌍 3D World Globe + IDENTICAL BORDERS</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -114,7 +114,7 @@
       );
     }
 
-    // ✅ IDENTICAL 2px border thickness for ALL
+    // ✅ ALL IDENTICAL - SAME border for India
     countries.forEach((country, index) => {
       const flagCanvas = document.createElement('canvas');
       flagCanvas.width = 420; flagCanvas.height = 220;
@@ -134,9 +134,9 @@
       flagCtx.fill();
       flagCtx.restore();
       
-      // SAME 2px border thickness - DIFFERENT COLORS ONLY
-      flagCtx.strokeStyle = index === 0 ? '#FFD700' : 'rgba(255,255,255,0.3)';
-      flagCtx.lineWidth = 2;  // SAME THICKNESS
+      // SAME WHITE BORDER FOR ALL
+      flagCtx.strokeStyle = 'rgba(255,255,255,0.3)';
+      flagCtx.lineWidth = 2;
       flagCtx.lineJoin = 'round';
       flagCtx.stroke();
       
@@ -160,6 +160,7 @@
         minute: '2-digit'
       });
       
+      // India gold TIME only, same border as others
       flagCtx.fillStyle = index === 0 ? '#FFD700' : '#00ff88';
       flagCtx.font = 'bold 70px Courier New';
       flagCtx.textAlign = 'right';
@@ -221,8 +222,8 @@
         flagData.ctx.fill();
         flagData.ctx.restore();
         
-        // SAME 2px thickness for ALL
-        flagData.ctx.strokeStyle = index === 0 ? '#FFD700' : 'rgba(255,255,255,0.3)';
+        // SAME WHITE BORDER FOR ALL
+        flagData.ctx.strokeStyle = 'rgba(255,255,255,0.3)';
         flagData.ctx.lineWidth = 2;
         flagData.ctx.lineJoin = 'round';
         flagData.ctx.stroke();
