@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>🌍 3D World Globe + ALL IDENTICAL CARDS</title>
+  <title>🌍 3D World Globe + SAME SIZE CARDS</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -114,13 +114,13 @@
       );
     }
 
-    // ✅ ABSOLUTELY IDENTICAL FOR ALL - NO SPECIAL CASES
-    const createCard = (country, index) => {
+    // ✅ ALL CARDS SAME SIZE - India uniform
+    countries.forEach((country, index) => {
       const flagCanvas = document.createElement('canvas');
       flagCanvas.width = 420; flagCanvas.height = 220;
       const flagCtx = flagCanvas.getContext('2d');
       
-      // IDENTICAL BACKGROUND
+      // SAME BACKGROUND FOR ALL
       const gradient = flagCtx.createLinearGradient(0, 0, 0, 220);
       gradient.addColorStop(0, 'rgba(20,20,40,0.98)');
       gradient.addColorStop(1, 'rgba(0,0,20,0.98)');
@@ -135,12 +135,24 @@
       flagCtx.fill();
       flagCtx.restore();
       
-      flagCtx.strokeStyle = 'rgba(255,255,255,0.3)';
-      flagCtx.lineWidth = 2;
-      flagCtx.lineJoin = 'round';
-      flagCtx.stroke();
+      // GOLD BORDER FOR INDIA ONLY
+      if (index === 0) {
+        flagCtx.strokeStyle = '#FFD700';
+        flagCtx.lineWidth = 3;
+        flagCtx.lineJoin = 'round';
+        flagCtx.shadowColor = '#FFD70044';
+        flagCtx.shadowBlur = 15;
+        flagCtx.shadowOffsetX = 0;
+        flagCtx.shadowOffsetY = 0;
+        flagCtx.stroke();
+      } else {
+        flagCtx.strokeStyle = 'rgba(255,255,255,0.3)';
+        flagCtx.lineWidth = 2;
+        flagCtx.lineJoin = 'round';
+        flagCtx.stroke();
+      }
       
-      // ✅ IDENTICAL POSITIONS FOR ALL
+      // ✅ SAME TEXT POSITIONS FOR ALL
       flagCtx.fillStyle = '#ffffff';
       flagCtx.font = 'bold 85px Arial';
       flagCtx.textAlign = 'left';
@@ -153,7 +165,6 @@
       flagCtx.textBaseline = 'middle';
       flagCtx.fillText(country.name, 160, 80);
       
-      // TIME COLOR ONLY DIFFERENCE
       const now = new Date();
       const time = now.toLocaleTimeString('en-US', {
         timeZone: country.tz,
@@ -173,20 +184,15 @@
       flagCtx.fillText(time, 375, 120);
       flagCtx.shadowBlur = 0;
       
-      return { canvas: flagCanvas, ctx: flagCtx };
-    };
-
-    countries.forEach((country, index) => {
-      const cardData = createCard(country, index);
       const cardFlag = new THREE.Sprite(new THREE.SpriteMaterial({
-        map: new THREE.CanvasTexture(cardData.canvas),
+        map: new THREE.CanvasTexture(flagCanvas),
         transparent: true
       }));
       cardFlag.position.copy(latLonToVector3(country.lat, country.lng, 1.18));
       cardFlag.lookAt(0, 0, 0);
-      cardFlag.scale.set(0.34, 0.20, 1);
+      cardFlag.scale.set(0.34, 0.20, 1);  // SAME SCALE FOR ALL
       globeGroup.add(cardFlag);
-      cardFlags.push({ ...cardData, sprite: cardFlag, country, index });
+      cardFlags.push({ canvas: flagCanvas, ctx: flagCtx, sprite: cardFlag, country, index });
     });
 
     let isPaused = false;
@@ -214,7 +220,6 @@
         const flagData = cardFlags[index];
         flagData.ctx.clearRect(0, 0, 420, 220);
         
-        // EXACT SAME createCard() logic
         const gradient = flagData.ctx.createLinearGradient(0, 0, 0, 220);
         gradient.addColorStop(0, 'rgba(20,20,40,0.98)');
         gradient.addColorStop(1, 'rgba(0,0,20,0.98)');
@@ -229,12 +234,24 @@
         flagData.ctx.fill();
         flagData.ctx.restore();
         
-        flagData.ctx.strokeStyle = 'rgba(255,255,255,0.3)';
-        flagData.ctx.lineWidth = 2;
-        flagData.ctx.lineJoin = 'round';
-        flagData.ctx.stroke();
+        // GOLD BORDER FOR INDIA
+        if (index === 0) {
+          flagData.ctx.strokeStyle = '#FFD700';
+          flagData.ctx.lineWidth = 3;
+          flagData.ctx.lineJoin = 'round';
+          flagData.ctx.shadowColor = '#FFD70044';
+          flagData.ctx.shadowBlur = 15;
+          flagData.ctx.shadowOffsetX = 0;
+          flagData.ctx.shadowOffsetY = 0;
+          flagData.ctx.stroke();
+        } else {
+          flagData.ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+          flagData.ctx.lineWidth = 2;
+          flagData.ctx.lineJoin = 'round';
+          flagData.ctx.stroke();
+        }
         
-        // SAME POSITIONS
+        // SAME TEXT
         flagData.ctx.fillStyle = '#ffffff';
         flagData.ctx.font = 'bold 85px Arial';
         flagData.ctx.textAlign = 'left';
