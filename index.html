@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>🌍 3D GLOBE with EARTH ATLAS + Country Spheres</title>
+  <title>🌍 3D World Globe Clock</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -12,25 +12,22 @@
     #container { position: relative; width: 100vw; height: 100vh; }
     canvas { display: block; width: 100%; height: 100%; }
     .controls { 
-      position: absolute; top: 15px; right: 15px; 
-      display: flex; flex-direction: column; gap: 10px; z-index: 100;
+      position: absolute; top: 20px; right: 20px; z-index: 100;
     }
-    .btn { 
-      padding: 12px 20px; background: rgba(0,255,136,0.2); 
-      border: 2px solid #00ff88; color: white; border-radius: 25px; 
-      cursor: pointer; font-weight: bold; font-size: 14px;
-      backdrop-filter: blur(10px); transition: all 0.3s;
+    .pause-btn { 
+      padding: 15px 25px; background: rgba(0,255,136,0.2); 
+      border: 2px solid #00ff88; color: white; border-radius: 30px; 
+      cursor: pointer; font-weight: bold; font-size: 16px;
+      backdrop-filter: blur(15px); transition: all 0.3s;
     }
-    .btn:hover { background: rgba(0,255,136,0.4); transform: scale(1.05); }
-    .btn.active { background: #00ff88; color: black; }
+    .pause-btn:hover { background: rgba(0,255,136,0.4); transform: scale(1.05); }
+    .pause-btn.active { background: #00ff88; color: black; }
   </style>
 </head>
 <body>
   <div id="container">
     <div class="controls">
-      <button class="btn active" id="toggleClocks">👁️ Hide Clocks</button>
-      <button class="btn active" id="pauseRotate">⏸️ Pause</button>
-      <button class="btn" id="resetView">🔄 Reset</button>
+      <button class="pause-btn active" id="pauseRotate">⏸️ Pause Rotation</button>
     </div>
   </div>
 
@@ -60,7 +57,7 @@
     const globeGroup = new THREE.Group();
     scene.add(globeGroup);
 
-    // 🗺️ EARTH ATLAS TEXTURE (Reliable NASA texture)
+    // 🗺️ EARTH ATLAS TEXTURE
     const textureLoader = new THREE.TextureLoader();
     textureLoader.load(
       'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Land_ocean_ice_2048.jpg/1024px-Land_ocean_ice_2048.jpg',
@@ -75,22 +72,15 @@
       },
       undefined,
       () => {
-        // FALLBACK: Blue globe if texture fails
-        const fallbackGlobe = new THREE.Mesh(
+        // FALLBACK
+        globeGroup.add(new THREE.Mesh(
           new THREE.SphereGeometry(1, 64, 64),
           new THREE.MeshLambertMaterial({ color: 0x4169e1, emissive: 0x1e3a8a, emissiveIntensity: 0.3 })
-        );
-        globeGroup.add(fallbackGlobe);
+        ));
       }
     );
 
-    // 🟢 GREEN WIREFRAME
-    globeGroup.add(new THREE.Mesh(
-      new THREE.SphereGeometry(1.015, 64, 64),
-      new THREE.MeshBasicMaterial({ color: 0x00ff88, wireframe: true, transparent: true, opacity: 0.7 })
-    ));
-
-    // ✅ YOUR EXACT GPS COORDINATES (unchanged)
+    // ✅ YOUR EXACT GPS COORDINATES
     const countries = [
       {name: '🇮🇳 India IST', lat: 22, lng: 78, tz: 'Asia/Kolkata', color: 0xFF9933},
       {name: '🇨🇦 Canada PST', lat: 56.1304, lng: -106.3468, tz: 'America/Vancouver', color: 0xff0000},
@@ -105,7 +95,7 @@
     const clockMarkers = [];
     const clockTexts = [];
 
-    // GPS → 3D COORDINATES (YOUR ORIGINAL FUNCTION)
+    // YOUR EXACT GPS FUNCTION
     function latLonToVector3(lat, lon, radius) {
       const phi = (90 - lat) * (Math.PI / 180);
       const theta = (lon + 180) * (Math.PI / 180);
@@ -116,23 +106,23 @@
       );
     }
 
-    // 🟡 COUNTRY SPHERE MARKERS + LIVE CLOCKS
+    // 🟡 COUNTRY SPHERE MARKERS (PERFECT PLACEMENT)
     countries.forEach((country, index) => {
-      // GLOWING SPHERE MARKER
-      const markerGroup = new THREE.Group();
+      // GLOWING SPHERE
       const marker = new THREE.Mesh(
         new THREE.SphereGeometry(0.04, 16, 16),
         new THREE.MeshLambertMaterial({
           color: country.color,
           emissive: country.color,
-          emissiveIntensity: index === 0 ? 1.0 : 0.6 // India brightest
+          emissiveIntensity: index === 0 ? 1.0 : 0.6
         })
       );
       marker.position.copy(latLonToVector3(country.lat, country.lng, 1.18));
       marker.lookAt(0, 0, 0);
-      markerGroup.add(marker);
+      globeGroup.add(marker);
+      clockMarkers.push(marker);
 
-      // Glow ring around sphere
+      // GLOW RING
       const ring = new THREE.Mesh(
         new THREE.RingGeometry(0.045, 0.06, 16),
         new THREE.MeshBasicMaterial({
@@ -143,12 +133,9 @@
         })
       );
       ring.lookAt(0, 0, 0);
-      markerGroup.add(ring);
+      globeGroup.add(ring);
 
-      globeGroup.add(markerGroup);
-      clockMarkers.push(marker);
-
-      // LIVE CLOCK TEXT
+      // LIVE CLOCK (ALWAYS VISIBLE)
       const canvas = document.createElement('canvas');
       canvas.width = 256; canvas.height = 128;
       const ctx = canvas.getContext('2d');
@@ -163,28 +150,17 @@
       clockTexts.push({ canvas, ctx, sprite, country, index });
     });
 
-    // CONTROLS
-    let showClocks = true;
+    // ✅ PAUSE BUTTON (FIXED - STOPS ALL ROTATION)
     let isPaused = false;
-
-    document.getElementById('toggleClocks').onclick = () => {
-      showClocks = !showClocks;
-      clockTexts.forEach(ct => ct.sprite.visible = showClocks);
-      document.getElementById('toggleClocks').classList.toggle('active');
-    };
-
     document.getElementById('pauseRotate').onclick = () => {
       isPaused = !isPaused;
       controls.autoRotate = !isPaused;
+      controls.enableDamping = !isPaused;
       document.getElementById('pauseRotate').classList.toggle('active');
+      document.getElementById('pauseRotate').textContent = isPaused ? '▶️ Resume Rotation' : '⏸️ Pause Rotation';
     };
 
-    document.getElementById('resetView').onclick = () => {
-      camera.position.set(0, 0, 2.8);
-      controls.reset();
-    };
-
-    // RESIZE HANDLER
+    // RESIZE
     window.addEventListener('resize', () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
@@ -195,14 +171,18 @@
     const clock = new THREE.Clock();
     function animate() {
       requestAnimationFrame(animate);
+      
+      // ONLY UPDATE CONTROLS (user drag/zoom still works)
       controls.update();
 
       const elapsed = clock.getElapsedTime();
 
-      // Globe rotation
-      globeGroup.rotation.y = elapsed * 0.25;
+      // GLOBE ROTATION (STOPS WHEN PAUSED)
+      if (!isPaused) {
+        globeGroup.rotation.y = elapsed * 0.25;
+      }
 
-      // LIVE CLOCK UPDATES
+      // LIVE CLOCKS (ALWAYS UPDATE)
       clockTexts.forEach(ct => {
         const now = new Date();
         const time = now.toLocaleTimeString('en-US', {
@@ -232,7 +212,7 @@
         ct.sprite.material.map.needsUpdate = true;
       });
 
-      // INDIA PULSE EFFECT
+      // INDIA PULSE
       clockMarkers[0].scale.setScalar(1 + Math.sin(elapsed * 4) * 0.2);
       clockMarkers[0].rotation.y = elapsed * 2;
 
