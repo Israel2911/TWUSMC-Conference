@@ -4,233 +4,124 @@
   <meta charset="UTF-8">
   <title>TWU-SMC 11th Annual Leadership Conference</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <script src="/socket.io/socket.io.js"></script>
+  <!-- Socket.IO Client Library (Required for Sync) -->
+  <script src="/socket.io/socket.io.js"></script> 
+  
+  <!-- (Keep all your existing CSS and Fonts here) -->
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-  
   <style>
+    /* ... PASTE ALL YOUR PREVIOUS CSS HERE ... */
+    /* Just ensure .hero-content-live and .hero-content-standard classes exist */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%); font-family: 'Nunito', sans-serif; color: #1a365d; overflow-x: hidden; line-height: 1.6; }
-    
-    /* HEADER */
-    .header { display: flex; align-items: center; justify-content: space-between; padding: 15px 40px; background: rgba(255,255,255,0.95); position: sticky; top: 0; z-index: 1000; backdrop-filter: blur(10px); box-shadow: 0 2px 20px rgba(0,0,0,0.05); }
-    .logo { font-size: 1.5rem; font-weight: 900; color: #167690; }
-    .nav { display: flex; gap: 20px; align-items: center; }
-    .nav a { text-decoration: none; color: #167690; font-weight: 700; }
-    
-    .viewer-count { display: none; background: #ff0000; color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.9rem; font-weight: bold; align-items: center; gap: 8px; animation: pulse-red 2s infinite; }
-    
-    /* HERO FIXES */
-    .hero { position: relative; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 100px 40px; transition: 0.5s; }
-    .hero-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
-    
-    /* Content Wrappers - Ensure Z-Index is high */
-    .hero-content-standard { position: relative; z-index: 5; max-width: 1200px; width: 100%; }
-    .hero h1 { font-size: 4rem; font-weight: 900; color: #167690; text-shadow: 0 0 30px rgba(255,255,255,0.8); margin:0; }
-    .hero h2 { font-size: 2rem; color: white; margin: 10px 0 30px 0; text-shadow: 0 0 20px rgba(0,0,0,0.8); }
-
-    /* LIVE SECTION (Hidden Default) */
-    .hero-content-live { position: relative; z-index: 10; width: 100%; max-width: 1400px; display: none; margin-top: 20px; }
-    
-    .live-grid { display: grid; grid-template-columns: 2.5fr 1fr; gap: 30px; min-height: 500px; }
-    .video-wrapper { background: black; border-radius: 20px; overflow: hidden; border: 2px solid #333; position: relative; min-height: 400px; }
-    .live-badge { position: absolute; top: 20px; left: 20px; background: #ff0000; color: white; padding: 5px 15px; border-radius: 5px; font-weight: bold; font-size: 0.9rem; z-index: 10; }
-    
-    .live-info-panel { background: rgba(0,0,0,0.8); backdrop-filter: blur(30px); padding: 30px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.15); color: white; text-align: left; display: flex; flex-direction: column; height: 100%; }
-    .teams-btn { background: #464eb8; color: white; padding: 15px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; text-decoration: none; display: flex; align-items: center; gap: 10px; margin-top: 20px; width: 100%; justify-content: center; }
-    .teams-btn:hover { background: #5b5fc7; transform: translateY(-2px); }
-
-    /* GLOBAL SECTION (Force Visible) */
-    .global-connect-section { position: relative; z-index: 5; background: white; padding: 100px 40px; display: flex; flex-wrap: wrap; justify-content: center; gap: 60px; max-width: 1400px; margin: 0 auto; }
-    .globe-wrapper { width: 500px; height: 500px; position: relative; display: block; }
-    #heroGlobeContainer { width: 100%; height: 100%; display: block; }
-    
-    .times-wrapper { flex: 1; min-width: 400px; max-width: 600px; }
-    .globe-times-stack { display: flex; flex-direction: column; gap: 12px; }
-    
-    /* CARD DESIGN */
-    .globe-time-item { background: white; padding: 15px 25px; border-radius: 16px; border: 1px solid #edf2f7; border-left: 6px solid #ddd; display: grid; grid-template-columns: 1.5fr 1.5fr 1fr; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.03); transition: transform 0.2s; }
-    .globe-time-item:hover { transform: translateX(8px); box-shadow: 0 8px 20px rgba(0,0,0,0.06); }
-    .card-identity { display: flex; align-items: center; gap: 15px; }
-    .globe-flag { font-size: 1.8rem; }
-    .globe-name { font-weight: 800; color: #2d3748; font-size: 1.1rem; }
-    .card-stats { display: flex; align-items: center; gap: 15px; color: #718096; font-size: 0.85rem; font-weight: 600; }
-    .stat-pill { display: flex; align-items: center; gap: 6px; background: #f7fafc; padding: 4px 10px; border-radius: 20px; }
-    .material-icons-round { font-size: 16px; color: #a0aec0; }
-    .globe-time { font-family: 'Courier New', monospace; font-weight: 900; font-size: 1.4rem; color: #ff6b35; text-align: right; }
-
-    /* ADMIN PANEL */
+    .header { display: flex; align-items: center; justify-content: space-between; padding: 15px 40px; background: rgba(255,255,255,0.95); position: sticky; top: 0; z-index: 1000; }
+    .nav { display: flex; gap: 20px; } .nav a { text-decoration: none; color: #167690; font-weight: 700; }
+    .hero { position: relative; height: 90vh; display: flex; align-items: center; justify-content: center; text-align: center; }
+    .hero img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
+    .hero-content-standard { position: relative; z-index: 4; transition: 0.5s; }
+    .hero-content-live { position: relative; z-index: 10; width: 100%; max-width: 1200px; display: none; opacity: 0; transition: 0.5s; }
+    .live-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; height: 60vh; background: black; border-radius: 20px; overflow: hidden; }
     .admin-panel { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: none; gap: 10px; }
-    .admin-btn { padding: 10px 20px; border-radius: 30px; cursor: pointer; font-weight: bold; border: 2px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-    .btn-live { background: #333; color: white; } 
-    .btn-kill { background: #ff0000; color: white; display: none; }
-
-    @keyframes pulse-red { 0% { opacity: 1; } 50% { opacity: 0.8; } 100% { opacity: 1; } }
-    @media (max-width: 1024px) { .live-grid { grid-template-columns: 1fr; height: auto; } .hero { padding: 100px 20px; } }
-    @media (max-width: 768px) { .globe-time-item { grid-template-columns: 1fr 1fr; gap: 10px; } .card-stats { grid-column: 1 / -1; justify-content: space-between; } .globe-wrapper { width: 320px; height: 320px; } }
+    .admin-btn { padding: 10px 20px; border-radius: 20px; border: 2px solid white; cursor: pointer; font-weight: bold; }
+    .btn-live { background: #333; color: white; }
+    .btn-kill { background: red; color: white; }
+    /* Add other CSS from previous steps if needed */
   </style>
 </head>
 <body>
 
 <!-- ADMIN CONTROLS -->
 <div class="admin-panel" id="adminPanel">
-  <button class="admin-btn btn-live" id="liveToggle">🔴 Toggle "Go Live"</button>
-  <button class="admin-btn btn-kill" id="killSwitch">⚠️ KILL STREAM</button>
+  <button class="admin-btn btn-live" id="liveToggle">🔴 GO LIVE (GLOBAL)</button>
+  <button class="admin-btn btn-kill" id="killSwitch">⚠️ KILL STREAM (GLOBAL)</button>
 </div>
 
 <header class="header">
   <div class="logo">TWU-SMC Leadership</div>
   <nav class="nav">
-    <div class="viewer-count" id="viewerCount">
-      <span class="material-icons-round">visibility</span>
-      <span id="countNum">0</span> Watching
-    </div>
     <a href="#">Home</a>
     <a href="#">Agenda</a>
   </nav>
 </header>
 
-<!-- HERO SECTION -->
 <section class="hero">
-  <img src="humanintelligence.png" alt="Background" class="hero-bg" id="heroBg">
+  <img src="humanintelligence.png" alt="Background" id="heroBg">
   
-  <!-- Standard Mode (Brain Image) -->
+  <!-- STANDARD STATE -->
   <div class="hero-content-standard" id="heroStandard">
-    <h1>The Fifth Intelligence</h1>
-    <h2>Integrating the Human Factor</h2>
+    <h1 style="font-size:4rem; margin:0; color:#167690;">TWU-SMC Conference</h1>
+    <h2 style="font-size:2rem; color:white;">Integrating the Human Factor</h2>
   </div>
 
-  <!-- Live Mode (YouTube + Teams) -->
+  <!-- LIVE STATE -->
   <div class="hero-content-live" id="heroLive">
     <div class="live-grid">
-      <div class="video-wrapper">
-        <div class="live-badge">🔴 LIVE</div>
-        <iframe width="100%" height="100%" src="https://www.youtube.com/embed/live_stream?channel=YOUR_CHANNEL_ID" frameborder="0" allowfullscreen></iframe>
-      </div>
-      <div class="live-info-panel">
-        <h2 style="margin:0 0 10px 0;">Live Q&A</h2>
-        <p style="opacity:0.8;">Join the discussion directly via Teams.</p>
-        <a href="https://teams.microsoft.com/meet/25727590322372?p=Toyeb2xMWy8NeEJiA2" target="_blank" class="teams-btn">
-          <span class="material-icons-round">videocam</span> Join Teams Call
+      <!-- YOUTUBE EMBED -->
+      <iframe width="100%" height="100%" src="https://www.youtube.com/embed/live_stream?channel=YOUR_CHANNEL_ID" frameborder="0" allowfullscreen></iframe>
+      
+      <!-- TEAMS LINK -->
+      <div style="background: white; padding: 20px; display: flex; flex-direction: column; justify-content: center;">
+        <h3>Live Q&A</h3>
+        <a href="https://teams.microsoft.com/meet/25727590322372?p=Toyeb2xMWy8NeEJiA2" target="_blank" 
+           style="background: #464eb8; color: white; padding: 15px; border-radius: 10px; text-decoration: none; font-weight: bold;">
+           Join Teams Call
         </a>
       </div>
     </div>
   </div>
 </section>
 
-<!-- GLOBAL CONNECT SECTION (Force Visible) -->
-<section class="global-connect-section">
-  <div class="globe-wrapper">
-    <div id="heroGlobeContainer"></div> <!-- Three.js Globe -->
-    <div style="position:absolute; bottom:10px; left:50%; transform:translateX(-50%);">
-      <button class="pause-btn" id="pauseBtn">⏸ Pause</button>
-    </div>
-  </div>
-  <div class="times-wrapper">
-    <h3 style="font-size: 2rem; color:#167690; margin-bottom:30px; font-weight:900;">🌍 Global Community</h3>
-    <div class="globe-times-stack" id="timeStack"></div>
-  </div>
-</section>
-
 <script>
-  // --- SOCKET & UI LOGIC ---
-  const socket = io();
-  const heroStandard = document.getElementById('heroStandard');
-  const heroLive = document.getElementById('heroLive');
-  const heroBg = document.getElementById('heroBg');
-  const viewerCount = document.getElementById('viewerCount');
-  const countNum = document.getElementById('countNum');
-  const adminPanel = document.getElementById('adminPanel');
-  const killSwitch = document.getElementById('killSwitch');
+  const socket = io(); // Connect to Server
 
-  // Admin Check
+  // --- UI ELEMENTS ---
+  const standardHero = document.getElementById('heroStandard');
+  const liveHero = document.getElementById('heroLive');
+  const heroBg = document.getElementById('heroBg');
+  const liveToggle = document.getElementById('liveToggle');
+  const killSwitch = document.getElementById('killSwitch');
+  const adminPanel = document.getElementById('adminPanel');
+
+  // --- ADMIN LOGIN LOGIC (Local Only) ---
   if (new URLSearchParams(window.location.search).get('mode') === 'admin') {
     localStorage.setItem('siteAdmin', 'true');
-    window.history.replaceState({}, document.title, window.location.pathname);
   }
   if (localStorage.getItem('siteAdmin') === 'true') {
-    adminPanel.style.display = 'flex';
-    killSwitch.style.display = 'block';
+    adminPanel.style.display = 'flex'; // Show controls
   }
 
-  // Live State Sync
+  // --- LISTEN FOR GLOBAL SIGNALS FROM SERVER ---
   socket.on('status-update', (isLive) => {
+    console.log("Server says live is:", isLive);
     if (isLive) {
-      heroStandard.style.display = 'none';
-      heroLive.style.display = 'block';
+      // SHOW LIVE MODE
+      standardHero.style.display = 'none';
+      liveHero.style.display = 'block';
+      setTimeout(() => liveHero.style.opacity = '1', 50);
       heroBg.style.filter = 'brightness(0.2)';
-      viewerCount.style.display = 'flex';
     } else {
-      heroLive.style.display = 'none';
-      heroStandard.style.display = 'block';
+      // SHOW STANDARD MODE (KILL)
+      liveHero.style.opacity = '0';
+      setTimeout(() => {
+        liveHero.style.display = 'none';
+        standardHero.style.display = 'block';
+      }, 500);
       heroBg.style.filter = 'brightness(0.6)';
-      viewerCount.style.display = 'none';
     }
   });
 
-  socket.on('viewer-update', (count) => { countNum.innerText = count; });
-
-  document.getElementById('liveToggle').addEventListener('click', () => socket.emit('admin-toggle', true));
-  document.getElementById('killSwitch').addEventListener('click', () => {
-    if(confirm("KILL STREAM?")) socket.emit('admin-toggle', false);
+  // --- SEND COMMANDS (Admin Only) ---
+  liveToggle.addEventListener('click', () => {
+    socket.emit('admin-toggle', true); // Tell server: GO LIVE
   });
 
-  // --- DATA & CLOCK ---
-  const countries = [
-    {name: 'India', flag: '🇮🇳', tz: 'Asia/Kolkata', users: '1,240', color:'#FF9933'},
-    {name: 'Canada', flag: '🇨🇦', tz: 'America/Vancouver', users: '850', color:'#ff0000'},
-    {name: 'Thailand', flag: '🇹🇭', tz: 'Asia/Bangkok', users: '420', color:'#ffcc00'},
-    {name: 'Europe', flag: '🇪🇺', tz: 'Europe/Paris', users: '630', color:'#0000FF'},
-    {name: 'UK', flag: '🇬🇧', tz: 'Europe/London', users: '510', color:'#191970'},
-    {name: 'USA', flag: '🇺🇸', tz: 'America/New_York', users: '940', color:'#003366'},
-    {name: 'Singapore', flag: '🇸🇬', tz: 'Asia/Singapore', users: '310', color:'#EE2536'},
-    {name: 'Malaysia', flag: '🇲🇾', tz: 'Asia/Kuala_Lumpur', users: '280', color:'#FFD700'}
-  ];
-
-  const stackEl = document.getElementById('timeStack');
-  countries.forEach((c, i) => {
-    stackEl.innerHTML += `
-      <div class="globe-time-item" style="border-left-color:${c.color}">
-        <div class="card-identity"><span class="globe-flag">${c.flag}</span><span class="globe-name">${c.name}</span></div>
-        <div class="card-stats">
-          <div class="stat-pill"><span class="material-icons-round">people</span><span>${c.users}</span></div>
-          <div class="stat-pill" id="weather-${i}"><span class="material-icons-round">wb_sunny</span></div>
-        </div>
-        <div class="globe-time" id="stack-time-${i}">--:--</div>
-      </div>`;
+  killSwitch.addEventListener('click', () => {
+    if(confirm("⚠️ KILL STREAM FOR EVERYONE?")) {
+      socket.emit('admin-toggle', false); // Tell server: STOP
+    }
   });
-
-  function updateTimes() {
-    const now = new Date();
-    countries.forEach((c, i) => {
-      document.getElementById(`stack-time-${i}`).innerText = now.toLocaleTimeString('en-GB', { timeZone: c.tz, hour:'2-digit', minute:'2-digit' });
-      const hours = parseInt(new Date().toLocaleTimeString('en-GB', { timeZone: c.tz, hour:'numeric', hour12: false }));
-      const icon = (hours >= 6 && hours < 18) ? 'wb_sunny' : 'bedtime';
-      const color = (hours >= 6 && hours < 18) ? '#f6e05e' : '#718096';
-      document.getElementById(`weather-${i}`).innerHTML = `<span class="material-icons-round" style="color:${color}">${icon}</span>`;
-    });
-  }
-  setInterval(updateTimes, 1000); updateTimes();
-
-  // --- GLOBE ---
-  const container = document.getElementById('heroGlobeContainer');
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000); camera.position.z = 2.8;
-  const renderer = new THREE.WebGLRenderer({alpha: true, antialias: true});
-  renderer.setSize(500, 500); container.appendChild(renderer.domElement);
-  const controls = new THREE.OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true; controls.autoRotate = true; controls.enableZoom = false;
-  scene.add(new THREE.AmbientLight(0xffffff, 1.0));
-  const dLight = new THREE.DirectionalLight(0xffffff, 0.5); dLight.position.set(5,3,5); scene.add(dLight);
-  const globeGroup = new THREE.Group(); scene.add(globeGroup);
-  new THREE.TextureLoader().load('https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Land_ocean_ice_2048.jpg/1024px-Land_ocean_ice_2048.jpg', tex => {
-    globeGroup.add(new THREE.Mesh(new THREE.SphereGeometry(1, 64, 64), new THREE.MeshPhongMaterial({map: tex, specular: 0x111111, shininess: 5})));
-  });
-  document.getElementById('pauseBtn').onclick = function() { controls.autoRotate = !controls.autoRotate; this.innerText = controls.autoRotate ? '⏸ Pause' : '▶ Resume'; };
-  function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); }
-  animate();
 </script>
 </body>
 </html>
