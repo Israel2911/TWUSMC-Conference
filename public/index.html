@@ -43,7 +43,6 @@
     /* GLOBAL SECTION - DEEP SPACE THEME */
     .global-connect-section { 
       position: relative; z-index: 5; 
-      /* COSMIC GRADIENT FOR THE WHOLE SECTION */
       background: linear-gradient(135deg, #0a0e1a 0%, #1a1f35 50%, #000000 100%);
       padding: 80px 40px; 
       display: flex; flex-wrap: wrap; 
@@ -55,7 +54,6 @@
       width: 500px; height: 500px; 
       position: relative; 
       border-radius: 50%; 
-      /* DEEP SPACE GRADIENT FOR GLOBE CONTAINER */
       background: radial-gradient(circle at 40% 40%, #1e2636 0%, #000000 90%);
       border: 4px solid #333;
       box-shadow: 0 20px 50px rgba(0,0,0,0.5); 
@@ -71,9 +69,7 @@
       pointer-events: none;
       mix-blend-mode: screen;
       background:
-        /* Sunlight glow, top‑left */
         radial-gradient(circle at 20% 15%, rgba(255, 230, 150, 0.45) 0, transparent 55%),
-        /* Stars */
         radial-gradient(circle at 75% 25%, rgba(255,255,255,0.9) 0 2px, transparent 2px),
         radial-gradient(circle at 30% 70%, rgba(255,255,255,0.7) 0 1.5px, transparent 1.5px),
         radial-gradient(circle at 60% 85%, rgba(255,255,255,0.6) 0 1.8px, transparent 1.8px);
@@ -173,7 +169,7 @@
   <div class="globe-wrapper">
     <div id="heroGlobeContainer"></div> 
     <div style="position:absolute; bottom:10px; left:50%; transform:translateX(-50%);">
-      <button class="pause-btn" id="pauseBtn">▶ Start Rotation</button>
+      <button class="pause-btn" id="pauseBtn">⏸ Pause</button>
     </div>
   </div>
   <div class="times-wrapper">
@@ -301,13 +297,13 @@
   }
   setInterval(updateTimes, 1000); updateTimes();
 
-  // --- 3D GLOBE SETUP ---
+  // --- 3D GLOBE SETUP (CENTERED + ZOOMED + AUTO-ROTATING) ---
   const container = document.getElementById('heroGlobeContainer');
   const scene = new THREE.Scene();
   
-  // --- ZOOMED OUT CAMERA (3.5) FOR FULL VIEW ---
+  // Perfectly centered camera - zoomed out for full flag visibility
   const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000); 
-  camera.position.z = 3.5; 
+  camera.position.set(0, 0, 4.8);  // x:0, y:0 for perfect center + wider zoom
   
   const renderer = new THREE.WebGLRenderer({alpha: true, antialias: true});
   renderer.setSize(500, 500); 
@@ -315,18 +311,21 @@
   
   const controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true; 
-  controls.autoRotate = false; 
+  controls.autoRotate = true;  // Starts rotating by default
+  controls.autoRotateSpeed = 0.8;  // Smooth rotation speed
   
-  scene.add(new THREE.AmbientLight(0xffffff, 1.0));
-  const dLight = new THREE.DirectionalLight(0xffffff, 0.5); 
-  dLight.position.set(5,3,5); 
+  // Improved lighting
+  scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+  const dLight = new THREE.DirectionalLight(0xffffff, 0.7); 
+  dLight.position.set(1, 1, 1); 
   scene.add(dLight);
   
   const globeGroup = new THREE.Group(); 
   scene.add(globeGroup);
   
-  // --- VIEW: INDIAN OCEAN / AFRICA / ASIA ---
-  globeGroup.rotation.y = -0.8; 
+  // Perfectly centered view with slight tilt for flag visibility
+  globeGroup.rotation.y = 0;  // Remove offset for concentric centering
+  globeGroup.rotation.x = 0.2;  // Slight tilt for better visibility
 
   new THREE.TextureLoader().load('https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Land_ocean_ice_2048.jpg/1024px-Land_ocean_ice_2048.jpg', tex => {
     globeGroup.add(new THREE.Mesh(new THREE.SphereGeometry(1, 64, 64), new THREE.MeshPhongMaterial({map: tex, specular: 0x111111, shininess: 5})));
@@ -352,7 +351,6 @@
   
   function drawCanvas(ctx, country, timeStr) {
     ctx.clearRect(0,0,300,150);
-    // DARK BACKGROUND
     ctx.fillStyle = 'rgba(10, 16, 30, 0.85)'; 
     ctx.beginPath(); 
     const r = 20; const x = 10, y = 10, w = 280, h = 130;
@@ -362,7 +360,6 @@
     ctx.lineTo(x, y+r); ctx.quadraticCurveTo(x, y, x+r, y);
     ctx.closePath(); ctx.fill();
     
-    // BORDER & TEXT
     ctx.lineWidth = 6; ctx.strokeStyle = country.color; ctx.stroke();
     ctx.fillStyle = '#FFFFFF'; ctx.font = 'bold 38px Arial'; 
     ctx.fillText(country.flag + " " + country.name.substring(0,3).toUpperCase(), 40, 65); 
@@ -383,8 +380,15 @@
   setInterval(updateSprites, 1000);
   updateSprites();
 
-  document.getElementById('pauseBtn').onclick = function() { controls.autoRotate = !controls.autoRotate; this.innerText = controls.autoRotate ? '⏸ Pause' : '▶ Start Rotation'; };
-  function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); }
+  document.getElementById('pauseBtn').onclick = function() { 
+    controls.autoRotate = !controls.autoRotate; 
+    this.innerText = controls.autoRotate ? '⏸ Pause' : '▶ Start Rotation'; 
+  };
+  function animate() { 
+    requestAnimationFrame(animate); 
+    controls.update(); 
+    renderer.render(scene, camera); 
+  }
   animate();
 </script>
 </body>
