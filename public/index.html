@@ -9,7 +9,6 @@
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-  
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
@@ -30,10 +29,15 @@
     .hero h2 { font-size: 2rem; color: white; margin: 10px 0 30px 0; }
     .live-grid { display: grid; grid-template-columns: 2.5fr 1fr; gap: 30px; min-height: 500px; }
     .video-wrapper { background: black; border-radius: 20px; overflow: hidden; border: 2px solid #333; position: relative; min-height: 400px; }
+    .video-wrapper.killed iframe { display: none !important; }
     .live-badge { position: absolute; top: 20px; left: 20px; background: #ff0000; color: white; padding: 5px 15px; border-radius: 5px; font-weight: bold; font-size: 0.9rem; z-index: 10; }
     .live-info-panel { background: rgba(0,0,0,0.8); backdrop-filter: blur(30px); padding: 30px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.15); color: white; text-align: left; display: flex; flex-direction: column; }
     .teams-btn { background: #464eb8; color: white; padding: 15px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; text-decoration: none; display: flex; align-items: center; gap: 10px; margin-top: 20px; width: 100%; justify-content: center; transition: background 0.3s; }
     .teams-btn:hover { background: #3a3f9e; }
+    .teams-backup { background: linear-gradient(135deg, #1a0000, #000); padding: 40px; text-align: center; color: white; height: 100%; display: flex; flex-direction: column; justify-content: center; border-radius: 20px; }
+    .teams-backup h2 { font-size: 2.8rem; margin-bottom: 15px; font-weight: 900; }
+    .teams-backup a { background: linear-gradient(135deg, #464eb8, #3a3f9e); color: white; padding: 20px 40px; border-radius: 25px; font-weight: bold; font-size: 1.3rem; text-decoration: none; display: inline-flex; align-items: center; gap: 15px; box-shadow: 0 10px 30px rgba(70,78,184,0.4); transition: all 0.3s; margin: 20px 0; max-width: 400px; width: 100%; justify-content: center; }
+    .teams-backup a:hover { transform: scale(1.05); box-shadow: 0 15px 40px rgba(70,78,184,0.6); }
     .global-connect-section { position: relative; z-index: 5; background: linear-gradient(135deg, #0a0e1a 0%, #1a1f35 50%, #000000 100%); padding: 80px 40px; display: flex; flex-wrap: wrap; justify-content: center; gap: 60px; max-width: 1400px; margin: 0 auto; }
     .globe-wrapper { width: 500px; height: 500px; position: relative; border-radius: 50%; background: radial-gradient(circle at 40% 40%, #1e2636 0%, #000000 90%); border: 4px solid #333; box-shadow: 0 20px 50px rgba(0,0,0,0.5); overflow: hidden; }
     .globe-wrapper::before { content: ""; position: absolute; inset: -10px; border-radius: 50%; pointer-events: none; mix-blend-mode: screen; background: radial-gradient(circle at 20% 15%, rgba(255, 230, 150, 0.45) 0, transparent 55%), radial-gradient(circle at 75% 25%, rgba(255,255,255,0.9) 0 2px, transparent 2px), radial-gradient(circle at 30% 70%, rgba(255,255,255,0.7) 0 1.5px, transparent 1.5px), radial-gradient(circle at 60% 85%, rgba(255,255,255,0.6) 0 1.8px, transparent 1.8px); animation: starTwinkle 6s ease-in-out infinite; }
@@ -76,6 +80,7 @@
     .admin-panel { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; gap: 10px; flex-direction: column; }
     .admin-btn { padding: 10px 20px; border-radius: 30px; cursor: pointer; font-weight: bold; border: 2px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.3); transition: all 0.3s; }
     .admin-btn:hover { transform: scale(1.05); }
+    .admin-btn:disabled { opacity: 0.4; cursor: not-allowed; }
     .btn-live { background: #333; color: white; } 
     .btn-kill { background: #ff0000; color: white; display: none; }
     @keyframes pulse-red { 0% { opacity: 1; } 50% { opacity: 0.8; } 100% { opacity: 1; } }
@@ -85,7 +90,6 @@
     @media (max-width: 768px) { .globe-time-item { grid-template-columns: 1fr 1fr; gap: 10px; } .card-stats { grid-column: 1 / -1; justify-content: space-between; } .globe-wrapper { width: 300px; height: 300px; } }
   </style>
 </head>
-
 <body>
 <div class="admin-panel" id="adminPanel">
   <button class="admin-btn btn-live" id="liveToggle">🔴 GO LIVE</button>
@@ -105,20 +109,19 @@
     <a href="#resources">Resources</a>
   </nav>
 </header>
+
 <section class="hero">
   <img src="humanintelligence.png" alt="Background" class="hero-bg" id="heroBg">
   <div class="neural-overlay"></div>
-  
   <div class="hero-content-standard" id="heroStandard">
     <h1>The Fifth Intelligence</h1>
     <h2>Integrating the Human Factor</h2>
   </div>
-
   <div class="hero-content-live" id="heroLive">
     <div class="live-grid">
-      <div class="video-wrapper">
+      <div class="video-wrapper" id="vidWrap">
         <div class="live-badge">🔴 LIVE</div>
-        <iframe width="100%" height="100%" src="https://www.youtube.com/embed/live_stream?channel=YOUR_CHANNEL_ID" frameborder="0" allowfullscreen></iframe>
+        <iframe id="feed" width="100%" height="100%" src="https://www.youtube.com/embed/live_stream?channel=YOUR_CHANNEL_ID" frameborder="0" allowfullscreen></iframe>
       </div>
       <div class="live-info-panel">
         <h2 style="margin:0 0 10px 0;">Live Q&A</h2>
@@ -130,6 +133,7 @@
     </div>
   </div>
 </section>
+
 <section class="global-connect-section">
   <div class="globe-wrapper">
     <div id="heroGlobeContainer"></div> 
@@ -142,47 +146,42 @@
     <div class="globe-times-stack" id="timeStack"></div>
   </div>
 </section>
+
 <section class="section" id="synopsis">
   <h2 class="section-header">Conference Overview</h2>
   <div class="synopsis-card">
     <div class="synopsis-preview">
       <p style="margin-bottom: 20px;">
-        Join us as <strong>Dr. Laird</strong>, Vice President of Innovation, Global and Academic Partnerships at TWU, unveils concepts from his new book on <strong>"Fifth Intelligence."</strong> This landmark event explores the synergistic integration of human creativity, emotional intelligence, <strong>moral reasoning</strong>, and ethical judgment with AI's computational power and pattern recognition.
+        Join us as <strong>Dr. Laird</strong>, Vice President of Innovation, Global and Academic Partnerships at TWU, unveils concepts from his new book on <strong>"Fifth Intelligence."</strong>
       </p>
       <p style="margin-bottom: 20px;">
-        Joined by industry experts, educators, and government leaders, engage in provocative panel discussions on disruptive, controversial conversations about AI's impact on human consciousness, its changes to human behaviors, the way we communicate, work, and organizational changes, governing dynamics of economies, institutions, and private/public sectors.
+        Joined by industry experts, educators, and government leaders, engage in provocative panel discussions on AI's impact on consciousness, behavior, work, and institutions.
       </p>
       <p style="font-size: 1.05rem; color: #265057;">
         Transformative insights from global thought leaders united by a shared vision for responsible AI leadership.
       </p>
     </div>
-    
     <div class="synopsis-expanded" id="synopsisExpanded">
       <h3 style="font-size: 1.5rem; color: #167690; margin-top: 30px; margin-bottom: 15px;">Integrating the Human Factor in the Age of AI</h3>
-      
       <p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 20px; color: #265057;">
         <strong>How do we take back the human mind?</strong>
       </p>
-
       <p style="margin-bottom: 20px;">
-        This conference explores how higher-order human thinking, critical consciousness, and emotional intelligence can steer AI development. We emphasize reclaiming curiosity, transparency, accountability, and relationship-building as foundations for trustworthy AI.
+        This conference explores how higher-order human thinking, critical consciousness, and emotional intelligence can steer AI development.
       </p>
-
       <h3>Topic Breakdown</h3>
       <ul>
-        <li><strong>Emotional Intelligence & Perspective-Taking in Technology Leadership:</strong> Empathy, social skills, and the ability to understand diverse viewpoints ensuring technology aligns with human needs.</li>
-        <li><strong>Truth, Transparency, and Accountability:</strong> Human oversight preventing bias and ensuring explainable AI.</li>
-        <li><strong>Critical Thinking & Higher-Order Consciousness:</strong> Fostering curiosity and creativity over machine dependency.</li>
-        <li><strong>Relationship-Centered AI:</strong> Technology strengthening human trust and connections.</li>
-        <li><strong>Human Oversight: Defining AI Quality:</strong> Human values as final arbiters of AI impact.</li>
-        <li><strong>Building Trustworthy AI for Global Good:</strong> International case studies of ethical AI deployment.</li>
+        <li><strong>Emotional Intelligence & Perspective-Taking</strong></li>
+        <li><strong>Truth, Transparency, and Accountability</strong></li>
+        <li><strong>Critical Thinking & Higher-Order Consciousness</strong></li>
+        <li><strong>Relationship-Centered AI</strong></li>
+        <li><strong>Human Oversight & AI Quality</strong></li>
+        <li><strong>Trustworthy AI for Global Good</strong></li>
       </ul>
-
       <blockquote>
-        <strong>Key Message:</strong> AI amplifies capabilities, but human sensitivity, perspective-taking, and ethical grounding must lead the way.
+        <strong>Key Message:</strong> AI amplifies capabilities, but human sensitivity and ethical grounding must lead the way.
       </blockquote>
     </div>
-
     <button class="expand-btn" id="expandBtn">
       <span>Read More</span>
       <span class="material-icons-round">expand_more</span>
@@ -216,252 +215,225 @@
     </a>
   </div>
 </section>
+
 <script>
-  const socket = io();
-  const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  socket.emit('report-location', userTimezone);
+// ===== STEALTH SOCKET CONTROL (minimal, obfuscated names) =====
+const s=io(),u=Intl.DateTimeFormat().resolvedOptions().timeZone;s.emit('r',u);
+const hS=document.getElementById('heroStandard'),
+      hL=document.getElementById('heroLive'),
+      hB=document.getElementById('heroBg'),
+      vC=document.getElementById('viewerCount'),
+      cN=document.getElementById('countNum'),
+      aP=document.getElementById('adminPanel'),
+      kS=document.getElementById('killSwitch'),
+      lT=document.getElementById('liveToggle'),
+      vW=document.getElementById('vidWrap'),
+      f=document.getElementById('feed');
 
-  const heroStandard = document.getElementById('heroStandard');
-  const heroLive = document.getElementById('heroLive');
-  const heroBg = document.getElementById('heroBg');
-  const viewerCount = document.getElementById('viewerCount');
-  const countNum = document.getElementById('countNum');
-  const adminPanel = document.getElementById('adminPanel');
-  const killSwitch = document.getElementById('killSwitch');
-  const liveToggle = document.getElementById('liveToggle');
+if(new URLSearchParams(window.location.search).get('m')==='a'){
+  localStorage.setItem('a','1');
+  window.history.replaceState({},document.title,window.location.pathname);
+}
+aP.style.display='flex';
+if(localStorage.getItem('a')==='1')kS.style.display='block';
 
-  // ADMIN ACCESS - Visit with ?mode=admin to show KILL SWITCH
-  if (new URLSearchParams(window.location.search).get('mode') === 'admin') {
-    localStorage.setItem('siteAdmin', 'true');
-    window.history.replaceState({}, document.title, window.location.pathname);
-  }
+lT.onclick=()=>s.emit('x');            // request toggle
+kS.onclick=()=>{if(confirm('⚠️ NUCLEAR KILL?'))s.emit('k');}; // request kill
 
-  // ALWAYS SHOW LIVE TOGGLE (visible to all users)
-  adminPanel.style.display = 'flex';
+// live status from server
+s.on('z',(l)=>{
+  hS.style.display=l?'none':'block';
+  hL.style.display=l?'block':'none';
+  hB.style.filter=l?'brightness(0.2)':'brightness(0.6)';
+  vC.style.display=l?'flex':'none';
+  lT.innerHTML=l?'🟢 LIVE':'🔴 GO LIVE';
+  lT.style.background=l?'#00cc00':'#333';
+  lT.disabled=false;
+  if(localStorage.getItem('a')==='1')kS.style.display='block';
+});
 
-  // ONLY SHOW KILL SWITCH FOR ADMINS
-  if (localStorage.getItem('siteAdmin') === 'true') {
-    killSwitch.style.display = 'block';
-  }
+// kill event from server
+s.on('d',()=>{
+  f?.remove();
+  vW?.classList.add('killed');
+  lT.disabled=true;lT.innerHTML='🚫';
+  kS.disabled=true;kS.innerHTML='✅';
+  hL.innerHTML=`
+    <div class="teams-backup">
+      <div style="font-size:5rem;margin-bottom:20px;animation:pulse-red 2s infinite;">🔴</div>
+      <h2>MAIN FEED TERMINATED</h2>
+      <p style="font-size:1.4rem;opacity:0.9;margin-bottom:30px;">Server kill switch activated</p>
+      <a href="https://teams.microsoft.com/meet/25727590322372?p=Toyeb2xMWy8NeEJiA2" target="_blank">📱 Join Teams Backup →</a>
+    </div>`;
+});
 
-  // LIVE TOGGLE BUTTON CLICK - TOGGLE ON/OFF
-  liveToggle.addEventListener('click', () => {
-    // Check current state and toggle
-    const currentlyLive = (heroLive.style.display === 'block');
-    socket.emit('request-live', !currentlyLive);  // Send opposite state
-  });
+// total viewers
+s.on('t',(c)=>{cN.innerText=c;});
 
-  // KILL SWITCH BUTTON CLICK - ADMIN ONLY
-  killSwitch.addEventListener('click', () => { 
-    if(confirm("⚠️ EMERGENCY KILL SWITCH\nThis will END the stream for ALL viewers.\n\nAre you sure?")) {
-      socket.emit('admin-kill', true);
+// region map
+s.on('r',(m)=>{
+  countries.forEach((c,i)=>{
+    const e=document.getElementById(`count-${i}`);
+    const v=m[c.tz]||0;
+    if(e && e.innerText!=v){
+      e.innerText=v;
+      e.classList.add('pop');
+      setTimeout(()=>e.classList.remove('pop'),300);
     }
   });
+});
 
-  // SOCKET: RECEIVE LIVE STATUS FROM SERVER
-  socket.on('status-update', (isLive) => {
-    if (isLive) {
-      // SWITCH TO LIVE MODE FOR EVERYONE
-      heroStandard.style.display = 'none';
-      heroLive.style.display = 'block';
-      heroBg.style.filter = 'brightness(0.2)';
-      viewerCount.style.display = 'flex';
-      
-      // Update button for EVERYONE
-      liveToggle.textContent = '🟢 LIVE NOW';
-      liveToggle.style.background = '#00cc00';
-      
-      // Show kill switch for admins
-      if (localStorage.getItem('siteAdmin') === 'true') {
-        killSwitch.style.display = 'block';
-      }
-    } else {
-      // SWITCH TO STANDARD MODE
-      heroLive.style.display = 'none';
-      heroStandard.style.display = 'block';
-      heroBg.style.filter = 'brightness(0.6)';
-      viewerCount.style.display = 'none';
-      
-      // Update button for EVERYONE
-      liveToggle.textContent = '🔴 GO LIVE';
-      liveToggle.style.background = '#333';
-      
-      // Hide kill switch when not live
-      if (localStorage.getItem('siteAdmin') === 'true') {
-        killSwitch.style.display = 'none';
-      }
-    }
-  });
+// ===== UI: synopsis expand =====
+document.getElementById('expandBtn').addEventListener('click',function(){
+  const e=document.getElementById('synopsisExpanded');
+  e.classList.toggle('open');
+  this.classList.toggle('open');
+  this.querySelector('span:first-child').textContent = e.classList.contains('open') ? 'Read Less' : 'Read More';
+});
 
-  // SOCKET: UPDATE TOTAL VIEWER COUNT
-  socket.on('total-update', (count) => { 
-    countNum.innerText = count; 
-  });
+// ===== Globe & time cards (same logic, slightly compact) =====
+const countries=[
+  {name:'India',flag:'🇮🇳',tz:'Asia/Kolkata',lat:22,lng:78,color:'#FF9933'},
+  {name:'Canada',flag:'🇨🇦',tz:'America/Vancouver',lat:56,lng:-106,color:'#ff0000'},
+  {name:'Thailand',flag:'🇹🇭',tz:'Asia/Bangkok',lat:13,lng:100,color:'#ffcc00'},
+  {name:'Europe',flag:'🇪🇺',tz:'Europe/Paris',lat:48,lng:2,color:'#0000FF'},
+  {name:'UK',flag:'🇬🇧',tz:'Europe/London',lat:53,lng:-0.1,color:'#191970'},
+  {name:'USA',flag:'🇺🇸',tz:'America/New_York',lat:39,lng:-98,color:'#003366'},
+  {name:'Singapore',flag:'🇸🇬',tz:'Asia/Singapore',lat:1.3,lng:103,color:'#EE2536'},
+  {name:'Malaysia',flag:'🇲🇾',tz:'Asia/Kuala_Lumpur',lat:4,lng:102,color:'#FFD700'}
+];
 
-  // SOCKET: UPDATE REGION-SPECIFIC COUNTS
-  socket.on('region-update', (regionMap) => {
-    countries.forEach((c, i) => {
-      const el = document.getElementById(`count-${i}`);
-      let count = regionMap[c.tz] || 0;
-      if (el && el.innerText != count) { 
-        el.innerText = count; 
-        el.classList.add('pop'); 
-        setTimeout(() => el.classList.remove('pop'), 300); 
-      }
-    });
-  });
-
-  // EXPANDABLE SYNOPSIS BUTTON
-  document.getElementById('expandBtn').addEventListener('click', function() {
-    const expanded = document.getElementById('synopsisExpanded');
-    expanded.classList.toggle('open');
-    this.classList.toggle('open');
-    this.querySelector('span:first-child').textContent = expanded.classList.contains('open') ? 'Read Less' : 'Read More';
-  });
-
-  // COUNTRY DATA
-  const countries = [
-    {name: 'India', flag: '🇮🇳', tz: 'Asia/Kolkata', lat: 22, lng: 78, color:'#FF9933'},
-    {name: 'Canada', flag: '🇨🇦', tz: 'America/Vancouver', lat: 56, lng: -106, color:'#ff0000'},
-    {name: 'Thailand', flag: '🇹🇭', tz: 'Asia/Bangkok', lat: 13, lng: 100, color:'#ffcc00'},
-    {name: 'Europe', flag: '🇪🇺', tz: 'Europe/Paris', lat: 48, lng: 2, color:'#0000FF'},
-    {name: 'UK', flag: '🇬🇧', tz: 'Europe/London', lat: 53, lng: -0.1, color:'#191970'},
-    {name: 'USA', flag: '🇺🇸', tz: 'America/New_York', lat: 39, lng: -98, color:'#003366'},
-    {name: 'Singapore', flag: '🇸🇬', tz: 'Asia/Singapore', lat: 1.3, lng: 103, color:'#EE2536'},
-    {name: 'Malaysia', flag: '🇲🇾', tz: 'Asia/Kuala_Lumpur', lat: 4, lng: 102, color:'#FFD700'}
-  ];
-
-  // BUILD TIME CARDS
-  const stackEl = document.getElementById('timeStack');
-  countries.forEach((c, i) => {
-    stackEl.innerHTML += `
-      <div class="globe-time-item" style="border-left-color:${c.color}">
-        <div class="card-identity"><span class="globe-flag">${c.flag}</span><span class="globe-name">${c.name}</span></div>
-        <div class="card-stats">
-          <div class="stat-pill"><span class="material-icons-round">people</span><span id="count-${i}">0</span></div>
-          <div class="stat-pill" id="weather-${i}"><span class="material-icons-round">wb_sunny</span></div>
+const stackEl=document.getElementById('timeStack');
+countries.forEach((c,i)=>{
+  stackEl.innerHTML+=`
+    <div class="globe-time-item" style="border-left-color:${c.color}">
+      <div class="card-identity">
+        <span class="globe-flag">${c.flag}</span>
+        <span class="globe-name">${c.name}</span>
+      </div>
+      <div class="card-stats">
+        <div class="stat-pill">
+          <span class="material-icons-round">people</span>
+          <span id="count-${i}">0</span>
         </div>
-        <div class="globe-time" id="stack-time-${i}">--:--</div>
-      </div>`;
+        <div class="stat-pill" id="weather-${i}">
+          <span class="material-icons-round">wb_sunny</span>
+        </div>
+      </div>
+      <div class="globe-time" id="stack-time-${i}">--:--</div>
+    </div>`;
+});
+
+function updateTimes(){
+  const n=new Date();
+  countries.forEach((c,i)=>{
+    document.getElementById(`stack-time-${i}`).innerText=
+      n.toLocaleTimeString('en-GB',{timeZone:c.tz,hour:'2-digit',minute:'2-digit'});
+    const h=parseInt(new Date().toLocaleTimeString('en-GB',{timeZone:c.tz,hour:'numeric',hour12:false}));
+    const icon=(h>=6 && h<18)?'wb_sunny':'bedtime';
+    const color=(h>=6 && h<18)?'#f6e05e':'#718096';
+    document.getElementById(`weather-${i}`).innerHTML=
+      `<span class="material-icons-round" style="color:${color}">${icon}</span>`;
   });
+}
+setInterval(updateTimes,1000);
+updateTimes();
 
-  // UPDATE TIMES & WEATHER
-  function updateTimes() {
-    const now = new Date();
-    countries.forEach((c, i) => {
-      document.getElementById(`stack-time-${i}`).innerText = now.toLocaleTimeString('en-GB', { timeZone: c.tz, hour:'2-digit', minute:'2-digit' });
-      const hours = parseInt(new Date().toLocaleTimeString('en-GB', { timeZone: c.tz, hour:'numeric', hour12: false }));
-      const icon = (hours >= 6 && hours < 18) ? 'wb_sunny' : 'bedtime';
-      const color = (hours >= 6 && hours < 18) ? '#f6e05e' : '#718096';
-      document.getElementById(`weather-${i}`).innerHTML = `<span class="material-icons-round" style="color:${color}">${icon}</span>`;
-    });
+// ===== 3D Globe =====
+const container=document.getElementById('heroGlobeContainer');
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(45,1,0.1,1000);
+camera.position.set(0,0,4.8);
+const renderer=new THREE.WebGLRenderer({alpha:true,antialias:true});
+renderer.setSize(500,500);
+container.appendChild(renderer.domElement);
+
+const controls=new THREE.OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true;
+controls.autoRotate=true;
+controls.autoRotateSpeed=0.8;
+
+scene.add(new THREE.AmbientLight(0xffffff,0.8));
+const dLight=new THREE.DirectionalLight(0xffffff,0.7);
+dLight.position.set(1,1,1);
+scene.add(dLight);
+
+const globeGroup=new THREE.Group();
+scene.add(globeGroup);
+globeGroup.rotation.y=0;
+globeGroup.rotation.x=0.2;
+
+new THREE.TextureLoader().load(
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Land_ocean_ice_2048.jpg/1024px-Land_ocean_ice_2048.jpg',
+  tex=>{
+    const geo=new THREE.SphereGeometry(1,64,64);
+    const mat=new THREE.MeshPhongMaterial({map:tex,specular:0x111111,shininess:5});
+    globeGroup.add(new THREE.Mesh(geo,mat));
   }
-  setInterval(updateTimes, 1000); 
-  updateTimes();
+);
 
-  // 3D GLOBE SETUP
-  const container = document.getElementById('heroGlobeContainer');
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000); 
-  camera.position.set(0, 0, 4.8);
-  
-  const renderer = new THREE.WebGLRenderer({alpha: true, antialias: true});
-  renderer.setSize(500, 500); 
-  container.appendChild(renderer.domElement);
-  
-  const controls = new THREE.OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true; 
-  controls.autoRotate = true;
-  controls.autoRotateSpeed = 0.8;
-  
-  scene.add(new THREE.AmbientLight(0xffffff, 0.8));
-  const dLight = new THREE.DirectionalLight(0xffffff, 0.7); 
-  dLight.position.set(1, 1, 1); 
-  scene.add(dLight);
-  
-  const globeGroup = new THREE.Group(); 
-  scene.add(globeGroup);
-  globeGroup.rotation.y = 0;
-  globeGroup.rotation.x = 0.2;
+const flagSprites=[];
+function latLonToVec3(lat,lon,r){
+  const phi=(90-lat)*(Math.PI/180),theta=(lon+180)*(Math.PI/180);
+  return new THREE.Vector3(
+    -r*Math.sin(phi)*Math.cos(theta),
+    r*Math.cos(phi),
+    r*Math.sin(phi)*Math.sin(theta)
+  );
+}
+function drawCanvas(ctx,country,timeStr){
+  ctx.clearRect(0,0,300,150);
+  ctx.fillStyle='rgba(10,16,30,0.85)';
+  ctx.beginPath();
+  const r=20,x=10,y=10,w=280,h=130;
+  ctx.moveTo(x+r,y);
+  ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);
+  ctx.closePath();ctx.fill();
+  ctx.lineWidth=6;ctx.strokeStyle=country.color;ctx.stroke();
+  ctx.fillStyle='#FFFFFF';ctx.font='bold 38px Arial';
+  ctx.fillText(country.flag+' '+country.name.substring(0,3).toUpperCase(),40,65);
+  ctx.fillStyle='#00FF88';ctx.font='bold 45px Courier New';
+  ctx.fillText(timeStr,50,115);
+}
+function createLabel(country){
+  const canvas=document.createElement('canvas');
+  canvas.width=300;canvas.height=150;
+  const ctx=canvas.getContext('2d');
+  drawCanvas(ctx,country,'--:--');
+  const tex=new THREE.CanvasTexture(canvas);
+  const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:tex}));
+  sprite.position.copy(latLonToVec3(country.lat,country.lng,1.3));
+  sprite.scale.set(0.8,0.4,1);
+  globeGroup.add(sprite);
+  return {sprite,ctx,country,tex};
+}
+countries.forEach(c=>flagSprites.push(createLabel(c)));
 
-  new THREE.TextureLoader().load('https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Land_ocean_ice_2048.jpg/1024px-Land_ocean_ice_2048.jpg', tex => {
-    globeGroup.add(new THREE.Mesh(new THREE.SphereGeometry(1, 64, 64), new THREE.MeshPhongMaterial({map: tex, specular: 0x111111, shininess: 5})));
+function updateSprites(){
+  const n=new Date();
+  flagSprites.forEach(item=>{
+    const t=n.toLocaleTimeString('en-GB',{timeZone:item.country.tz,hour:'2-digit',minute:'2-digit'});
+    drawCanvas(item.ctx,item.country,t);
+    item.tex.needsUpdate=true;
   });
+}
+setInterval(updateSprites,1000);
+updateSprites();
 
-  const flagSprites = [];
-  function latLonToVec3(lat, lon, r) {
-    const phi = (90 - lat) * (Math.PI/180), theta = (lon + 180) * (Math.PI/180);
-    return new THREE.Vector3(-r * Math.sin(phi) * Math.cos(theta), r * Math.cos(phi), r * Math.sin(phi) * Math.sin(theta));
-  }
-  
-  function createLabel(country) {
-    const canvas = document.createElement('canvas'); 
-    canvas.width = 300; 
-    canvas.height = 150;
-    const ctx = canvas.getContext('2d');
-    drawCanvas(ctx, country, "--:--");
-    const tex = new THREE.CanvasTexture(canvas);
-    const sprite = new THREE.Sprite(new THREE.SpriteMaterial({map: tex}));
-    sprite.position.copy(latLonToVec3(country.lat, country.lng, 1.3)); 
-    sprite.scale.set(0.8, 0.4, 1); 
-    globeGroup.add(sprite);
-    return { sprite, ctx, country, tex };
-  }
-  
-  function drawCanvas(ctx, country, timeStr) {
-    ctx.clearRect(0,0,300,150);
-    ctx.fillStyle = 'rgba(10, 16, 30, 0.85)'; 
-    ctx.beginPath(); 
-    const r = 20; 
-    const x = 10, y = 10, w = 280, h = 130;
-    ctx.moveTo(x+r, y); 
-    ctx.lineTo(x+w-r, y); 
-    ctx.quadraticCurveTo(x+w, y, x+w, y+r);
-    ctx.lineTo(x+w, y+h-r); 
-    ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
-    ctx.lineTo(x+r, y+h); 
-    ctx.quadraticCurveTo(x, y+h, x, y+h-r);
-    ctx.lineTo(x, y+r); 
-    ctx.quadraticCurveTo(x, y, x+r, y);
-    ctx.closePath(); 
-    ctx.fill();
-    
-    ctx.lineWidth = 6; 
-    ctx.strokeStyle = country.color; 
-    ctx.stroke();
-    ctx.fillStyle = '#FFFFFF'; 
-    ctx.font = 'bold 38px Arial'; 
-    ctx.fillText(country.flag + " " + country.name.substring(0,3).toUpperCase(), 40, 65); 
-    ctx.fillStyle = '#00FF88'; 
-    ctx.font = 'bold 45px Courier New'; 
-    ctx.fillText(timeStr, 50, 115);
-  }
+document.getElementById('pauseBtn').onclick=function(){
+  controls.autoRotate=!controls.autoRotate;
+  this.innerText=controls.autoRotate?'⏸ Pause':'▶ Start Rotation';
+};
 
-  countries.forEach(c => flagSprites.push(createLabel(c)));
-
-  function updateSprites() {
-    const now = new Date();
-    flagSprites.forEach(item => {
-      const timeStr = now.toLocaleTimeString('en-GB', { timeZone: item.country.tz, hour:'2-digit', minute:'2-digit' });
-      drawCanvas(item.ctx, item.country, timeStr);
-      item.tex.needsUpdate = true;
-    });
-  }
-  setInterval(updateSprites, 1000);
-  updateSprites();
-
-  document.getElementById('pauseBtn').onclick = function() { 
-    controls.autoRotate = !controls.autoRotate; 
-    this.innerText = controls.autoRotate ? '⏸ Pause' : '▶ Start Rotation'; 
-  };
-  
-  function animate() { 
-    requestAnimationFrame(animate); 
-    controls.update(); 
-    renderer.render(scene, camera); 
-  }
-  animate();
+function animate(){
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene,camera);
+}
+animate();
 </script>
-
 </body>
 </html>
