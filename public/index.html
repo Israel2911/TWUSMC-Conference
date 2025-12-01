@@ -248,11 +248,17 @@
   }
 
   // LIVE TOGGLE BUTTON CLICK
-  liveToggle.addEventListener('click', () => {
+ // LIVE TOGGLE BUTTON CLICK - ADMIN ONLY
+liveToggle.addEventListener('click', () => {
+  if (localStorage.getItem('siteAdmin') === 'true') {
     socket.emit('admin-toggle', true);
     liveToggle.textContent = '🟢 LIVE NOW';
     liveToggle.style.background = '#00cc00';
-  });
+  } else {
+    alert('Admin access required to control live stream');
+  }
+});
+
 
   // KILL SWITCH BUTTON CLICK
   killSwitch.addEventListener('click', () => { 
