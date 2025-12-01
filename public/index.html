@@ -230,47 +230,95 @@ const hS=document.getElementById('heroStandard'),
       vW=document.getElementById('vidWrap'),
       f=document.getElementById('feed');
 
+// Admin Setup
 if(new URLSearchParams(window.location.search).get('m')==='a'){
   localStorage.setItem('a','1');
   window.history.replaceState({},document.title,window.location.pathname);
 }
-aP.style.display='flex';
-if(localStorage.getItem('a')==='1')kS.style.display='block';
+// Always show admin panel container (but contents are hidden/shown dynamically)
+aP.style.display='flex'; 
 
+// Socket Emitters
 lT.onclick=()=>s.emit('x');            // request toggle
 kS.onclick=()=>{if(confirm('⚠️ NUCLEAR KILL?'))s.emit('k');}; // request kill
 
-// live status from server
-s.on('z',(l)=>{
-  hS.style.display=l?'none':'block';
-  hL.style.display=l?'block':'none';
-  hB.style.filter=l?'brightness(0.2)':'brightness(0.6)';
-  vC.style.display=l?'flex':'none';
-  lT.innerHTML=l?'🟢 LIVE':'🔴 GO LIVE';
-  lT.style.background=l?'#00cc00':'#333';
-  lT.disabled=false;
-  if(localStorage.getItem('a')==='1')kS.style.display='block';
+// Live Status Update (Handles both Video and Teams Mode)
+s.on('z',(state)=>{
+  // Unpack state (supports new object format or legacy boolean)
+  const isLive = typeof state === 'object' ? state.isLive : state;
+  const isKilled = typeof state === 'object' ? state.isKilled : false;
+
+  // 1. Main Visibility Toggle
+  hS.style.display = isLive ? 'none' : 'block';
+  hL.style.display = isLive ? 'block' : 'none';
+  hB.style.filter = isLive ? 'brightness(0.2)' : 'brightness(0.6)';
+  vC.style.display = isLive ? 'flex' : 'none';
+
+  // 2. "GO LIVE" Button (Always enabled now to toggle Teams view on/off)
+  lT.innerHTML = isLive ? '🟢 LIVE' : '🔴 GO LIVE';
+  lT.style.background = isLive ? '#00cc00' : '#333';
+  lT.disabled = false; 
+
+  // 3. Content Rendering (Video vs Teams Backup)
+  if (isKilled) {
+    // Killed Mode: Show Teams Backup
+    hL.innerHTML = `
+      <div class="teams-backup" style="background:linear-gradient(135deg,#1a0000,#000);padding:40px;text-align:center;color:white;height:100%;display:flex;flex-direction:column;justify-content:center;border-radius:20px;">
+        <div style="font-size:5rem;margin-bottom:20px;animation:pulse-red 2s infinite;">🔴</div>
+        <h2 style="font-size:2.8rem;margin-bottom:15px;font-weight:900;">MAIN FEED TERMINATED</h2>
+        <p style="font-size:1.4rem;opacity:0.9;margin-bottom:30px;">Stream continues on Teams</p>
+        <a href="https://teams.microsoft.com/meet/25727590322372?p=Toyeb2xMWy8NeEJiA2" target="_blank"
+           style="background:linear-gradient(135deg,#464eb8,#3a3f9e);color:white;padding:20px 40px;border-radius:25px;font-weight:bold;font-size:1.3rem;text-decoration:none;display:inline-flex;align-items:center;gap:15px;box-shadow:0 10px 30px rgba(70,78,184,0.4);margin:0 auto;max-width:400px;width:100%;justify-content:center;">
+          📱 Join Teams Stream →
+        </a>
+      </div>`;
+  } else {
+    // Standard Mode: Ensure video wrapper exists
+    if (!document.getElementById('vidWrap')) {
+       hL.innerHTML = `
+        <div class="live-grid">
+          <div class="video-wrapper" id="vidWrap">
+            <div class="live-badge">🔴 LIVE</div>
+            <iframe id="feed" width="100%" height="100%" src="https://www.youtube.com/embed/live_stream?channel=YOUR_CHANNEL_ID" frameborder="0" allowfullscreen></iframe>
+          </div>
+          <div class="live-info-panel">
+            <h2 style="margin:0 0 10px 0;">Live Q&A</h2>
+            <p style="opacity:0.8;">Join the discussion via Teams.</p>
+            <a href="https://teams.microsoft.com/meet/25727590322372?p=Toyeb2xMWy8NeEJiA2" target="_blank" class="teams-btn">
+              <span class="material-icons-round">videocam</span> Join Teams Call
+            </a>
+          </div>
+        </div>`;
+    }
+  }
+
+  // 4. Admin Kill Switch Visibility
+  if (localStorage.getItem('a') === '1') {
+    kS.style.display = 'block';
+    if (isKilled) {
+      kS.disabled = true;
+      kS.innerHTML = '✅ TEAMS MODE';
+      kS.style.opacity = '0.7';
+    } else {
+      kS.disabled = false;
+      kS.innerHTML = '⚠️ END STREAM';
+      kS.style.opacity = '1';
+    }
+  } else {
+    kS.style.display = 'none';
+  }
 });
 
-// kill event from server
+// Kill Event (Immediate cleanup fallback)
 s.on('d',()=>{
   f?.remove();
   vW?.classList.add('killed');
-  lT.disabled=true;lT.innerHTML='🚫';
-  kS.disabled=true;kS.innerHTML='✅';
-  hL.innerHTML=`
-    <div class="teams-backup">
-      <div style="font-size:5rem;margin-bottom:20px;animation:pulse-red 2s infinite;">🔴</div>
-      <h2>MAIN FEED TERMINATED</h2>
-      <p style="font-size:1.4rem;opacity:0.9;margin-bottom:30px;">Server kill switch activated</p>
-      <a href="https://teams.microsoft.com/meet/25727590322372?p=Toyeb2xMWy8NeEJiA2" target="_blank">📱 Join Teams Backup →</a>
-    </div>`;
 });
 
-// total viewers
+// Total Viewers
 s.on('t',(c)=>{cN.innerText=c;});
 
-// region map
+// Region Map
 s.on('r',(m)=>{
   countries.forEach((c,i)=>{
     const e=document.getElementById(`count-${i}`);
@@ -291,7 +339,7 @@ document.getElementById('expandBtn').addEventListener('click',function(){
   this.querySelector('span:first-child').textContent = e.classList.contains('open') ? 'Read Less' : 'Read More';
 });
 
-// ===== Globe & time cards (same logic, slightly compact) =====
+// ===== Globe & time cards =====
 const countries=[
   {name:'India',flag:'🇮🇳',tz:'Asia/Kolkata',lat:22,lng:78,color:'#FF9933'},
   {name:'Canada',flag:'🇨🇦',tz:'America/Vancouver',lat:56,lng:-106,color:'#ff0000'},
