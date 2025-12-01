@@ -323,8 +323,8 @@
   const globeGroup = new THREE.Group(); 
   scene.add(globeGroup);
   
-  // --- DEAD CENTER VIEW (Indian Ocean / Africa / Asia) ---
-  globeGroup.rotation.y = 1.2; 
+  // --- CORRECTED VIEW: INDIAN OCEAN / AFRICA / ASIA ---
+  globeGroup.rotation.y = -1.1; 
 
   new THREE.TextureLoader().load('https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Land_ocean_ice_2048.jpg/1024px-Land_ocean_ice_2048.jpg', tex => {
     globeGroup.add(new THREE.Mesh(new THREE.SphereGeometry(1, 64, 64), new THREE.MeshPhongMaterial({map: tex, specular: 0x111111, shininess: 5})));
@@ -385,6 +385,7 @@
   function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); }
   animate();
 </script>
+
 
 </body>
 </html>
