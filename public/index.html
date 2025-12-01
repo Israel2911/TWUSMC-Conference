@@ -173,7 +173,7 @@
   <div class="globe-wrapper">
     <div id="heroGlobeContainer"></div> 
     <div style="position:absolute; bottom:10px; left:50%; transform:translateX(-50%);">
-      <button class="pause-btn" id="pauseBtn">⏸ Pause</button>
+      <button class="pause-btn" id="pauseBtn">▶ Start Rotation</button>
     </div>
   </div>
   <div class="times-wrapper">
@@ -313,7 +313,8 @@
   
   const controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true; 
-  controls.autoRotate = true;
+  // --- START PAUSED TO KEEP THE VIEW CORRECT ---
+  controls.autoRotate = false; 
   
   scene.add(new THREE.AmbientLight(0xffffff, 1.0));
   const dLight = new THREE.DirectionalLight(0xffffff, 0.5); 
@@ -323,9 +324,8 @@
   const globeGroup = new THREE.Group(); 
   scene.add(globeGroup);
   
-  // --- FINAL CORRECTED VIEW: Indian Ocean (Africa Left, India Right) ---
-  // If you still see Americas, try Hard Refresh (Ctrl+F5)
-  globeGroup.rotation.y = -0.5; 
+  // --- DEAD CENTER VIEW: INDIAN OCEAN / AFRICA / ASIA ---
+  globeGroup.rotation.y = -0.8; 
 
   new THREE.TextureLoader().load('https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Land_ocean_ice_2048.jpg/1024px-Land_ocean_ice_2048.jpg', tex => {
     globeGroup.add(new THREE.Mesh(new THREE.SphereGeometry(1, 64, 64), new THREE.MeshPhongMaterial({map: tex, specular: 0x111111, shininess: 5})));
@@ -382,12 +382,9 @@
   setInterval(updateSprites, 1000);
   updateSprites();
 
-  document.getElementById('pauseBtn').onclick = function() { controls.autoRotate = !controls.autoRotate; this.innerText = controls.autoRotate ? '⏸ Pause' : '▶ Resume'; };
+  document.getElementById('pauseBtn').onclick = function() { controls.autoRotate = !controls.autoRotate; this.innerText = controls.autoRotate ? '⏸ Pause' : '▶ Start Rotation'; };
   function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); }
   animate();
 </script>
-
-
-
 </body>
 </html>
