@@ -10,6 +10,7 @@ const io = new Server(server);
 app.use(express.static(path.join(__dirname, 'public')));
 
 let isStreamLive = false;
+let killSwitchActive = false;  // ✅ NEW: Emergency kill switch
 let totalUsers = 0;
 
 // Store active users: { "socket_id": "Asia/Kolkata" }
@@ -21,8 +22,8 @@ let regionCounts = {};
 io.on('connection', (socket) => {
   totalUsers++;
   
-  // Send current Live State immediately
-  socket.emit('status-update', isStreamLive);
+  // Send current Live State immediately (respecting kill switch)
+  socket.emit('status-update', isStreamLive && !killSwitchActive);
   io.emit('total-update', totalUsers);
   io.emit('region-update', regionCounts); // Send existing counts
 
@@ -38,13 +39,32 @@ io.on('connection', (socket) => {
     io.emit('region-update', regionCounts);
   });
 
-  // 2. Admin Toggle
-  socket.on('admin-toggle', (status) => {
-    isStreamLive = status;
-    io.emit('status-update', isStreamLive);
+  // 2. ANYONE requests GO LIVE (renamed from 'admin-toggle')
+  socket.on('request-live', (goLive) => {
+    if (!killSwitchActive) {  // ✅ Only allow if kill switch is OFF
+      isStreamLive = goLive;
+      io.emit('status-update', isStreamLive);
+      console.log(`🟢 Live status changed to: ${isStreamLive}`);
+    } else {
+      // Notify requester that live is blocked
+      socket.emit('status-update', false);
+      console.log('⚠️ Live request BLOCKED - Kill switch is active');
+    }
   });
 
-  // 3. User leaves
+  // 3. ADMIN KILL SWITCH (new event)
+  socket.on('admin-kill', (activate) => {
+    killSwitchActive = activate;
+    isStreamLive = false;  // Force stream OFF
+    io.emit('status-update', false);  // Turn off for EVERYONE
+    console.log(`🔴 ADMIN KILL SWITCH ${activate ? 'ACTIVATED' : 'DEACTIVATED'}`);
+    
+    if (activate) {
+      io.emit('feed-killed');  // Optional: Alert all users
+    }
+  });
+
+  // 4. User leaves
   socket.on('disconnect', () => {
     totalUsers--;
     
@@ -62,5 +82,6 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`📡 Socket.IO ready for connections`);
 });
