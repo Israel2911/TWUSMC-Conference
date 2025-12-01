@@ -246,34 +246,32 @@
 
   // LIVE TOGGLE BUTTON CLICK - FOR EVERYONE
   liveToggle.addEventListener('click', () => {
-    socket.emit('admin-toggle', true);
-    liveToggle.textContent = '🟢 LIVE NOW';
-    liveToggle.style.background = '#00cc00';
+    socket.emit('request-live', true);  // Changed from 'admin-toggle' to 'request-live'
   });
 
-  // KILL SWITCH BUTTON CLICK
+  // KILL SWITCH BUTTON CLICK - ADMIN ONLY
   killSwitch.addEventListener('click', () => { 
-    if(confirm("END STREAM GLOBALLY? All viewers will be disconnected.")) {
-      socket.emit('admin-toggle', false);
-      liveToggle.textContent = '🔴 GO LIVE';
-      liveToggle.style.background = '#333';
+    if(confirm("⚠️ EMERGENCY KILL SWITCH\nThis will END the stream for ALL viewers.\n\nAre you sure?")) {
+      socket.emit('admin-kill', true);  // Changed from 'admin-toggle' to 'admin-kill'
     }
   });
 
   // SOCKET: RECEIVE LIVE STATUS FROM SERVER
   socket.on('status-update', (isLive) => {
     if (isLive) {
-      // SWITCH TO LIVE MODE
+      // SWITCH TO LIVE MODE FOR EVERYONE
       heroStandard.style.display = 'none';
       heroLive.style.display = 'block';
       heroBg.style.filter = 'brightness(0.2)';
       viewerCount.style.display = 'flex';
       
+      // Update button for EVERYONE
+      liveToggle.textContent = '🟢 LIVE NOW';
+      liveToggle.style.background = '#00cc00';
+      
       // Show kill switch for admins
       if (localStorage.getItem('siteAdmin') === 'true') {
         killSwitch.style.display = 'block';
-        liveToggle.textContent = '🟢 LIVE NOW';
-        liveToggle.style.background = '#00cc00';
       }
     } else {
       // SWITCH TO STANDARD MODE
@@ -281,12 +279,13 @@
       heroStandard.style.display = 'block';
       heroBg.style.filter = 'brightness(0.6)';
       viewerCount.style.display = 'none';
-      killSwitch.style.display = 'none';
       
-      if (localStorage.getItem('siteAdmin') === 'true') {
-        liveToggle.textContent = '🔴 GO LIVE';
-        liveToggle.style.background = '#333';
-      }
+      // Update button for EVERYONE
+      liveToggle.textContent = '🔴 GO LIVE';
+      liveToggle.style.background = '#333';
+      
+      // Hide kill switch
+      killSwitch.style.display = 'none';
     }
   });
 
@@ -459,5 +458,6 @@
   }
   animate();
 </script>
+
 </body>
 </html>
