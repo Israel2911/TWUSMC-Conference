@@ -73,7 +73,8 @@
     .pdf-wrapper { width: 100%; height: 500px; border: none; border-radius: 15px; background: #eee; }
     .pdf-btn { display: inline-block; background: #167690; color: white; padding: 15px 30px; border-radius: 30px; text-decoration: none; font-weight: bold; margin-top: 20px; transition: 0.2s; }
     .pdf-btn:hover { background: #128fa7; transform: translateY(-2px); }
-    .admin-panel { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: none; gap: 10px; flex-direction: column; }
+   .admin-panel { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; gap: 10px; flex-direction: column; }
+
     .admin-btn { padding: 10px 20px; border-radius: 30px; cursor: pointer; font-weight: bold; border: 2px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.3); transition: all 0.3s; }
     .admin-btn:hover { transform: scale(1.05); }
     .btn-live { background: #333; color: white; } 
@@ -232,14 +233,18 @@
   const killSwitch = document.getElementById('killSwitch');
   const liveToggle = document.getElementById('liveToggle');
 
-  // ADMIN ACCESS - Visit with ?mode=admin to enable
+  // ADMIN ACCESS - Visit with ?mode=admin to show KILL SWITCH
   if (new URLSearchParams(window.location.search).get('mode') === 'admin') {
     localStorage.setItem('siteAdmin', 'true');
     window.history.replaceState({}, document.title, window.location.pathname);
   }
-  
+
+  // ALWAYS SHOW LIVE TOGGLE (visible to all users)
+  adminPanel.style.display = 'flex';
+
+  // ONLY SHOW KILL SWITCH FOR ADMINS
   if (localStorage.getItem('siteAdmin') === 'true') {
-    adminPanel.style.display = 'flex';
+    killSwitch.style.display = 'block';
   }
 
   // LIVE TOGGLE BUTTON CLICK
