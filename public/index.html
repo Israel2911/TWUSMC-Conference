@@ -244,15 +244,17 @@
     killSwitch.style.display = 'block';
   }
 
-  // LIVE TOGGLE BUTTON CLICK - FOR EVERYONE
+  // LIVE TOGGLE BUTTON CLICK - TOGGLE ON/OFF
   liveToggle.addEventListener('click', () => {
-    socket.emit('request-live', true);  // Changed from 'admin-toggle' to 'request-live'
+    // Check current state and toggle
+    const currentlyLive = (heroLive.style.display === 'block');
+    socket.emit('request-live', !currentlyLive);  // Send opposite state
   });
 
   // KILL SWITCH BUTTON CLICK - ADMIN ONLY
   killSwitch.addEventListener('click', () => { 
     if(confirm("⚠️ EMERGENCY KILL SWITCH\nThis will END the stream for ALL viewers.\n\nAre you sure?")) {
-      socket.emit('admin-kill', true);  // Changed from 'admin-toggle' to 'admin-kill'
+      socket.emit('admin-kill', true);
     }
   });
 
@@ -284,8 +286,10 @@
       liveToggle.textContent = '🔴 GO LIVE';
       liveToggle.style.background = '#333';
       
-      // Hide kill switch
-      killSwitch.style.display = 'none';
+      // Hide kill switch when not live
+      if (localStorage.getItem('siteAdmin') === 'true') {
+        killSwitch.style.display = 'none';
+      }
     }
   });
 
