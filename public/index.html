@@ -230,8 +230,9 @@
   const countNum = document.getElementById('countNum');
   const adminPanel = document.getElementById('adminPanel');
   const killSwitch = document.getElementById('killSwitch');
+  const liveToggle = document.getElementById('liveToggle');
 
-  // ADMIN LOGIC
+  // ADMIN ACCESS - Visit with ?mode=admin to enable
   if (new URLSearchParams(window.location.search).get('mode') === 'admin') {
     localStorage.setItem('siteAdmin', 'true');
     window.history.replaceState({}, document.title, window.location.pathname);
@@ -241,29 +242,63 @@
     adminPanel.style.display = 'flex';
   }
 
-  // LIVE TOGGLE FUNCTIONALITY
+  // LIVE TOGGLE BUTTON CLICK
+  liveToggle.addEventListener('click', () => {
+    socket.emit('admin-toggle', true);
+    liveToggle.textContent = '🟢 LIVE NOW';
+    liveToggle.style.background = '#00cc00';
+  });
+
+  // KILL SWITCH BUTTON CLICK
+  killSwitch.addEventListener('click', () => { 
+    if(confirm("END STREAM GLOBALLY? All viewers will be disconnected.")) {
+      socket.emit('admin-toggle', false);
+      liveToggle.textContent = '🔴 GO LIVE';
+      liveToggle.style.background = '#333';
+    }
+  });
+
+  // SOCKET: RECEIVE LIVE STATUS FROM SERVER
   socket.on('status-update', (isLive) => {
     if (isLive) {
+      // SWITCH TO LIVE MODE
       heroStandard.style.display = 'none';
       heroLive.style.display = 'block';
       heroBg.style.filter = 'brightness(0.2)';
       viewerCount.style.display = 'flex';
-      if (localStorage.getItem('siteAdmin') === 'true') killSwitch.style.display = 'block';
+      
+      // Show kill switch for admins
+      if (localStorage.getItem('siteAdmin') === 'true') {
+        killSwitch.style.display = 'block';
+        liveToggle.textContent = '🟢 LIVE NOW';
+        liveToggle.style.background = '#00cc00';
+      }
     } else {
+      // SWITCH TO STANDARD MODE
       heroLive.style.display = 'none';
       heroStandard.style.display = 'block';
       heroBg.style.filter = 'brightness(0.6)';
       viewerCount.style.display = 'none';
       killSwitch.style.display = 'none';
+      
+      if (localStorage.getItem('siteAdmin') === 'true') {
+        liveToggle.textContent = '🔴 GO LIVE';
+        liveToggle.style.background = '#333';
+      }
     }
   });
 
-  socket.on('total-update', (count) => { countNum.innerText = count; });
+  // SOCKET: UPDATE TOTAL VIEWER COUNT
+  socket.on('total-update', (count) => { 
+    countNum.innerText = count; 
+  });
+
+  // SOCKET: UPDATE REGION-SPECIFIC COUNTS
   socket.on('region-update', (regionMap) => {
     countries.forEach((c, i) => {
       const el = document.getElementById(`count-${i}`);
       let count = regionMap[c.tz] || 0;
-      if (el.innerText != count) { 
+      if (el && el.innerText != count) { 
         el.innerText = count; 
         el.classList.add('pop'); 
         setTimeout(() => el.classList.remove('pop'), 300); 
@@ -271,12 +306,7 @@
     });
   });
 
-  document.getElementById('liveToggle').addEventListener('click', () => socket.emit('admin-toggle', true));
-  document.getElementById('killSwitch').addEventListener('click', () => { 
-    if(confirm("END STREAM GLOBALLY?")) socket.emit('admin-toggle', false); 
-  });
-
-  // EXPANDABLE SYNOPSIS
+  // EXPANDABLE SYNOPSIS BUTTON
   document.getElementById('expandBtn').addEventListener('click', function() {
     const expanded = document.getElementById('synopsisExpanded');
     expanded.classList.toggle('open');
@@ -284,6 +314,7 @@
     this.querySelector('span:first-child').textContent = expanded.classList.contains('open') ? 'Read Less' : 'Read More';
   });
 
+  // COUNTRY DATA
   const countries = [
     {name: 'India', flag: '🇮🇳', tz: 'Asia/Kolkata', lat: 22, lng: 78, color:'#FF9933'},
     {name: 'Canada', flag: '🇨🇦', tz: 'America/Vancouver', lat: 56, lng: -106, color:'#ff0000'},
@@ -295,6 +326,7 @@
     {name: 'Malaysia', flag: '🇲🇾', tz: 'Asia/Kuala_Lumpur', lat: 4, lng: 102, color:'#FFD700'}
   ];
 
+  // BUILD TIME CARDS
   const stackEl = document.getElementById('timeStack');
   countries.forEach((c, i) => {
     stackEl.innerHTML += `
@@ -308,6 +340,7 @@
       </div>`;
   });
 
+  // UPDATE TIMES & WEATHER
   function updateTimes() {
     const now = new Date();
     countries.forEach((c, i) => {
@@ -424,5 +457,9 @@
   }
   animate();
 </script>
+</body>
+</html>
+
+
 </body>
 </html>
