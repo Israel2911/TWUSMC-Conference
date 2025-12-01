@@ -304,8 +304,10 @@
   // --- 3D GLOBE SETUP ---
   const container = document.getElementById('heroGlobeContainer');
   const scene = new THREE.Scene();
+  
+  // --- ZOOMED OUT CAMERA (3.5) FOR FULL VIEW ---
   const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000); 
-  camera.position.z = 2.8; 
+  camera.position.z = 3.5; 
   
   const renderer = new THREE.WebGLRenderer({alpha: true, antialias: true});
   renderer.setSize(500, 500); 
@@ -313,7 +315,6 @@
   
   const controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true; 
-  // --- START PAUSED TO KEEP THE VIEW CORRECT ---
   controls.autoRotate = false; 
   
   scene.add(new THREE.AmbientLight(0xffffff, 1.0));
@@ -324,7 +325,7 @@
   const globeGroup = new THREE.Group(); 
   scene.add(globeGroup);
   
-  // --- DEAD CENTER VIEW: INDIAN OCEAN / AFRICA / ASIA ---
+  // --- VIEW: INDIAN OCEAN / AFRICA / ASIA ---
   globeGroup.rotation.y = -0.8; 
 
   new THREE.TextureLoader().load('https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Land_ocean_ice_2048.jpg/1024px-Land_ocean_ice_2048.jpg', tex => {
