@@ -305,7 +305,7 @@
   const container = document.getElementById('heroGlobeContainer');
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000); 
-  camera.position.z = 2.8; // Standard zoom
+  camera.position.z = 2.8; 
   
   const renderer = new THREE.WebGLRenderer({alpha: true, antialias: true});
   renderer.setSize(500, 500); 
@@ -323,8 +323,8 @@
   const globeGroup = new THREE.Group(); 
   scene.add(globeGroup);
   
-  // --- THIS SETS THE DEFAULT VIEW TO INDIA/ASIA ---
-  globeGroup.rotation.y = -1.6; 
+  // --- CORRECTED VIEW: Faces Asia/India directly ---
+  globeGroup.rotation.y = 1.9; 
 
   new THREE.TextureLoader().load('https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Land_ocean_ice_2048.jpg/1024px-Land_ocean_ice_2048.jpg', tex => {
     globeGroup.add(new THREE.Mesh(new THREE.SphereGeometry(1, 64, 64), new THREE.MeshPhongMaterial({map: tex, specular: 0x111111, shininess: 5})));
@@ -385,7 +385,5 @@
   function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); }
   animate();
 </script>
-
-
 </body>
 </html>
