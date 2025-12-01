@@ -9,79 +9,71 @@ const io = new Server(server);
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-let isStreamLive = false;
-let killSwitchActive = false;  // ✅ NEW: Emergency kill switch
-let totalUsers = 0;
+// L = live, K = killed, T = total, R = region counts, A = active clients
+let L = false;
+let K = false;
+let T = 0;
+let R = {};
+let A = {};
 
-// Store active users: { "socket_id": "Asia/Kolkata" }
-let activeClients = {};
-
-// Store counts: { "Asia/Kolkata": 5, "America/New_York": 2 }
-let regionCounts = {};
+// TODO: set your own admin IP(s)
+const ADMINS = ['127.0.0.1']; // add your IP here
 
 io.on('connection', (socket) => {
-  totalUsers++;
-  
-  // Send current Live State immediately (respecting kill switch)
-  socket.emit('status-update', isStreamLive && !killSwitchActive);
-  io.emit('total-update', totalUsers);
-  io.emit('region-update', regionCounts); // Send existing counts
+  T++;
+  socket.emit('z', L && !K);   // live state
+  io.emit('t', T);             // total viewers
+  io.emit('r', R);             // region map
 
-  // 1. User reports their location (Timezone)
-  socket.on('report-location', (timezone) => {
-    activeClients[socket.id] = timezone;
-    
-    // Increment Region Count
-    if (!regionCounts[timezone]) regionCounts[timezone] = 0;
-    regionCounts[timezone]++;
-    
-    // Broadcast new map to everyone
-    io.emit('region-update', regionCounts);
+  // timezone report
+  socket.on('r', (tz) => {
+    A[socket.id] = tz;
+    if (!R[tz]) R[tz] = 0;
+    R[tz]++;
+    io.emit('r', R);
   });
 
-  // 2. ANYONE requests GO LIVE (renamed from 'admin-toggle')
-  socket.on('request-live', (goLive) => {
-    if (!killSwitchActive) {  // ✅ Only allow if kill switch is OFF
-      isStreamLive = goLive;
-      io.emit('status-update', isStreamLive);
-      console.log(`🟢 Live status changed to: ${isStreamLive}`);
-    } else {
-      // Notify requester that live is blocked
-      socket.emit('status-update', false);
-      console.log('⚠️ Live request BLOCKED - Kill switch is active');
+  // live toggle request (anyone)
+  socket.on('x', () => {
+    if (K) {
+      socket.emit('z', false);
+      return;
     }
+    L = !L;
+    io.emit('z', L);
   });
 
-  // 3. ADMIN KILL SWITCH (new event)
-  socket.on('admin-kill', (activate) => {
-    killSwitchActive = activate;
-    isStreamLive = false;  // Force stream OFF
-    io.emit('status-update', false);  // Turn off for EVERYONE
-    console.log(`🔴 ADMIN KILL SWITCH ${activate ? 'ACTIVATED' : 'DEACTIVATED'}`);
-    
-    if (activate) {
-      io.emit('feed-killed');  // Optional: Alert all users
+  // kill request (admin only by IP)
+  socket.on('k', () => {
+    const ip = socket.handshake.address;
+    if (!ADMINS.includes(ip)) {
+      console.log('⚠️ Kill denied from', ip);
+      return;
     }
+    K = true;
+    L = false;
+    io.emit('z', false);
+    io.emit('d'); // tell all clients to destroy feed
+    console.log('💀 NUCLEAR KILL from', ip);
   });
 
-  // 4. User leaves
+  // disconnect
   socket.on('disconnect', () => {
-    totalUsers--;
-    
-    // Decrement their specific region
-    const userTZ = activeClients[socket.id];
-    if (userTZ && regionCounts[userTZ] > 0) {
-      regionCounts[userTZ]--;
-    }
-    delete activeClients[socket.id];
-
-    io.emit('total-update', totalUsers);
-    io.emit('region-update', regionCounts);
+    T--;
+    const tz = A[socket.id];
+    if (tz && R[tz] > 0) R[tz]--;
+    delete A[socket.id];
+    io.emit('t', T);
+    io.emit('r', R);
   });
 });
+
+// heartbeat live state
+setInterval(() => {
+  io.emit('z', L && !K);
+}, 5000);
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📡 Socket.IO ready for connections`);
 });
