@@ -164,9 +164,9 @@
   <h2 class="section-header">Conference Overview</h2>
   
   <!-- Grid Layout: Text Left, 3D Book Right -->
-  <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 40px; align-items: center; max-width: 1200px; margin: 0 auto;">
+  <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 60px; align-items: center; max-width: 1200px; margin: 0 auto;">
     
-    <!-- Left Column: Text Content -->
+    <!-- Text Content -->
     <div class="synopsis-card">
       <div class="synopsis-preview">
         <p style="margin-bottom: 20px;">
@@ -206,13 +206,16 @@
       </button>
     </div>
 
-    <!-- Right Column: 3D Book Container -->
-    <div id="bookContainer" style="width: 100%; height: 500px; position: relative; display: flex; justify-content: center; align-items: center;">
-       <!-- 3D Book Injected Here -->
+    <!-- 3D Book Container with Frame -->
+    <div style="display:flex; justify-content:center;">
+      <div id="bookContainer" style="width: 400px; height: 500px; position: relative; border-radius: 30px; background: radial-gradient(circle at 50% 50%, #2a3242 0%, #000000 100%); border: 4px solid #333; box-shadow: 0 20px 50px rgba(0,0,0,0.3); overflow: hidden;">
+         <!-- Canvas injects here -->
+      </div>
     </div>
 
   </div>
 </section>
+
 
 <section class="section" id="agenda">
   <h2 class="section-header">Agenda</h2>
