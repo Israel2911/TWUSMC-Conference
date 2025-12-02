@@ -133,7 +133,18 @@
     <div class="live-grid">
       <div class="video-wrapper" id="vidWrap">
         <div class="live-badge">🔴 LIVE</div>
-        <iframe id="feed" width="100%" height="100%" src="https://www.youtube.com/embed/live_stream?channel=YOUR_CHANNEL_ID" frameborder="0" allowfullscreen></iframe>
+        <!-- YOUTUBE IFRAME (INTEGRATED) -->
+        <iframe 
+          id="feed" 
+          width="100%" 
+          height="100%" 
+          src="https://www.youtube.com/embed/PqjDdM-VurI?autoplay=1&mute=1" 
+          title="TWU-SMC Leadership Conference Live Stream"
+          frameborder="0" 
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+          referrerpolicy="strict-origin-when-cross-origin" 
+          allowfullscreen>
+        </iframe>
       </div>
       <div class="live-info-panel">
         <h2 style="margin:0 0 10px 0;">Live Q&A</h2>
@@ -261,17 +272,17 @@
     <h3>Conference Brochure</h3>
     <p style="margin-bottom:20px; opacity:0.8;">View, scroll, and download the full schedule below.</p>
     
-    <!-- PDF CONTAINER -->
+    <!-- PDF CONTAINER (Fixed: URL encoded spaces to prevent server errors) -->
     <div style="position: relative; width: 100%; height: 0; padding-bottom: 75%; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid #ddd; background: #525659;">
       <object 
-        data="GLOB SMC Leadership Conference 2025_Brochure_Final5.pdf#toolbar=1&view=FitH&navpanes=0" 
+        data="GLOB%20SMC%20Leadership%20Conference%202025_Brochure_Final5.pdf#toolbar=1&view=FitH&navpanes=0" 
         type="application/pdf" 
         width="100%" 
         height="100%" 
         style="position: absolute; top: 0; left: 0; border: none;">
           <!-- Fallback -->
           <iframe 
-            src="GLOB SMC Leadership Conference 2025_Brochure_Final5.pdf#toolbar=1&view=FitH" 
+            src="GLOB%20SMC%20Leadership%20Conference%202025_Brochure_Final5.pdf#toolbar=1&view=FitH" 
             width="100%" 
             height="100%" 
             style="border:none;">
@@ -281,7 +292,7 @@
 
     <br>
     
-    <a href="GLOB SMC Leadership Conference 2025_Brochure_Final5.pdf" download class="pdf-btn">
+    <a href="GLOB%20SMC%20Leadership%20Conference%202025_Brochure_Final5.pdf" download class="pdf-btn">
       <span class="material-icons-round" style="vertical-align:middle; margin-right:5px;">download</span> Download PDF
     </a>
   </div>
@@ -339,11 +350,22 @@ s.on('z',(state)=>{
       </div>`;
   } else {
     if (!document.getElementById('vidWrap')) {
+       // RE-INJECT CORRECT YOUTUBE IFRAME WITH SPECIFIC ID HERE
        hL.innerHTML = `
         <div class="live-grid">
           <div class="video-wrapper" id="vidWrap">
             <div class="live-badge">🔴 LIVE</div>
-            <iframe id="feed" width="100%" height="100%" src="https://www.youtube.com/embed/live_stream?channel=YOUR_CHANNEL_ID" frameborder="0" allowfullscreen></iframe>
+            <iframe 
+              id="feed" 
+              width="100%" 
+              height="100%" 
+              src="https://www.youtube.com/embed/PqjDdM-VurI?autoplay=1&mute=1" 
+              title="TWU-SMC Leadership Conference Live Stream"
+              frameborder="0" 
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+              referrerpolicy="strict-origin-when-cross-origin" 
+              allowfullscreen>
+            </iframe>
           </div>
           <div class="live-info-panel">
             <h2 style="margin:0 0 10px 0;">Live Q&A</h2>
