@@ -529,48 +529,45 @@ updateTimes();
     renderer.setPixelRatio(window.devicePixelRatio);
     container.appendChild(renderer.domElement);
 
-    // LIGHTS (Kept for spine/pages depth)
+    // Lights
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
     scene.add(ambientLight);
     const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
     dirLight.position.set(5, 5, 5);
     scene.add(dirLight);
 
-    // GEOMETRY
+    // Geometry
     const geometry = new THREE.BoxGeometry(3.2, 4.6, 0.5);
     const loader = new THREE.TextureLoader();
     
-    // DEBUG: Add error handling to texture load
-    const coverTexture = loader.load('book_cover.jpg', 
-        function ( texture ) { console.log("Texture loaded!"); },
-        undefined,
-        function ( err ) { console.error("Texture failed"); }
-    );
+    // Load Front and Back Textures
+    // Note: If these fail, check console. Ensure files are in 'public' folder.
+    const frontTexture = loader.load('bookfront.jpg'); 
+    const backTexture = loader.load('bookcoverback.jpg');
 
-    // MATERIALS
+    // Materials
     const spineMaterial = new THREE.MeshLambertMaterial({ color: 0x111111 }); 
     const pageMaterial = new THREE.MeshLambertMaterial({ color: 0xfdfdfd }); 
     
-    // Use MeshBasicMaterial for cover to ensure it's visible regardless of lighting
-    // Added 'white' color as base.
-    const coverMaterial = new THREE.MeshBasicMaterial({ 
-        map: coverTexture,
-        color: 0xffffff 
-    });
+    // Use MeshBasicMaterial for covers so they are always bright and visible
+    const frontMaterial = new THREE.MeshBasicMaterial({ map: frontTexture, color: 0xffffff });
+    const backMaterial = new THREE.MeshBasicMaterial({ map: backTexture, color: 0xffffff });
 
+    // Material Array Order for BoxGeometry:
+    // 0:Right (Pages), 1:Left (Spine), 2:Top (Pages), 3:Bottom (Pages), 4:Front, 5:Back
     const materials = [
-      pageMaterial,   // Right (Pages)
-      spineMaterial,  // Left (Spine)
+      pageMaterial,   // Right
+      spineMaterial,  // Left
       pageMaterial,   // Top
       pageMaterial,   // Bottom
-      coverMaterial,  // Front Cover
-      coverMaterial   // Back Cover
+      frontMaterial,  // Front Cover
+      backMaterial    // Back Cover
     ];
 
     const book = new THREE.Mesh(geometry, materials);
     scene.add(book);
 
-    // FORCE FRONT FACING INITIAL ROTATION
+    // Initial Orientation: Face Front
     book.rotation.y = 0; 
     book.rotation.x = 0.1; 
 
@@ -589,16 +586,12 @@ updateTimes();
       requestAnimationFrame(animate);
       
       if (Math.abs(mouseX) > 0.1) {
-          targetRotationY = mouseX * 0.5; 
+          targetRotationY = mouseX * 0.8; // Interactive tilt
           book.rotation.y += (targetRotationY - book.rotation.y) * 0.05;
       } else {
-          // Slow rotation, but keep it oscillating or slow spin so we don't get stuck on edge
-          book.rotation.y -= 0.005; 
+          book.rotation.y -= 0.005; // Slow auto spin
       }
-      
-      // Fixed tilt to ensure 3D depth is always visible
-      book.rotation.x = 0.15; 
-
+      book.rotation.x = 0.15; // Constant tilt
       renderer.render(scene, camera);
     }
     animate();
