@@ -521,55 +521,61 @@ updateTimes();
     if (!container) return;
 
     const scene = new THREE.Scene();
-    // Camera positioned further back to see the whole book
+    // Move camera closer to see detail
     const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
-    camera.position.set(0, 0, 7); 
+    camera.position.set(0, 0, 6.5); 
 
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
     renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
     container.appendChild(renderer.domElement);
 
-    // Brighter Lighting Setup
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8); // Increased intensity
+    // bright lights to ensure visibility
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
     scene.add(ambientLight);
-    
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
-    dirLight.position.set(5, 5, 10); // Front-top-right light
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+    dirLight.position.set(5, 5, 5);
     scene.add(dirLight);
-    
-    const backLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    backLight.position.set(-5, 5, -10); // Back light
-    scene.add(backLight);
 
-    // Book Geometry
-    const geometry = new THREE.BoxGeometry(3.2, 4.6, 0.5);
+    // Book Geometry: Width, Height, Thickness
+    const geometry = new THREE.BoxGeometry(3.2, 4.6, 0.4);
     const loader = new THREE.TextureLoader();
     
-    // Ensure this path is correct! If in public folder, use 'public/book_cover.jpg'
-    // If the image fails to load, it will default to black, which is what you saw.
-    const coverTexture = loader.load('book_cover.jpg', function(texture) {
-        // Optional: force texture updates if needed
-        texture.encoding = THREE.sRGBEncoding;
-    }, undefined, function(err) {
-        console.error("Error loading texture:", err);
+    // Try to load image. If it fails, we have a fallback color.
+    // Assuming your file is named 'book_cover.jpg' in the public folder.
+    // Try 'public/book_cover.jpg' if serving from root with express.static('public') set.
+    // Or just 'book_cover.jpg' if serving flat.
+    const coverTexture = loader.load('book_cover.jpg'); 
+
+    // Materials
+    // 0:Right(Pages), 1:Left(Spine), 2:Top(Pages), 3:Bottom(Pages), 4:Front(Cover), 5:Back(Cover)
+    
+    const spineMaterial = new THREE.MeshLambertMaterial({ color: 0x111111 }); 
+    const pageMaterial = new THREE.MeshLambertMaterial({ color: 0xfdfdfd }); 
+    
+    // COVER MATERIAL: Added a fallback color (Teal) so if image fails, you see a teal book
+    const coverMaterial = new THREE.MeshLambertMaterial({ 
+        map: coverTexture,
+        color: 0xffffff // White base so texture colors show true
     });
 
-    const spineMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 }); 
-    const pageMaterial = new THREE.MeshBasicMaterial({ color: 0xfdfdfd }); // Basic material ignores light (always bright)
-    const coverMaterial = new THREE.MeshLambertMaterial({ map: coverTexture });
-
     const materials = [
-      pageMaterial,   // Right (pages)
-      spineMaterial,  // Left (spine)
-      pageMaterial,   // Top (pages)
-      pageMaterial,   // Bottom (pages)
-      coverMaterial,  // Front
-      coverMaterial   // Back
+      pageMaterial,   // Right
+      spineMaterial,  // Left
+      pageMaterial,   // Top
+      pageMaterial,   // Bottom
+      coverMaterial,  // Front Cover
+      coverMaterial   // Back Cover
     ];
 
     const book = new THREE.Mesh(geometry, materials);
     scene.add(book);
+
+    // INITIAL ROTATION FIX:
+    // Rotate Y by -1.57 (-90 deg) might be showing the spine.
+    // Let's set rotation to 0 to face the camera, then tilt slightly.
+    book.rotation.y = 0; 
+    book.rotation.x = 0.1; // Slight tilt up
 
     let mouseX = 0;
     let targetRotationY = 0;
@@ -585,19 +591,19 @@ updateTimes();
     function animate() {
       requestAnimationFrame(animate);
       
-      // Rotation Logic
-      if (Math.abs(mouseX) > 0.05) {
+      if (Math.abs(mouseX) > 0.1) {
           // Interactive tilt
-          targetRotationY = mouseX * 1.0;
+          targetRotationY = mouseX * 0.5; 
           book.rotation.y += (targetRotationY - book.rotation.y) * 0.05;
       } else {
-          // Continuous slow rotation
-          book.rotation.y -= 0.01; 
+          // Auto spin logic
+          // We want it to rotate slowly but show the cover mostly
+          book.rotation.y -= 0.005; 
       }
       
-      // Tilt the book slightly towards the viewer
+      // Force a slight tilt so it looks 3D
       book.rotation.x = 0.15; 
-      
+
       renderer.render(scene, camera);
     }
     animate();
@@ -610,6 +616,7 @@ updateTimes();
       camera.updateProjectionMatrix();
     });
 })();
+
 </script>
 </body>
 </html>
