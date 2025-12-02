@@ -515,14 +515,14 @@ updateTimes();
   animate();
 })();
 
-// ===== PREMIUM 3D BOOK ANIMATION =====
+// ===== PREMIUM 360 3D BOOK ANIMATION =====
 (function initBook() {
     const container = document.getElementById('bookContainer');
     if (!container) return;
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
-    camera.position.set(0, 0, 6.5); // Perfect distance
+    camera.position.set(0, 0, 6.5); 
 
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
     renderer.setSize(container.clientWidth, container.clientHeight);
@@ -560,52 +560,45 @@ updateTimes();
     const book = new THREE.Mesh(geometry, materials);
     scene.add(book);
 
-    // Variables for physics
+    // Variables
     let mouseX = 0;
-    let mouseY = 0;
-    let targetRotX = 0.15; // Default slight tilt up
-    let targetRotY = 0;
+    let isHovering = false;
     const clock = new THREE.Clock();
 
-    // Track mouse
+    // Track mouse position relative to center (full width = -1 to 1)
     container.addEventListener('mousemove', (e) => {
       const rect = container.getBoundingClientRect();
-      // Calculate mouse position (-1 to 1)
       mouseX = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-      mouseY = ((e.clientY - rect.top) / rect.height) * 2 - 1;
+      isHovering = true;
     });
 
     // Reset on leave
     container.addEventListener('mouseleave', () => {
-      mouseX = 0; 
-      mouseY = 0;
+      isHovering = false;
     });
 
     function animate() {
       requestAnimationFrame(animate);
       const elapsed = clock.getElapsedTime();
 
-      if (Math.abs(mouseX) > 0.05 || Math.abs(mouseY) > 0.05) {
-          // INTERACTIVE MODE (Mouse is over)
-          // Target follows mouse with amplification
-          targetRotY = mouseX * 0.6; 
-          targetRotX = 0.15 + (mouseY * 0.2); // Slight vertical tilt control
-      } else {
-          // IDLE MODE (Floating & Gentle Sway)
-          // Gentle Sine Wave Rotation (Sway left/right slightly)
-          targetRotY = Math.sin(elapsed * 0.5) * 0.3; 
+      if (isHovering) {
+          // INTERACTIVE 360 CONTROL
+          // Map mouse X (-1 to 1) to Rotation Y (-PI to PI)
+          // This allows full 360 control with mouse movement
+          let targetRotation = mouseX * Math.PI; 
           
-          // Reset vertical tilt to default
-          targetRotX = 0.15; 
+          // Smoothly lerp towards the target rotation
+          book.rotation.y += (targetRotation - book.rotation.y) * 0.1;
+      } else {
+          // AUTO SPIN 360 (Endless Rotation)
+          book.rotation.y -= 0.005; // Constant slow spin speed
       }
 
-      // Physics Smoothing (Lerp)
-      // "0.05" is the friction/weight. Lower = heavier/smoother.
-      book.rotation.y += (targetRotY - book.rotation.y) * 0.05;
-      book.rotation.x += (targetRotX - book.rotation.x) * 0.05;
-
       // Floating Effect (Bob up and down)
-      book.position.y = Math.sin(elapsed * 1.5) * 0.1; // Bob range +/- 0.1
+      book.position.y = Math.sin(elapsed * 1.5) * 0.1; 
+      
+      // Constant Tilt for 3D effect
+      book.rotation.x = 0.15; 
 
       renderer.render(scene, camera);
     }
@@ -619,6 +612,7 @@ updateTimes();
       camera.updateProjectionMatrix();
     });
 })();
+
 </script>
 </body>
 </html>
