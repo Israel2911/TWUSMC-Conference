@@ -133,18 +133,7 @@
     <div class="live-grid">
       <div class="video-wrapper" id="vidWrap">
         <div class="live-badge">🔴 LIVE</div>
-        <!-- NEW YOUTUBE IFRAME INTEGRATED HERE -->
-        <iframe 
-          id="feed" 
-          width="100%" 
-          height="100%" 
-          src="https://www.youtube.com/embed/PqjDdM-VurI?autoplay=1&mute=1" 
-          title="TWU-SMC Leadership Conference Live Stream"
-          frameborder="0" 
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-          referrerpolicy="strict-origin-when-cross-origin" 
-          allowfullscreen>
-        </iframe>
+        <iframe id="feed" width="100%" height="100%" src="https://www.youtube.com/embed/live_stream?channel=YOUR_CHANNEL_ID" frameborder="0" allowfullscreen></iframe>
       </div>
       <div class="live-info-panel">
         <h2 style="margin:0 0 10px 0;">Live Q&A</h2>
@@ -350,22 +339,11 @@ s.on('z',(state)=>{
       </div>`;
   } else {
     if (!document.getElementById('vidWrap')) {
-       // RE-INJECT CORRECT YOUTUBE IFRAME HERE IF ELEMENT WAS REMOVED
        hL.innerHTML = `
         <div class="live-grid">
           <div class="video-wrapper" id="vidWrap">
             <div class="live-badge">🔴 LIVE</div>
-            <iframe 
-              id="feed" 
-              width="100%" 
-              height="100%" 
-              src="https://www.youtube.com/embed/PqjDdM-VurI?autoplay=1&mute=1" 
-              title="TWU-SMC Leadership Conference Live Stream"
-              frameborder="0" 
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-              referrerpolicy="strict-origin-when-cross-origin" 
-              allowfullscreen>
-            </iframe>
+            <iframe id="feed" width="100%" height="100%" src="https://www.youtube.com/embed/live_stream?channel=YOUR_CHANNEL_ID" frameborder="0" allowfullscreen></iframe>
           </div>
           <div class="live-info-panel">
             <h2 style="margin:0 0 10px 0;">Live Q&A</h2>
