@@ -36,6 +36,7 @@
     .live-badge { position: absolute; top: 20px; left: 20px; background: #ff0000; color: white; padding: 5px 15px; border-radius: 5px; font-weight: bold; font-size: 0.9rem; z-index: 10; }
 
         /* --- YOUTUBE CROP HACK (Add this) --- */
+      /* --- YOUTUBE CROP HACK (Disabled for now) --- */
     .video-crop {
       width: 100%;
       height: 100%;
@@ -44,10 +45,10 @@
     }
     .video-crop iframe {
       position: absolute;
-      top: -60px; /* Pulls video up to hide banner */
+      top: 0; /* Changed from -60px to 0 so you can see the banner/thumbnail */
       left: 0;
       width: 100%;
-      height: calc(100% + 60px); /* Extends height so bottom isn't cut */
+      height: 100%; /* Changed from calc(100% + 60px) back to 100% */
     }
 
     
