@@ -74,6 +74,8 @@
     .join-btn { background: linear-gradient(135deg, #167690, #0f5c70); color: white; padding: 15px 30px; border-radius: 30px; border: none; font-weight: 800; cursor: pointer; width: 100%; font-size: 1.1rem; margin-top: 10px; box-shadow: 0 5px 15px rgba(22, 118, 144, 0.3); transition: 0.2s; }
     .join-btn:hover { transform: scale(1.02); }
     .download-log { font-size: 0.75rem; background: rgba(255,255,255,0.2); padding: 5px 10px; border-radius: 6px; color: white; text-decoration: none; cursor: pointer; display: none; font-weight: normal; }
+    .teams-link-header { color: rgba(255,255,255,0.8); font-size: 0.85rem; text-decoration: none; display: flex; align-items: center; gap: 5px; background: rgba(0,0,0,0.2); padding: 5px 10px; border-radius: 15px; font-weight: 700; transition: 0.2s; }
+    .teams-link-header:hover { background: rgba(255,255,255,0.2); color: white; }
     
     .teams-backup { background: linear-gradient(135deg, #1a0000, #000); padding: 40px; text-align: center; color: white; height: 100%; display: flex; flex-direction: column; justify-content: center; border-radius: 20px; }
     .teams-backup h2 { font-size: 2.8rem; margin-bottom: 15px; font-weight: 900; }
@@ -100,8 +102,6 @@
     .section { padding: 80px 40px; max-width: 1200px; margin: 0 auto; text-align: center; }
     .section-header { font-size: 2.5rem; color: #167690; margin-bottom: 40px; font-weight:900; }
     .content-box { background: white; padding: 60px; border-radius: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.05); text-align: left; font-size: 1.1rem; }
-    
-    /* --- SYNOPSIS RESTORED STYLES --- */
     .synopsis-card { background: white; padding: 40px; border-radius: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.05); text-align: left; position: relative; overflow: hidden; transition: all 0.3s ease; }
     .synopsis-preview { font-size: 1.1rem; line-height: 1.8; }
     .synopsis-expanded { max-height: 0; overflow: hidden; transition: max-height 0.5s ease; }
@@ -112,7 +112,6 @@
     .expand-btn:hover { background: #128fa7; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(22, 118, 144, 0.3); }
     .expand-btn .material-icons-round { transition: transform 0.3s ease; }
     .expand-btn.open .material-icons-round { transform: rotate(180deg); }
-
     .agenda-table { width: 100%; border-collapse: collapse; }
     .agenda-table tr { transition: background 0.2s; }
     .agenda-table tr:hover { background: #f7fafc; }
@@ -120,13 +119,21 @@
     .pdf-btn { display: inline-block; background: #167690; color: white; padding: 15px 30px; border-radius: 30px; text-decoration: none; font-weight: bold; margin-top: 20px; transition: 0.2s; }
     .pdf-btn:hover { background: #128fa7; transform: translateY(-2px); }
     
-    @media (max-width: 900px) {
-      #synopsis > div { grid-template-columns: 1fr !important; text-align: center; }
-      #bookContainer { height: 400px !important; margin-top: 20px; }
-    }
+    /* --- ADMIN & TOGGLE BUTTONS --- */
+    .admin-panel { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; gap: 10px; flex-direction: column; }
+    .admin-btn { padding: 10px 20px; border-radius: 30px; cursor: pointer; font-weight: bold; border: 2px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.3); transition: all 0.3s; }
+    .admin-btn:hover { transform: scale(1.05); }
+    .btn-live { background: #333; color: white; } 
+    .btn-kill { background: #ff0000; color: white; display: none; }
+    @keyframes pulse-red { 0% { opacity: 1; } 50% { opacity: 0.8; } 100% { opacity: 1; } }
+    @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.2); color: #167690; } 100% { transform: scale(1); } }
+    .pop { animation: pop 0.3s ease; }
+    @media (max-width: 1024px) { .live-grid { grid-template-columns: 1fr; height: auto; } }
   </style>
 </head>
 <body>
+
+<!-- ADMIN CONTROLS -->
 <div class="admin-panel" id="adminPanel">
   <button class="admin-btn btn-live" id="liveToggle">🔴 GO LIVE</button>
   <button class="admin-btn btn-kill" id="killSwitch">⚠️ END STREAM</button>
@@ -135,6 +142,7 @@
 <header class="header">
   <div class="logo">TWU-SMC Leadership</div>
   <nav class="nav">
+    <!-- VIEWER COUNT -->
     <div class="viewer-count" id="viewerCount">
       <span class="material-icons-round">visibility</span>
       <span id="countNum">0</span> Watching
@@ -175,7 +183,13 @@
               <span class="material-icons-round">forum</span>
               The Human Space
             </div>
-            <a id="downloadLogBtn" class="download-log">⬇ SAVE LOG</a>
+            <div style="display:flex; gap:10px;">
+              <!-- RESTORED TEAMS BUTTON -->
+              <a href="https://teams.microsoft.com/meet/25727590322372?p=Toyeb2xMWy8NeEJiA2" target="_blank" class="teams-link-header" title="Join Teams Call">
+                <span class="material-icons-round" style="font-size:16px;">videocam</span> Teams
+              </a>
+              <a id="downloadLogBtn" class="download-log">⬇ LOG</a>
+            </div>
           </div>
           <div class="tab-row">
             <button class="hs-tab active" onclick="switchTab('chat')">💬 Chat Lounge</button>
@@ -247,12 +261,9 @@
   </div>
 </section>
 
-<!-- SYNOPSIS SECTION (RESTORED WITH SUB-CARDS) -->
 <section class="section" id="synopsis">
   <h2 class="section-header">Conference Overview</h2>
   <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 60px; align-items: center; max-width: 1200px; margin: 0 auto;">
-    
-    <!-- Text & Subcards -->
     <div class="synopsis-card">
       <div class="synopsis-preview">
         <p style="margin-bottom: 20px;">
@@ -317,7 +328,6 @@
       </button>
     </div>
 
-    <!-- 3D Book -->
     <div style="display:flex; justify-content:center;">
       <div id="bookContainer" style="width: 400px; height: 500px; position: relative; border-radius: 30px; background: radial-gradient(circle at 50% 50%, #2a3242 0%, #000000 100%); border: 4px solid #333; box-shadow: 0 20px 50px rgba(0,0,0,0.3); overflow: hidden;"></div>
     </div>
@@ -344,7 +354,6 @@
     <h3>Conference Brochure</h3>
     <p style="margin-bottom:20px; opacity:0.8;">View, scroll, and download the full schedule below.</p>
     
-    <!-- PDF CONTAINER (Restored Original Logic) -->
     <div style="position: relative; width: 100%; height: 0; padding-bottom: 75%; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid #ddd; background: #525659;">
       <object 
         data="GLOB%20SMC%20Leadership%20Conference%202025_Brochure_Final5.pdf#toolbar=1&view=FitH&navpanes=0" 
@@ -352,7 +361,6 @@
         width="100%" 
         height="100%" 
         style="position: absolute; top: 0; left: 0; border: none;">
-          <!-- Fallback -->
           <iframe 
             src="GLOB%20SMC%20Leadership%20Conference%202025_Brochure_Final5.pdf#toolbar=1&view=FitH" 
             width="100%" 
@@ -370,17 +378,14 @@
 </section>
 
 <script>
-// ===== STEALTH SOCKET CONTROL =====
 const s=io(),u=Intl.DateTimeFormat().resolvedOptions().timeZone;s.emit('r',u);
 
-// --- CHAT STATE ---
 let myName = "";
 let myCountry = "";
 let currentTab = "chat"; 
 let chatHistory = []; 
 let myBanned = false;
 
-// --- DOM ELEMENTS ---
 const hS=document.getElementById('heroStandard'),
       hL=document.getElementById('heroLive'),
       hB=document.getElementById('heroBg'),
@@ -434,6 +439,7 @@ s.on('z',(state)=>{
         </a>
       </div>`;
   } else {
+    // Reload if user was previously in Killed state (keeps UI fresh)
     if (!document.getElementById('vidWrap')) {
       location.reload(); 
     }
@@ -456,10 +462,8 @@ s.on('r',(m)=>{
   });
 });
 
-// --- CHAT LISTENERS ---
 s.on('chatIncoming', (data) => {
   const isMe = (data.user === myName);
-  // Pass isMe=false if it came from server and isn't me (handled by server loopback)
   addMessage('chat', data.user, data.text, isMe, data.country);
 });
 
@@ -478,7 +482,6 @@ s.on('qaReplyIncoming', (data) => {
   }
 });
 
-
 document.getElementById('expandBtn').addEventListener('click',function(){
   const e=document.getElementById('synopsisExpanded');
   e.classList.toggle('open');
@@ -486,7 +489,6 @@ document.getElementById('expandBtn').addEventListener('click',function(){
   this.querySelector('span:first-child').textContent = e.classList.contains('open') ? 'Read Less' : 'Read More';
 });
 
-// --- CHAT LOGIC ---
 function switchTab(tabName) {
   currentTab = tabName;
   document.querySelectorAll('.hs-tab').forEach(btn => btn.classList.remove('active'));
@@ -514,14 +516,8 @@ function sendMessage() {
   if(myBanned) return alert("You have been restricted.");
   const txt = msgInput.value.trim();
   if(!txt) return;
-  
-  if(currentTab === 'chat') {
-    // Send to Server
-    s.emit('chatMsg', { user: myName, text: txt, country: myCountry });
-  } else {
-    // Send Q&A to Server
-    s.emit('qaAsk', { user: myName, text: txt, country: myCountry });
-  }
+  if(currentTab === 'chat') s.emit('chatMsg', { user: myName, text: txt, country: myCountry });
+  else s.emit('qaAsk', { user: myName, text: txt, country: myCountry });
   msgInput.value = "";
 }
 
@@ -536,16 +532,12 @@ function addMessage(target, user, text, isMe, country) {
   const container = chatTab; 
   const id = Date.now() + Math.random();
   const isBot = user === "AI Facilitator" || user === "System";
-  
   const div = document.createElement('div');
   div.className = `msg ${isMe ? 'me' : ''} ${isBot ? 'bot' : ''}`;
   div.id = `msg-${id}`;
-  
   const regionStr = country || 'Global';
-  
   div.innerHTML = `<span class="msg-meta">${user} ${!isMe && !isBot ? '• ' + regionStr : ''}</span>${text}
     <div class="msg-actions">${!isMe ? `<button class="mod-btn flag" onclick="flagMsg('${id}')"><span class="material-icons-round" style="font-size:12px;">flag</span></button>` : ''}</div>`;
-  
   container.appendChild(div);
   container.scrollTop = container.scrollHeight;
   chatHistory.push(`[CHAT] ${user}: ${text}`);
@@ -555,9 +547,7 @@ function addQaThread(user, text, isMe, country, id) {
   if(!id) id = Date.now() + Math.random();
   const div = document.createElement('div');
   div.className = 'qa-thread'; div.id = `qa-${id}`;
-  
   const regionStr = country || 'Global';
-  
   div.innerHTML = `<span class="qa-question">Q: ${text}</span><div class="msg-meta">Asked by ${user} • ${regionStr}</div>
     <div class="qa-replies" id="replies-${id}"></div>
     <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
@@ -571,12 +561,9 @@ function addQaThread(user, text, isMe, country, id) {
 
 function replyToQa(id) {
   const replyText = prompt("Enter your reply/insight:");
-  if(replyText) {
-    s.emit('qaReply', { threadId: id, user: myName, text: replyText });
-  }
+  if(replyText) s.emit('qaReply', { threadId: id, user: myName, text: replyText });
 }
 
-// --- AI BOT ---
 const botPrompts = ["What is one fear you have about AI ethics?", "Faculty are watching the Q&A tab. Post your questions there!", "How can we ensure AI remains 'human-centered'?", "Welcome to our new attendees!"];
 function startAiBot() {
   let idx = 0;
@@ -585,7 +572,6 @@ function startAiBot() {
   }, 60000); 
 }
 
-// --- MODERATION ---
 const msgFlags = {}; 
 function flagMsg(id) {
   if(!msgFlags[id]) msgFlags[id] = 0;
@@ -601,17 +587,7 @@ downloadBtn.onclick = function() {
   a.href = url; a.download = `Human_Space_Log.txt`; a.click();
 };
 
-// ===== Globe & Time Cards =====
-const countries=[
-  {name:'India',flag:'🇮🇳',tz:'Asia/Kolkata',lat:22,lng:78,color:'#FF9933'},
-  {name:'Canada',flag:'🇨🇦',tz:'America/Vancouver',lat:56,lng:-106,color:'#ff0000'},
-  {name:'Thailand',flag:'🇹🇭',tz:'Asia/Bangkok',lat:13,lng:100,color:'#ffcc00'},
-  {name:'Europe',flag:'🇪🇺',tz:'Europe/Paris',lat:48,lng:2,color:'#0000FF'},
-  {name:'UK',flag:'🇬🇧',tz:'Europe/London',lat:53,lng:-0.1,color:'#191970'},
-  {name:'USA',flag:'🇺🇸',tz:'America/New_York',lat:39,lng:-98,color:'#003366'},
-  {name:'Singapore',flag:'🇸🇬',tz:'Asia/Singapore',lat:1.3,lng:103,color:'#EE2536'},
-  {name:'Malaysia',flag:'🇲🇾',tz:'Asia/Kuala_Lumpur',lat:4,lng:102,color:'#FFD700'}
-];
+const countries=[{name:'India',flag:'🇮🇳',tz:'Asia/Kolkata',lat:22,lng:78,color:'#FF9933'},{name:'Canada',flag:'🇨🇦',tz:'America/Vancouver',lat:56,lng:-106,color:'#ff0000'},{name:'Thailand',flag:'🇹🇭',tz:'Asia/Bangkok',lat:13,lng:100,color:'#ffcc00'},{name:'Europe',flag:'🇪🇺',tz:'Europe/Paris',lat:48,lng:2,color:'#0000FF'},{name:'UK',flag:'🇬🇧',tz:'Europe/London',lat:53,lng:-0.1,color:'#191970'},{name:'USA',flag:'🇺🇸',tz:'America/New_York',lat:39,lng:-98,color:'#003366'},{name:'Singapore',flag:'🇸🇬',tz:'Asia/Singapore',lat:1.3,lng:103,color:'#EE2536'},{name:'Malaysia',flag:'🇲🇾',tz:'Asia/Kuala_Lumpur',lat:4,lng:102,color:'#FFD700'}];
 const stackEl=document.getElementById('timeStack');
 countries.forEach((c,i)=>{
   stackEl.innerHTML+=`
@@ -634,10 +610,8 @@ function updateTimes(){
     document.getElementById(`weather-${i}`).innerHTML=`<span class="material-icons-round" style="color:${color}">${icon}</span>`;
   });
 }
-setInterval(updateTimes,1000);
-updateTimes();
+setInterval(updateTimes,1000); updateTimes();
 
-// ===== 3D Globe Initialization (With Flags) =====
 (function initGlobe() {
   const container = document.getElementById('heroGlobeContainer');
   if (!container) return;
@@ -651,14 +625,12 @@ updateTimes();
   controls.enableDamping = true; controls.autoRotate = true; controls.autoRotateSpeed = 0.8;
   scene.add(new THREE.AmbientLight(0xffffff, 0.8));
   const dLight = new THREE.DirectionalLight(0xffffff, 0.7); dLight.position.set(1, 1, 1); scene.add(dLight);
-  
   const globeGroup = new THREE.Group(); scene.add(globeGroup); globeGroup.rotation.y = 0; globeGroup.rotation.x = 0.2;
   new THREE.TextureLoader().load('https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Land_ocean_ice_2048.jpg/1024px-Land_ocean_ice_2048.jpg', (tex) => {
       const geo = new THREE.SphereGeometry(1, 64, 64);
       const mat = new THREE.MeshPhongMaterial({ map: tex, specular: 0x111111, shininess: 5 });
       globeGroup.add(new THREE.Mesh(geo, mat));
   });
-
   const flagSprites = [];
   function latLonToVec3(lat, lon, r) {
     const phi = (90 - lat) * (Math.PI / 180);
@@ -699,17 +671,11 @@ updateTimes();
     });
   }
   setInterval(updateSprites, 1000); updateSprites();
-
-  document.getElementById('pauseBtn').onclick = function () {
-    controls.autoRotate = !controls.autoRotate;
-    this.innerText = controls.autoRotate ? '⏸ Pause' : '▶ Start Rotation';
-  };
-
+  document.getElementById('pauseBtn').onclick = function () { controls.autoRotate = !controls.autoRotate; this.innerText = controls.autoRotate ? '⏸ Pause' : '▶ Start Rotation'; };
   function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); }
   animate();
 })();
 
-// ===== 3D BOOK =====
 (function initBook() {
   const container = document.getElementById('bookContainer');
   if (!container) return;
@@ -726,11 +692,7 @@ updateTimes();
   const loader = new THREE.TextureLoader();
   const frontTexture = loader.load('bookfront.jpg');
   const backTexture = loader.load('bookcoverback.jpg');
-  const spineMaterial = new THREE.MeshLambertMaterial({ color: 0x111111 });
-  const pageMaterial = new THREE.MeshLambertMaterial({ color: 0xfdfdfd });
-  const frontMaterial = new THREE.MeshBasicMaterial({ map: frontTexture, color: 0xffffff });
-  const backMaterial = new THREE.MeshBasicMaterial({ map: backTexture, color: 0xffffff });
-  const materials = [ pageMaterial, spineMaterial, pageMaterial, pageMaterial, frontMaterial, backMaterial ];
+  const materials = [ new THREE.MeshLambertMaterial({ color: 0xfdfdfd }), new THREE.MeshLambertMaterial({ color: 0x111111 }), new THREE.MeshLambertMaterial({ color: 0xfdfdfd }), new THREE.MeshLambertMaterial({ color: 0xfdfdfd }), new THREE.MeshBasicMaterial({ map: frontTexture, color: 0xffffff }), new THREE.MeshBasicMaterial({ map: backTexture, color: 0xffffff }) ];
   const book = new THREE.Mesh(geometry, materials);
   const bookGroup = new THREE.Group(); bookGroup.add(book); scene.add(bookGroup);
   book.rotation.x = 0.15;
