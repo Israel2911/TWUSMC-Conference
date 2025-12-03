@@ -9,17 +9,29 @@ const io = new Server(server);
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-// GLOBAL STATE
+// ==========================================
+// GLOBAL STATE & SECURITY
+// ==========================================
 let K = false;   // Killed State (Global Override)
 let T = 0;       // Total Users
 let R = {};      // Region Counts { tz: count }
 let A = {};      // Active Client Timezones { socket.id: tz }
+let userLiveStates = {}; // Track individual toggle state
 
-// USER STATES (Track individual toggle state)
-let userLiveStates = {}; 
+// Rate Limiting Tracker { socket.id: lastMessageTime }
+const lastMsgTime = {};
+const RATE_LIMIT_MS = 500; // Minimum 0.5s between messages
 
-// Admin IP Allowlist (Add real IPs later)
-const ADMINS = ['127.0.0.1']; 
+// --- SECURITY HELPER: Prevent XSS Injection ---
+function escapeHtml(text) {
+  if (!text) return "";
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
 
 io.on('connection', (socket) => {
   T++;
@@ -28,7 +40,7 @@ io.on('connection', (socket) => {
   
   console.log('🔌 Client connected:', socket.id);
 
-  // Send initial state
+  // 1. Send initial state
   socket.emit('z', { 
     isLive: userLiveStates[socket.id], 
     isKilled: K 
@@ -37,7 +49,7 @@ io.on('connection', (socket) => {
   io.emit('t', T);
   io.emit('r', R);
 
-  // Timezone Report
+  // 2. Timezone Report
   socket.on('r', (tz) => {
     A[socket.id] = tz;
     if (!R[tz]) R[tz] = 0;
@@ -45,11 +57,8 @@ io.on('connection', (socket) => {
     io.emit('r', R);
   });
 
-  // TOGGLE REQUEST (User clicked "GO LIVE")
+  // 3. TOGGLE REQUEST (User clicked "GO LIVE")
   socket.on('x', () => {
-    // FIX: We do NOT block the toggle anymore if K is true.
-    // We allow the user to turn their view ON so they can see the Teams link.
-    
     // Toggle THIS USER'S state
     userLiveStates[socket.id] = !userLiveStates[socket.id];
     
@@ -62,6 +71,72 @@ io.on('connection', (socket) => {
     console.log(`👤 User ${socket.id} toggled view: ${userLiveStates[socket.id]} (Killed: ${K})`);
   });
 
+  // ==========================================
+  // SECURE CHAT & Q&A HANDLERS
+  // ==========================================
+  
+  // Handle Chat Messages
+  socket.on('chatMsg', (payload) => {
+    // Rate Limit Check
+    const now = Date.now();
+    if (lastMsgTime[socket.id] && now - lastMsgTime[socket.id] < RATE_LIMIT_MS) {
+      return; // Ignore spam
+    }
+    lastMsgTime[socket.id] = now;
+
+    // Sanitize Input (Prevent Hacking)
+    const safeUser = escapeHtml(payload.user);
+    const safeText = escapeHtml(payload.text);
+    const safeCountry = escapeHtml(payload.country);
+
+    // Broadcast to ALL clients
+    io.emit('chatIncoming', {
+      id: Date.now() + Math.random(),
+      user: safeUser,
+      text: safeText,
+      country: safeCountry,
+      type: 'chat'
+    });
+  });
+
+  // Handle Q&A Questions
+  socket.on('qaAsk', (payload) => {
+    // Rate Limit Check
+    const now = Date.now();
+    if (lastMsgTime[socket.id] && now - lastMsgTime[socket.id] < RATE_LIMIT_MS) return;
+    lastMsgTime[socket.id] = now;
+
+    const safeUser = escapeHtml(payload.user);
+    const safeText = escapeHtml(payload.text);
+    const safeCountry = escapeHtml(payload.country);
+
+    // Broadcast Question
+    io.emit('qaIncoming', {
+      id: Date.now() + Math.random(),
+      user: safeUser,
+      text: safeText,
+      country: safeCountry
+    });
+  });
+
+  // Handle Q&A Replies
+  socket.on('qaReply', (payload) => {
+    const safeUser = escapeHtml(payload.user);
+    const safeText = escapeHtml(payload.text);
+    const threadId = payload.threadId; // ID is usually safe, but treat carefully
+
+    // Broadcast Reply
+    io.emit('qaReplyIncoming', {
+      threadId: threadId,
+      user: safeUser,
+      text: safeText
+    });
+  });
+
+  // ==========================================
+  // ADMIN ACTIONS
+  // ==========================================
+
   // KILL REQUEST (Admin Only)
   socket.on('k', () => {
     const ip = socket.handshake.address;
@@ -70,20 +145,18 @@ io.on('connection', (socket) => {
     // 1. Set Global Kill Flag
     K = true;
 
-    // 2. Reset all user states to "False" so they are forced off initially
-    // They must click "GO LIVE" again to see the Teams link
+    // 2. Reset all user states to "False"
     for (let id in userLiveStates) {
       userLiveStates[id] = false; 
     }
 
-    // 3. GLOBAL BROADCAST
-    // Force everyone to close their screens immediately
+    // 3. GLOBAL BROADCAST: Force everyone OFF
     io.emit('z', { isLive: false, isKilled: true });
     
-    // 4. Force Legacy Cleanup (removes iframe)
+    // 4. Force Legacy Cleanup
     io.emit('d'); 
 
-    console.log('💀 NUCLEAR KILL ACTIVATED - Users reset to off');
+    console.log('💀 NUCLEAR KILL ACTIVATED');
   });
 
   // Disconnect
@@ -94,6 +167,7 @@ io.on('connection', (socket) => {
     
     delete A[socket.id];
     delete userLiveStates[socket.id];
+    delete lastMsgTime[socket.id];
 
     io.emit('t', T);
     io.emit('r', R);
