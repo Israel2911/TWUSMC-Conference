@@ -459,14 +459,10 @@
     </a>
   </div>
 </section>
-
-
 <script>
 /* --- ROBUST SOCKET INITIALIZATION --- */
 let s;
-try {
-  s = io(); 
-} catch(e) {
+try { s = io(); } catch(e) {
   console.warn("Socket.IO not found. OFFLINE MODE.");
   s = { emit: (e,d)=>console.log(`[Mock Emit] ${e}`,d), on: (e,c)=>console.log(`[Mock Listener] ${e}`) };
 }
@@ -476,7 +472,6 @@ s.emit('r', Intl.DateTimeFormat().resolvedOptions().timeZone);
 let myName = "";
 let myCountry = "";
 let currentTab = "chat"; 
-let myBanned = false;
 
 // DOM Elements
 const hS = document.getElementById('heroStandard'),
@@ -524,29 +519,35 @@ function killStreamUI() {
   if(hL) hL.innerHTML = `<div class="teams-backup" style="background:black;color:white;padding:40px;text-align:center;height:100%;display:flex;flex-direction:column;justify-content:center;"><h1>🔴 STREAM ENDED</h1><h2>Join on Teams</h2></div>`;
 }
 
-/* --- CHAT & Q&A LOGIC (SERVER AUTHORITY) --- */
+/* --- CHAT & Q&A LOGIC (STRICT SERVER ID SYNC) --- */
 
-// 1. Listen for CHAT (Show everything server sends)
+// 1. Chat Listener
 s.on('chatIncoming', (data) => {
   const isMe = (data.user === myName); 
   addMessage('chat', data.user, data.text, isMe, data.country);
 });
 
-// 2. Listen for Q&A QUESTIONS (Show everything server sends)
+// 2. Q&A Listener (CRITICAL FIX: Use Server ID)
 s.on('qaIncoming', (data) => {
+  // Pass 'data.id' explicitly to ensure both users share the same Thread ID
   addQaThread(data.user, data.text, (data.user === myName), data.country, data.id);
 });
 
-// 3. Listen for Q&A REPLIES (This is the part you need!)
+// 3. Reply Listener
 s.on('qaReplyIncoming', (data) => {
-  // Find the correct thread by ID
+  // Now this will work because the ID matches the one created above
   const box = document.getElementById(`replies-${data.threadId}`);
   if(box) {
     const div = document.createElement('div');
     div.className = 'qa-reply-item';
-    // Make the reply look distinct
     div.innerHTML = `<strong style="color:#167690">${data.user}:</strong> ${data.text}`;
     box.appendChild(div);
+    
+    // Scroll thread to bottom to show new reply
+    const threadDiv = document.getElementById(`qa-${data.threadId}`);
+    if(threadDiv) threadDiv.scrollIntoView({behavior: "smooth", block: "nearest"});
+  } else {
+    console.warn("Could not find parent thread for reply:", data.threadId);
   }
 });
 
@@ -600,17 +601,21 @@ function addMessage(target, user, text, isMe, country) {
   chatTab.scrollTop = chatTab.scrollHeight;
 }
 
-function addQaThread(user, text, isMe, country, id) {
+function addQaThread(user, text, isMe, country, serverId) {
   if(!qaTab) return;
   const div = document.createElement('div');
   div.className = 'qa-thread'; 
-  div.id = `qa-${id}`; // Use Server ID so replies can find it
+  
+  // CRITICAL: Use the ID from the server, or fallback only if testing locally
+  const finalId = serverId || Date.now();
+  div.id = `qa-${finalId}`; 
+  
   div.innerHTML = `
     <span class="qa-question">Q: ${text}</span>
     <div class="msg-meta">Asked by ${user} • ${country||'Global'}</div>
-    <div class="qa-replies" id="replies-${id}"></div>
+    <div class="qa-replies" id="replies-${finalId}"></div>
     <div style="margin-top:8px; padding-top:5px; border-top:1px solid #eee;">
-      <span style="cursor:pointer; color:#167690; font-weight:800; font-size:0.8rem;" onclick="replyToQa('${id}')">💬 REPLY</span>
+      <span style="cursor:pointer; color:#167690; font-weight:800; font-size:0.8rem;" onclick="replyToQa('${finalId}')">💬 REPLY</span>
     </div>
   `;
   qaTab.appendChild(div);
@@ -621,13 +626,12 @@ function replyToQa(id) {
   if(!myName) return alert("Please Join the Chat first!");
   const txt = prompt("Enter your reply:");
   if(txt) {
-    // Emit reply to server (Server will broadcast 'qaReplyIncoming')
+    // Emit reply to server
     s.emit('qaReply', { threadId: id, user: myName, text: txt });
   }
 }
 
-/* --- KEEP GLOBE & BOOK CODE BELOW --- */
-// (Paste your existing 3D Globe and Book code here)
+/* --- 3D GLOBE & BOOK CODE (Preserved) --- */
 (function initGlobe() {
   const container = document.getElementById('heroGlobeContainer');
   if (!container) return;
@@ -734,6 +738,7 @@ function replyToQa(id) {
   });
 })();
 </script>
+
 
 
 
