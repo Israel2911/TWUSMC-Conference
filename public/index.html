@@ -460,20 +460,20 @@
   </div>
 </section>
 <script>
-/* --- ROBUST SOCKET INITIALIZATION --- */
+/* --- SOCKET SETUP --- */
 let s;
 try { s = io(); } catch(e) {
-  console.warn("Socket.IO not found. OFFLINE MODE.");
-  s = { emit: (e,d)=>console.log(`[Mock Emit] ${e}`,d), on: (e,c)=>console.log(`[Mock Listener] ${e}`) };
+  console.warn("OFFLINE MODE");
+  s = { emit: (e,d)=>console.log(`Mock Emit: ${e}`,d), on: (e,c)=>console.log(`Mock Listen: ${e}`) };
 }
 
-// Initial Setup
+// Init
 s.emit('r', Intl.DateTimeFormat().resolvedOptions().timeZone);
 let myName = "";
 let myCountry = "";
 let currentTab = "chat"; 
 
-// DOM Elements
+// Elements
 const hS = document.getElementById('heroStandard'),
       hL = document.getElementById('heroLive'),
       hB = document.getElementById('heroBg'),
@@ -493,14 +493,22 @@ if(new URLSearchParams(window.location.search).get('m')==='a') localStorage.setI
 if(document.getElementById('adminPanel')) document.getElementById('adminPanel').style.display='flex';
 if(downloadBtn && localStorage.getItem('a')==='1') downloadBtn.style.display='block';
 
-/* --- LIVE STREAM LOGIC --- */
+/* --- LIVE LOGIC & KILL SWITCH --- */
 if(lT) lT.onclick = () => { s.emit('x'); toggleLiveUI(true); };
-if(kS) kS.onclick = () => { if(confirm('KILL STREAM?')) { s.emit('k'); killStreamUI(); } };
+if(kS) kS.onclick = () => { if(confirm('⚠️ ACTIVATE KILL SWITCH?')) { s.emit('k'); killStreamUI(); } };
 
 s.on('z', (state) => {
   const isLive = (typeof state === 'object') ? state.isLive : state;
   const isKilled = (typeof state === 'object') ? state.isKilled : false;
   toggleLiveUI(isLive);
+  
+  // Update Kill Button UI if Admin
+  if (localStorage.getItem('a') === '1') {
+    kS.style.display = 'block';
+    if (isKilled) { kS.disabled = true; kS.innerHTML = '✅ KILLED'; kS.style.opacity = '0.7'; }
+    else { kS.disabled = false; kS.innerHTML = '⚠️ KILL STREAM'; kS.style.opacity = '1'; }
+  } else { kS.style.display = 'none'; }
+
   if(isKilled) killStreamUI();
 });
 
@@ -514,48 +522,49 @@ function toggleLiveUI(isLive) {
   if(vC) vC.style.display = isLive ? 'flex' : 'none';
   if(lT) { lT.innerHTML = isLive ? '🟢 LIVE' : '🔴 GO LIVE'; lT.style.background = isLive ? '#00cc00' : '#333'; }
 }
-
 function killStreamUI() {
   if(hL) hL.innerHTML = `<div class="teams-backup" style="background:black;color:white;padding:40px;text-align:center;height:100%;display:flex;flex-direction:column;justify-content:center;"><h1>🔴 STREAM ENDED</h1><h2>Join on Teams</h2></div>`;
 }
 
-/* --- CHAT & Q&A LOGIC (STRICT SERVER ID SYNC) --- */
+/* --- CHAT & HISTORY LOGIC --- */
 
-// 1. Chat Listener
-s.on('chatIncoming', (data) => {
-  const isMe = (data.user === myName); 
-  addMessage('chat', data.user, data.text, isMe, data.country);
-});
-
-// 2. Q&A Listener (CRITICAL FIX: Use Server ID)
-s.on('qaIncoming', (data) => {
-  // Pass 'data.id' explicitly to ensure both users share the same Thread ID
-  addQaThread(data.user, data.text, (data.user === myName), data.country, data.id);
-});
-
-// 3. Reply Listener
-s.on('qaReplyIncoming', (data) => {
-  // Now this will work because the ID matches the one created above
-  const box = document.getElementById(`replies-${data.threadId}`);
-  if(box) {
-    const div = document.createElement('div');
-    div.className = 'qa-reply-item';
-    div.innerHTML = `<strong style="color:#167690">${data.user}:</strong> ${data.text}`;
-    box.appendChild(div);
-    
-    // Scroll thread to bottom to show new reply
-    const threadDiv = document.getElementById(`qa-${data.threadId}`);
-    if(threadDiv) threadDiv.scrollIntoView({behavior: "smooth", block: "nearest"});
-  } else {
-    console.warn("Could not find parent thread for reply:", data.threadId);
+// 1. HISTORY LOADER (Populates chat when you join)
+s.on('initialLoad', (data) => {
+  if(data.chat) {
+    data.chat.forEach(msg => {
+      addMessage('chat', msg.user, msg.text, (msg.user===myName), msg.country, msg.id);
+    });
+  }
+  if(data.qa) {
+    data.qa.forEach(thread => {
+      addQaThread(thread.user, thread.text, (thread.user===myName), thread.country, thread.id);
+      if(thread.replies) {
+        thread.replies.forEach(rep => {
+           addQaReplyUI(thread.id, rep.user, rep.text);
+        });
+      }
+    });
   }
 });
 
+// 2. Real-time Listeners
+s.on('chatIncoming', (data) => {
+  addMessage('chat', data.user, data.text, (data.user===myName), data.country, data.id);
+});
+
+s.on('qaIncoming', (data) => {
+  addQaThread(data.user, data.text, (data.user===myName), data.country, data.id);
+});
+
+s.on('qaReplyIncoming', (data) => {
+  addQaReplyUI(data.threadId, data.user, data.text);
+});
+
+/* --- UI FUNCTIONS --- */
 function switchTab(name) {
   currentTab = name;
   document.querySelectorAll('.hs-tab').forEach(b => b.classList.remove('active'));
   event.target.classList.add('active');
-  
   if(name === 'chat') {
     chatTab.style.display = 'flex'; qaTab.style.display = 'none';
     if(reactionBar) reactionBar.style.display = 'flex';
@@ -577,7 +586,6 @@ function joinChat() {
 function sendMessage() {
   const txt = msgInput.value.trim();
   if(!txt) return;
-  
   if(currentTab === 'chat') {
     s.emit('chatMsg', { user: myName, text: txt, country: myCountry });
   } else {
@@ -586,16 +594,16 @@ function sendMessage() {
   msgInput.value = "";
 }
 
-function sendReaction(txt) {
-  s.emit('chatMsg', { user: myName, text: txt, country: myCountry });
-}
-
+function sendReaction(txt) { s.emit('chatMsg', { user: myName, text: txt, country: myCountry }); }
 function handleEnter(e) { if(e.key === 'Enter') sendMessage(); }
 
-function addMessage(target, user, text, isMe, country) {
+function addMessage(target, user, text, isMe, country, id) {
   if(!chatTab) return;
+  if(id && document.getElementById(`msg-${id}`)) return;
+  
   const div = document.createElement('div');
   div.className = `msg ${isMe ? 'me' : ''}`;
+  if(id) div.id = `msg-${id}`;
   div.innerHTML = `<span class="msg-meta">${user}</span>${text}`;
   chatTab.appendChild(div);
   chatTab.scrollTop = chatTab.scrollHeight;
@@ -603,13 +611,12 @@ function addMessage(target, user, text, isMe, country) {
 
 function addQaThread(user, text, isMe, country, serverId) {
   if(!qaTab) return;
+  if(serverId && document.getElementById(`qa-${serverId}`)) return;
+
   const div = document.createElement('div');
   div.className = 'qa-thread'; 
-  
-  // CRITICAL: Use the ID from the server, or fallback only if testing locally
   const finalId = serverId || Date.now();
   div.id = `qa-${finalId}`; 
-  
   div.innerHTML = `
     <span class="qa-question">Q: ${text}</span>
     <div class="msg-meta">Asked by ${user} • ${country||'Global'}</div>
@@ -622,120 +629,159 @@ function addQaThread(user, text, isMe, country, serverId) {
   qaTab.scrollTop = qaTab.scrollHeight;
 }
 
-function replyToQa(id) {
-  if(!myName) return alert("Please Join the Chat first!");
-  const txt = prompt("Enter your reply:");
-  if(txt) {
-    // Emit reply to server
-    s.emit('qaReply', { threadId: id, user: myName, text: txt });
+function addQaReplyUI(threadId, user, text) {
+  const box = document.getElementById(`replies-${threadId}`);
+  if(box) {
+    const div = document.createElement('div');
+    div.className = 'qa-reply-item';
+    div.innerHTML = `<strong style="color:#167690">${user}:</strong> ${text}`;
+    box.appendChild(div);
+    const threadDiv = document.getElementById(`qa-${threadId}`);
+    if(threadDiv) threadDiv.scrollIntoView({behavior: "smooth", block: "nearest"});
   }
 }
 
-/* --- 3D GLOBE & BOOK CODE (Preserved) --- */
+function replyToQa(id) {
+  if(!myName) return alert("Please Join the Chat first!");
+  const txt = prompt("Enter your reply:");
+  if(txt) s.emit('qaReply', { threadId: id, user: myName, text: txt });
+}
+
+/* --- 3D GLOBE (Full Implementation) --- */
+const countries=[{name:'India',flag:'🇮🇳',tz:'Asia/Kolkata',lat:22,lng:78,color:'#FF9933'},{name:'Canada',flag:'🇨🇦',tz:'America/Vancouver',lat:56,lng:-106,color:'#ff0000'},{name:'Thailand',flag:'🇹🇭',tz:'Asia/Bangkok',lat:13,lng:100,color:'#ffcc00'},{name:'Europe',flag:'🇪🇺',tz:'Europe/Paris',lat:48,lng:2,color:'#0000FF'},{name:'UK',flag:'🇬🇧',tz:'Europe/London',lat:53,lng:-0.1,color:'#191970'},{name:'USA',flag:'🇺🇸',tz:'America/New_York',lat:39,lng:-98,color:'#003366'},{name:'Singapore',flag:'🇸🇬',tz:'Asia/Singapore',lat:1.3,lng:103,color:'#EE2536'},{name:'Malaysia',flag:'🇲🇾',tz:'Asia/Kuala_Lumpur',lat:4,lng:102,color:'#FFD700'}];
+
 (function initGlobe() {
-  const container = document.getElementById('heroGlobeContainer');
-  if (!container) return;
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
-  camera.position.set(0, 0, 4.8);
-  const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-  renderer.setSize(500, 500);
-  container.appendChild(renderer.domElement);
-  const controls = new THREE.OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true; controls.autoRotate = true; controls.autoRotateSpeed = 0.8;
-  scene.add(new THREE.AmbientLight(0xffffff, 0.8));
-  const dLight = new THREE.DirectionalLight(0xffffff, 0.7); dLight.position.set(1, 1, 1); scene.add(dLight);
-  const globeGroup = new THREE.Group(); scene.add(globeGroup); globeGroup.rotation.y = 0; globeGroup.rotation.x = 0.2;
-  new THREE.TextureLoader().load('https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Land_ocean_ice_2048.jpg/1024px-Land_ocean_ice_2048.jpg', (tex) => {
-      const geo = new THREE.SphereGeometry(1, 64, 64);
-      const mat = new THREE.MeshPhongMaterial({ map: tex, specular: 0x111111, shininess: 5 });
-      globeGroup.add(new THREE.Mesh(geo, mat));
-  });
-  const flagSprites = [];
-  function latLonToVec3(lat, lon, r) {
-    const phi = (90 - lat) * (Math.PI / 180);
-    const theta = (lon + 180) * (Math.PI / 180);
-    return new THREE.Vector3(-r * Math.sin(phi) * Math.cos(theta), r * Math.cos(phi), r * Math.sin(phi) * Math.sin(theta));
-  }
-  function drawCanvas(ctx, country, timeStr) {
-    ctx.clearRect(0, 0, 300, 150);
-    ctx.fillStyle = 'rgba(10,16,30,0.85)'; ctx.beginPath();
-    const r = 20, x = 10, y = 10, w = 280, h = 130;
-    ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-    ctx.lineTo(x + w, y + h - r); ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-    ctx.lineTo(x + r, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-    ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y);
-    ctx.closePath(); ctx.fill(); ctx.lineWidth = 6; ctx.strokeStyle = country.color; ctx.stroke();
-    ctx.fillStyle = '#FFFFFF'; ctx.font = 'bold 38px Arial';
-    ctx.fillText(country.flag + ' ' + country.name.substring(0, 3).toUpperCase(), 40, 65);
-    ctx.fillStyle = '#00FF88'; ctx.font = 'bold 45px Courier New';
-    ctx.fillText(timeStr, 50, 115);
-  }
-  function createLabel(country) {
-    const canvas = document.createElement('canvas');
-    canvas.width = 300; canvas.height = 150; const ctx = canvas.getContext('2d');
-    drawCanvas(ctx, country, '--:--');
-    const tex = new THREE.CanvasTexture(canvas);
-    const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex }));
-    sprite.position.copy(latLonToVec3(country.lat, country.lng, 1.3));
-    sprite.scale.set(0.8, 0.4, 1); globeGroup.add(sprite);
-    return { sprite, ctx, country, tex };
-  }
-  countries.forEach((c) => flagSprites.push(createLabel(c)));
-  function updateSprites() {
-    const n = new Date();
-    flagSprites.forEach((item) => {
-      const t = n.toLocaleTimeString('en-GB', { timeZone: item.country.tz, hour: '2-digit', minute: '2-digit' });
-      drawCanvas(item.ctx, item.country, t);
-      item.tex.needsUpdate = true;
-    });
-  }
-  setInterval(updateSprites, 1000); updateSprites();
-  document.getElementById('pauseBtn').onclick = function () { controls.autoRotate = !controls.autoRotate; this.innerText = controls.autoRotate ? '⏸ Pause' : '▶ Start Rotation'; };
-  function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); }
-  animate();
+  const container = document.getElementById('heroGlobeContainer');
+  if (!container) return;
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
+  camera.position.set(0, 0, 4.8);
+  const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+  renderer.setSize(500, 500);
+  container.appendChild(renderer.domElement);
+  
+  const controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true; controls.autoRotate = true; controls.autoRotateSpeed = 0.8;
+  
+  scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+  const dLight = new THREE.DirectionalLight(0xffffff, 0.7); dLight.position.set(1, 1, 1); scene.add(dLight);
+  
+  const globeGroup = new THREE.Group(); scene.add(globeGroup); 
+  globeGroup.rotation.y = 0; globeGroup.rotation.x = 0.2;
+  
+  new THREE.TextureLoader().load('https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Land_ocean_ice_2048.jpg/1024px-Land_ocean_ice_2048.jpg', (tex) => {
+      const geo = new THREE.SphereGeometry(1, 64, 64);
+      const mat = new THREE.MeshPhongMaterial({ map: tex, specular: 0x111111, shininess: 5 });
+      globeGroup.add(new THREE.Mesh(geo, mat));
+  });
+  
+  // Flag Labels
+  const flagSprites = [];
+  function latLonToVec3(lat, lon, r) {
+    const phi = (90 - lat) * (Math.PI / 180);
+    const theta = (lon + 180) * (Math.PI / 180);
+    return new THREE.Vector3(-r * Math.sin(phi) * Math.cos(theta), r * Math.cos(phi), r * Math.sin(phi) * Math.sin(theta));
+  }
+  
+  function drawCanvas(ctx, country, timeStr) {
+    ctx.clearRect(0, 0, 300, 150);
+    ctx.fillStyle = 'rgba(10,16,30,0.85)'; ctx.beginPath();
+    const r = 20, x = 10, y = 10, w = 280, h = 130;
+    ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r); ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath(); ctx.fill(); ctx.lineWidth = 6; ctx.strokeStyle = country.color; ctx.stroke();
+    ctx.fillStyle = '#FFFFFF'; ctx.font = 'bold 38px Arial';
+    ctx.fillText(country.flag + ' ' + country.name.substring(0, 3).toUpperCase(), 40, 65);
+    ctx.fillStyle = '#00FF88'; ctx.font = 'bold 45px Courier New';
+    ctx.fillText(timeStr, 50, 115);
+  }
+  
+  function createLabel(country) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 300; canvas.height = 150; const ctx = canvas.getContext('2d');
+    drawCanvas(ctx, country, '--:--');
+    const tex = new THREE.CanvasTexture(canvas);
+    const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex }));
+    sprite.position.copy(latLonToVec3(country.lat, country.lng, 1.3));
+    sprite.scale.set(0.8, 0.4, 1); globeGroup.add(sprite);
+    return { sprite, ctx, country, tex };
+  }
+  
+  countries.forEach((c) => flagSprites.push(createLabel(c)));
+  
+  function updateSprites() {
+    const n = new Date();
+    flagSprites.forEach((item) => {
+      try {
+        const t = n.toLocaleTimeString('en-GB', { timeZone: item.country.tz, hour: '2-digit', minute: '2-digit' });
+        drawCanvas(item.ctx, item.country, t);
+        item.tex.needsUpdate = true;
+      } catch(e) {}
+    });
+  }
+  setInterval(updateSprites, 1000); updateSprites();
+  
+  const pauseBtn = document.getElementById('pauseBtn');
+  if(pauseBtn) pauseBtn.onclick = function () { controls.autoRotate = !controls.autoRotate; this.innerText = controls.autoRotate ? '⏸ Pause' : '▶ Start Rotation'; };
+  
+  function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); }
+  animate();
 })();
 
+/* --- 3D BOOK (Full Implementation) --- */
 (function initBook() {
-  const container = document.getElementById('bookContainer');
-  if (!container) return;
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
-  camera.position.set(0, 0, 7);
-  const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-  renderer.setSize(container.clientWidth, container.clientHeight);
-  renderer.setPixelRatio(window.devicePixelRatio);
-  container.appendChild(renderer.domElement);
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.7); scene.add(ambientLight);
-  const dirLight = new THREE.DirectionalLight(0xffffff, 1.0); dirLight.position.set(5, 10, 7); scene.add(dirLight);
-  const geometry = new THREE.BoxGeometry(3.2, 4.6, 0.5);
-  const loader = new THREE.TextureLoader();
-  const frontTexture = loader.load('bookfront.jpg');
-  const backTexture = loader.load('bookcoverback.jpg');
-  const materials = [ new THREE.MeshLambertMaterial({ color: 0xfdfdfd }), new THREE.MeshLambertMaterial({ color: 0x111111 }), new THREE.MeshLambertMaterial({ color: 0xfdfdfd }), new THREE.MeshLambertMaterial({ color: 0xfdfdfd }), new THREE.MeshBasicMaterial({ map: frontTexture, color: 0xffffff }), new THREE.MeshBasicMaterial({ map: backTexture, color: 0xffffff }) ];
-  const book = new THREE.Mesh(geometry, materials);
-  const bookGroup = new THREE.Group(); bookGroup.add(book); scene.add(bookGroup);
-  book.rotation.x = 0.15;
-  const controls = new THREE.OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true; controls.dampingFactor = 0.08; controls.enablePan = false; controls.enableZoom = true;
-  controls.minDistance = 4; controls.maxDistance = 10; controls.autoRotate = true; controls.autoRotateSpeed = 0.8;
-  controls.minPolarAngle = Math.PI / 4; controls.maxPolarAngle = (3 * Math.PI) / 4;
-  const clock = new THREE.Clock();
-  function animate() { 
-    requestAnimationFrame(animate); 
-    const elapsed = clock.getElapsedTime();
-    bookGroup.position.y = Math.sin(elapsed * 1.5) * 0.1;
-    controls.update(); 
-    renderer.render(scene, camera); 
-  }
-  animate();
-  window.addEventListener('resize', () => {
-    const width = container.clientWidth;
-    const height = container.clientHeight;
-    renderer.setSize(width, height);
-    camera.aspect = width / height;
-    camera.updateProjectionMatrix();
-  });
+  const container = document.getElementById('bookContainer');
+  if (!container) return;
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+  camera.position.set(0, 0, 7);
+  const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+  renderer.setSize(container.clientWidth, container.clientHeight);
+  renderer.setPixelRatio(window.devicePixelRatio);
+  container.appendChild(renderer.domElement);
+  
+  scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+  const dirLight = new THREE.DirectionalLight(0xffffff, 1.0); dirLight.position.set(5, 10, 7); scene.add(dirLight);
+  
+  const geometry = new THREE.BoxGeometry(3.2, 4.6, 0.5);
+  const loader = new THREE.TextureLoader();
+  const frontTexture = loader.load('bookfront.jpg');
+  const backTexture = loader.load('bookcoverback.jpg');
+  const materials = [ 
+    new THREE.MeshLambertMaterial({ color: 0xfdfdfd }), 
+    new THREE.MeshLambertMaterial({ color: 0x111111 }), 
+    new THREE.MeshLambertMaterial({ color: 0xfdfdfd }), 
+    new THREE.MeshLambertMaterial({ color: 0xfdfdfd }), 
+    new THREE.MeshBasicMaterial({ map: frontTexture, color: 0xffffff }), 
+    new THREE.MeshBasicMaterial({ map: backTexture, color: 0xffffff }) 
+  ];
+  const book = new THREE.Mesh(geometry, materials);
+  const bookGroup = new THREE.Group(); bookGroup.add(book); scene.add(bookGroup);
+  book.rotation.x = 0.15;
+  
+  const controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true; controls.dampingFactor = 0.08; controls.enablePan = false; controls.enableZoom = true;
+  controls.autoRotate = true; controls.autoRotateSpeed = 0.8;
+  
+  const clock = new THREE.Clock();
+  function animate() { 
+    requestAnimationFrame(animate); 
+    const elapsed = clock.getElapsedTime();
+    bookGroup.position.y = Math.sin(elapsed * 1.5) * 0.1;
+    controls.update(); 
+    renderer.render(scene, camera); 
+  }
+  animate();
+  
+  window.addEventListener('resize', () => {
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+    renderer.setSize(width, height);
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
+  });
 })();
 </script>
 
