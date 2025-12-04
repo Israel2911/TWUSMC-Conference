@@ -168,106 +168,103 @@
   </nav>
 </header>
 
-<section class="hero">
-  <img src="humanintelligence.png" alt="Background" class="hero-bg" id="heroBg">
-  <div class="neural-overlay"></div>
-  <div class="hero-content-standard" id="heroStandard">
-    <h1>The Fifth Intelligence</h1>
-    <h2>Integrating the Human Factor</h2>
-  </div>
-  
 <div class="hero-content-live" id="heroLive">
-    <div class="live-grid">
-      <div class="video-wrapper" id="vidWrap">
-        <div class="live-badge">🔴 LIVE</div>
-        
-        <!-- START: Crop Wrapper -->
-    <iframe 
-  id="feed" 
-  src="https://www.youtube.com/embed/PqjDdM-VurI?playsinline=1&controls=1&autoplay=0&rel=0" 
-  width="100%" 
-  height="100%" 
-  frameborder="0" 
-  allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-  allowfullscreen>
-</iframe>
+  <div class="live-grid">
+    
+    <!-- 1. VIDEO COLUMN -->
+    <div class="video-wrapper" id="vidWrap">
+      <div class="live-badge">🔴 LIVE</div>
+      
+      <!-- CROP CONTAINER (Restored) -->
+      <div class="video-crop">
+        <iframe 
+          id="feed" 
+          src="https://www.youtube.com/embed/PqjDdM-VurI?autoplay=0&controls=1&mute=0&playsinline=1&modestbranding=1&rel=0" 
+          width="100%" 
+          height="100%" 
+          title="TWU-SMC Leadership Conference Live Stream"
+          frameborder="0" 
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+          allowfullscreen>
+        </iframe>
+      </div>
+    </div>
 
-        </div> <!-- <--- ADD THIS LINE -->
-        
-      </div> <!-- THIS IS THE CRITICAL MISSING DIV -->
-
-
-      <!-- PROPRIETARY CHAT: THE HUMAN SPACE -->
-      <div class="human-space-container">
-        <div class="human-space-header">
-          <div class="hs-title-row">
-            <div style="display:flex; align-items:center; gap:10px;">
-              <span class="material-icons-round">forum</span>
-              The Human Space
-            </div>
-            <div style="display:flex; gap:10px;">
-              <!-- RESTORED TEAMS BUTTON -->
-              <a href="https://teams.microsoft.com/meet/25727590322372?p=Toyeb2xMWy8NeEJiA2" target="_blank" class="teams-link-header" title="Join Teams Call">
-                <span class="material-icons-round" style="font-size:16px;">videocam</span> Teams
-              </a>
-              <a id="downloadLogBtn" class="download-log">⬇ LOG</a>
-            </div>
+    <!-- 2. CHAT COLUMN -->
+    <div class="human-space-container">
+      <div class="human-space-header">
+        <div class="hs-title-row">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span class="material-icons-round">forum</span>
+            The Human Space
           </div>
-          <div class="tab-row">
-            <button class="hs-tab active" onclick="switchTab('chat')">💬 Chat Lounge</button>
-            <button class="hs-tab" onclick="switchTab('qa')">❓ Q&A Forum</button>
+          <div style="display:flex; gap:10px;">
+            <a href="https://teams.microsoft.com/meet/25727590322372?p=Toyeb2xMWy8NeEJiA2" target="_blank" class="teams-link-header" title="Join Teams Call">
+              <span class="material-icons-round" style="font-size:16px;">videocam</span> Teams
+            </a>
+            <a id="downloadLogBtn" class="download-log">⬇ LOG</a>
           </div>
         </div>
-        
-        <div class="login-overlay" id="chatLogin">
-          <h3 style="font-size:1.5rem; color:#167690; margin-bottom:10px;">Enter the Human Space</h3>
-          <p style="font-size:1rem; margin-bottom:30px; color:#666;">Secure, Proprietary, Connected.</p>
-          <input type="text" id="chatName" class="login-input" placeholder="Your Name" maxlength="20">
-          <select id="chatCountry" class="login-input">
-            <option value="" disabled selected>Select Your Region</option>
-            <option value="India">🇮🇳 India</option>
-            <option value="Canada">🇨🇦 Canada</option>
-            <option value="Thailand">🇹🇭 Thailand</option>
-            <option value="USA">🇺🇸 USA</option>
-            <option value="UK">🇬🇧 UK</option>
-            <option value="Europe">🇪🇺 Europe</option>
-            <option value="Other">🌍 Global</option>
-          </select>
-          <button class="join-btn" onclick="joinChat()">Join Conversation</button>
-          <div class="coi-note">Inspired by the <strong>Community of Inquiry (CoI)</strong> framework.</div>
+        <div class="tab-row">
+          <button class="hs-tab active" onclick="switchTab('chat')">💬 Chat Lounge</button>
+          <button class="hs-tab" onclick="switchTab('qa')">❓ Q&A Forum</button>
         </div>
+      </div>
+      
+      <div class="login-overlay" id="chatLogin">
+        <h3 style="font-size:1.5rem; color:#167690; margin-bottom:10px;">Enter the Human Space</h3>
+        <p style="font-size:1rem; margin-bottom:30px; color:#666;">Secure, Proprietary, Connected.</p>
+        <input type="text" id="chatName" class="login-input" placeholder="Your Name" maxlength="20">
+        <select id="chatCountry" class="login-input">
+          <option value="" disabled selected>Select Your Region</option>
+          <option value="India">🇮🇳 India</option>
+          <option value="Canada">🇨🇦 Canada</option>
+          <option value="Thailand">🇹🇭 Thailand</option>
+          <option value="USA">🇺🇸 USA</option>
+          <option value="UK">🇬🇧 UK</option>
+          <option value="Europe">🇪🇺 Europe</option>
+          <option value="Other">🌍 Global</option>
+        </select>
+        <button class="join-btn" onclick="joinChat()">Join Conversation</button>
+        <div class="coi-note">Inspired by the <strong>Community of Inquiry (CoI)</strong> framework.</div>
+      </div>
 
-        <div class="human-space-messages active" id="chatTab">
-          <div style="text-align:center; opacity:0.6; margin-top:40px; padding:20px;">
-            <span class="material-icons-round" style="font-size:3rem; color:#cbd5e0;">public</span>
-            <br><br><strong>Global Lounge</strong><br>Say hello, share reactions, and connect.
-          </div>
+      <div class="human-space-messages active" id="chatTab">
+        <div style="text-align:center; opacity:0.6; margin-top:40px; padding:20px;">
+          <span class="material-icons-round" style="font-size:3rem; color:#cbd5e0;">public</span>
+          <br><br><strong>Global Lounge</strong><br>Say hello, share reactions, and connect.
         </div>
+      </div>
 
-        <div class="human-space-messages" id="qaTab">
-          <div style="text-align:center; opacity:0.6; margin-top:40px; padding:20px;">
-            <span class="material-icons-round" style="font-size:3rem; color:#cbd5e0;">psychology_alt</span>
-            <br><br><strong>Q&A Forum</strong><br>Post deep questions here. Faculty will respond.
-          </div>
+      <div class="human-space-messages" id="qaTab">
+        <div style="text-align:center; opacity:0.6; margin-top:40px; padding:20px;">
+          <span class="material-icons-round" style="font-size:3rem; color:#cbd5e0;">psychology_alt</span>
+          <br><br><strong>Q&A Forum</strong><br>Post deep questions here. Faculty will respond.
         </div>
+      </div>
 
-        <div class="human-space-input">
-          <div class="reaction-bar" id="reactionBar">
-            <button class="reaction-btn" onclick="sendReaction('👋 Hello Everyone!')">👋 Hello!</button>
-            <button class="reaction-btn" onclick="sendReaction('👏 Insightful!')">👏 Insightful</button>
-            <button class="reaction-btn" onclick="sendReaction('💡 Great Question')">💡 Great Question</button>
-            <button class="reaction-btn" onclick="sendReaction('❤️ Love this')">❤️ Love this</button>
-          </div>
-          <div class="input-row">
-            <input type="text" id="msgInput" class="chat-input" placeholder="Share your thoughts..." onkeypress="handleEnter(event)">
-            <button class="send-btn" onclick="sendMessage()">
-              <span class="material-icons-round">send</span>
-            </button>
-          </div>
+      <div class="human-space-input">
+        <div class="reaction-bar" id="reactionBar">
+          <button class="reaction-btn" onclick="sendReaction('👋 Hello Everyone!')">👋 Hello!</button>
+          <button class="reaction-btn" onclick="sendReaction('👏 Insightful!')">👏 Insightful</button>
+          <button class="reaction-btn" onclick="sendReaction('💡 Great Question')">💡 Great Question</button>
+          <button class="reaction-btn" onclick="sendReaction('❤️ Love this')">❤️ Love this</button>
+        </div>
+        <div class="input-row">
+          <input type="text" id="msgInput" class="chat-input" placeholder="Share your thoughts..." onkeypress="handleEnter(event)">
+          <button class="send-btn" onclick="sendMessage()">
+            <span class="material-icons-round">send</span>
+          </button>
         </div>
       </div>
     </div>
+    
   </div>
+</div>
+
+
+
+
 </section>
 
 <section class="global-connect-section">
