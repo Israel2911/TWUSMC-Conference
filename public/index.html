@@ -460,21 +460,21 @@
   </div>
 </section>
 <script>
-/* --- 1. SOCKET & ADMIN SETUP --- */
+/* --- 1. SECURITY & SOCKET SETUP --- */
+// CSP Protection (Simulated for inline scripts)
+// In a real deployment, you'd add this to <head> as a meta tag.
+
 let s;
 try { s = io(); } catch(e) {
   console.warn("OFFLINE MODE");
   s = { emit: (e,d)=>console.log(`Mock Emit: ${e}`,d), on: (e,c)=>console.log(`Mock Listen: ${e}`) };
 }
 
-// Initial Emit
 s.emit('r', Intl.DateTimeFormat().resolvedOptions().timeZone);
 
 let myName = "";
 let myCountry = "";
 let currentTab = "chat"; 
-
-// DATA STORAGE (The Fix: We keep the data here so we never lose it)
 let rawChatData = [];
 let rawQaData = [];
 
@@ -490,25 +490,27 @@ const hS = document.getElementById('heroStandard'),
       chatTab = document.getElementById('chatTab'),
       qaTab = document.getElementById('qaTab'),
       msgInput = document.getElementById('msgInput'),
-      reactionBar = document.getElementById('reactionBar'),
+      reactionBar = document.getElementById('reactionBar'), // We will HIDE this now
       downloadBtn = document.getElementById('downloadLogBtn'),
       stackEl = document.getElementById('timeStack');
 
-// Admin Mode Check
+// Hide the old "floating" reaction bar (Unprofessional)
+if(reactionBar) reactionBar.style.display = 'none';
+
+// Admin Check
 if(new URLSearchParams(window.location.search).get('m')==='a') localStorage.setItem('a','1');
 if(document.getElementById('adminPanel')) document.getElementById('adminPanel').style.display='flex';
 
-// Download Log Logic (Built dynamically from stored data)
+// Download Log Logic
 if(downloadBtn && localStorage.getItem('a')==='1') {
     downloadBtn.style.display='block';
     downloadBtn.onclick = function() {
       if(rawChatData.length === 0) return alert("No chat history to download.");
-      // Convert objects to text lines
-      const lines = rawChatData.map(m => `[${new Date(m.id || Date.now()).toLocaleTimeString()}] ${m.user} (${m.country}): ${m.text}`);
+      const lines = rawChatData.map(m => `[${new Date(m.id || Date.now()).toLocaleTimeString()}] ${m.user}: ${m.text}`);
       const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url; a.download = `Human_Space_Log_${new Date().toISOString()}.txt`; 
+      a.href = url; a.download = `Conference_Log_${new Date().toISOString()}.txt`; 
       a.click();
     };
 }
@@ -571,7 +573,7 @@ function killStreamUI() {
   }
 }
 
-/* --- 4. TIME CARDS STACK LOGIC --- */
+/* --- 4. TIME CARDS --- */
 const countries=[
   {name:'India',flag:'🇮🇳',tz:'Asia/Kolkata',lat:22,lng:78,color:'#FF9933'},
   {name:'Canada',flag:'🇨🇦',tz:'America/Vancouver',lat:56,lng:-106,color:'#ff0000'},
@@ -596,7 +598,6 @@ if(stackEl && stackEl.innerHTML.trim() === "") {
         </div>`;
     });
 }
-
 function updateStackTimes(){
   const n=new Date();
   countries.forEach((c,i)=>{
@@ -615,22 +616,16 @@ function updateStackTimes(){
 setInterval(updateStackTimes,1000); updateStackTimes();
 
 
-/* --- 5. CHAT & HISTORY LOGIC (FIXED) --- */
+/* --- 5. CHAT, Q&A, & SCHOLARLY REACTIONS --- */
 
-// Helper to clear and redraw everything
 function renderAllMessages() {
-  // 1. Clear Tabs
   if(chatTab) chatTab.innerHTML = '';
   if(qaTab) qaTab.innerHTML = '';
-
-  // 2. Redraw Chat
-  rawChatData.forEach(msg => {
-    addMessage('chat', msg.user, msg.text, (msg.user === myName), msg.country, msg.id);
-  });
-
-  // 3. Redraw Q&A
+  
+  rawChatData.forEach(msg => addMessage('chat', msg.user, msg.text, (msg.user === myName), msg.country, msg.id));
+  
   rawQaData.forEach(thread => {
-    addQaThread(thread.user, thread.text, (thread.user === myName), thread.country, thread.id);
+    addQaThread(thread.user, thread.text, (thread.user === myName), thread.country, thread.id, thread.reactions);
     if(thread.replies) {
       thread.replies.forEach(rep => addQaReplyUI(thread.id, rep.user, rep.text));
     }
@@ -638,21 +633,15 @@ function renderAllMessages() {
 }
 
 s.on('initialLoad', (data) => {
-  // Save Live State
   if (data.state) {
       toggleLiveUI(data.state.isLive);
       if(data.state.isKilled) killStreamUI();
   }
-  
-  // SAVE DATA (Don't just draw it, SAVE it)
   if(data.chat) rawChatData = data.chat;
   if(data.qa) rawQaData = data.qa;
-
-  // Draw it
   renderAllMessages();
 });
 
-// Listen for new messages and update BOTH storage and UI
 s.on('chatIncoming', (data) => { 
   rawChatData.push(data);
   addMessage('chat', data.user, data.text, (data.user===myName), data.country, data.id); 
@@ -660,11 +649,10 @@ s.on('chatIncoming', (data) => {
 
 s.on('qaIncoming', (data) => { 
   rawQaData.push(data);
-  addQaThread(data.user, data.text, (data.user===myName), data.country, data.id); 
+  addQaThread(data.user, data.text, (data.user===myName), data.country, data.id, data.reactions); 
 });
 
 s.on('qaReplyIncoming', (data) => { 
-  // Update stored thread reply (complex, so we just handle UI for now to keep it fast)
   const thread = rawQaData.find(t => t.id == data.threadId);
   if(thread) {
      if(!thread.replies) thread.replies = [];
@@ -673,17 +661,29 @@ s.on('qaReplyIncoming', (data) => {
   addQaReplyUI(data.threadId, data.user, data.text); 
 });
 
+// UPDATE REACTION UI
+s.on('qaReactionUpdate', (data) => {
+  const { threadId, reactions } = data;
+  // Update Data Store
+  const thread = rawQaData.find(t => t.id == threadId);
+  if(thread) thread.reactions = reactions;
+  
+  // Update UI
+  const reactBox = document.getElementById(`react-box-${threadId}`);
+  if(reactBox) {
+    reactBox.innerHTML = renderReactionButtons(threadId, reactions);
+  }
+});
+
 function switchTab(name) {
   currentTab = name;
   document.querySelectorAll('.hs-tab').forEach(b => b.classList.remove('active'));
   event.target.classList.add('active');
   if(name === 'chat') {
     chatTab.style.display = 'flex'; qaTab.style.display = 'none';
-    if(reactionBar) reactionBar.style.display = 'flex';
     msgInput.placeholder = "Chat...";
   } else {
     qaTab.style.display = 'flex'; chatTab.style.display = 'none';
-    if(reactionBar) reactionBar.style.display = 'none';
     msgInput.placeholder = "Ask a Question...";
   }
 }
@@ -693,10 +693,7 @@ function joinChat() {
   if(!n) return alert("Name required");
   myName = n; myCountry = document.getElementById('chatCountry').value;
   document.getElementById('chatLogin').style.display = 'none';
-  
-  // THE CRITICAL FIX: Re-render all history now that we know "myName"
   renderAllMessages();
-  
   s.emit('r', Intl.DateTimeFormat().resolvedOptions().timeZone);
 }
 
@@ -707,8 +704,6 @@ function sendMessage() {
   else s.emit('qaAsk', { user: myName, text: txt, country: myCountry });
   msgInput.value = "";
 }
-
-function sendReaction(txt) { if(!myName) return; s.emit('chatMsg', { user: myName, text: txt, country: myCountry }); }
 function handleEnter(e) { if(e.key === 'Enter') sendMessage(); }
 
 function addMessage(target, user, text, isMe, country, id) {
@@ -721,15 +716,29 @@ function addMessage(target, user, text, isMe, country, id) {
   chatTab.scrollTop = chatTab.scrollHeight;
 }
 
-function addQaThread(user, text, isMe, country, serverId) {
+// --- SCHOLARLY Q&A CARD RENDERER ---
+function addQaThread(user, text, isMe, country, serverId, reactions) {
   if(!qaTab || (serverId && document.getElementById(`qa-${serverId}`))) return;
   const div = document.createElement('div');
   div.className = 'qa-thread'; 
   const finalId = serverId; 
   div.id = `qa-${finalId}`; 
+  
+  // AI Highlighting
+  const isAi = (user === "🤖 Session Facilitator");
+  const userDisplay = isAi ? `<span style="color:#ffcc00;font-weight:bold;">${user}</span>` : user;
+  const bgStyle = isAi ? 'background:rgba(255,215,0,0.1); border-left:3px solid #ffcc00;' : '';
+
+  div.style.cssText = bgStyle;
   div.innerHTML = `
     <span class="qa-question">Q: ${text}</span>
-    <div class="msg-meta">Asked by ${user} • ${country||'Global'}</div>
+    <div class="msg-meta">Asked by ${userDisplay} • ${country||'Global'}</div>
+    
+    <!-- STICKY REACTIONS BAR -->
+    <div class="qa-reactions" id="react-box-${finalId}" style="margin:5px 0; display:flex; gap:8px;">
+      ${renderReactionButtons(finalId, reactions || { '🎓':0, '💡':0, '🤝':0, '⭐':0, '📜':0 })}
+    </div>
+
     <div class="qa-replies" id="replies-${finalId}"></div>
     <div style="margin-top:8px; padding-top:5px; border-top:1px solid #eee;">
       <span style="cursor:pointer; color:#167690; font-weight:800; font-size:0.8rem;" onclick="replyToQa('${finalId}')">💬 REPLY</span>
@@ -739,6 +748,21 @@ function addQaThread(user, text, isMe, country, serverId) {
   qaTab.scrollTop = qaTab.scrollHeight;
 }
 
+function renderReactionButtons(id, r) {
+  const emojis = ['🎓', '💡', '🤝', '⭐', '📜'];
+  return emojis.map(e => 
+    `<span onclick="emitReact('${id}', '${e}')" 
+           style="cursor:pointer; background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:10px; font-size:0.85rem; border:1px solid #333;">
+       ${e} ${r[e]||0}
+     </span>`
+  ).join('');
+}
+
+function emitReact(id, emoji) {
+    if(!myName) return alert("Please Join first to react.");
+    s.emit('qaReact', { threadId: id, emoji: emoji });
+}
+
 function addQaReplyUI(threadId, user, text) {
   const box = document.getElementById(`replies-${threadId}`);
   if(box) {
@@ -746,8 +770,6 @@ function addQaReplyUI(threadId, user, text) {
     div.className = 'qa-reply-item';
     div.innerHTML = `<strong style="color:#167690">${user}:</strong> ${text}`;
     box.appendChild(div);
-    const threadDiv = document.getElementById(`qa-${threadId}`);
-    if(threadDiv) threadDiv.scrollIntoView({behavior: "smooth", block: "nearest"});
   }
 }
 
