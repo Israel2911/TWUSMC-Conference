@@ -491,7 +491,7 @@ const hS = document.getElementById('heroStandard'),
       downloadBtn = document.getElementById('downloadLogBtn'),
       stackEl = document.getElementById('timeStack');
 
-// --- UPDATED: WARM & WELCOMING PLEDGE MODAL ---
+// --- PLEDGE MODAL (Option 1: Heart of Community) ---
 const pledgeHTML = `
 <div id="pledgeModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:9999; align-items:center; justify-content:center;">
   <div style="background:#fff; padding:35px; border-radius:15px; max-width:550px; width:90%; text-align:center; color:#333; box-shadow:0 20px 50px rgba(0,0,0,0.5);">
@@ -499,30 +499,29 @@ const pledgeHTML = `
     <h2 style="color:#167690; margin-bottom:15px; font-weight:800;">Welcome to Human Space</h2>
     
     <p style="font-size:1.1rem; line-height:1.6; margin-bottom:25px; color:#444;">
-      This is a space for <strong>curiosity, connection, and fresh ideas.</strong><br>
-      Whether you are a seasoned expert or a new student, your voice matters here.
+      We invite you to practice <strong>inclusive leadership</strong> in a space designed for connection. Here, we balance <strong>scholarly insight</strong> with a <strong>casual, welcoming atmosphere</strong>.
     </p>
     
     <div style="background:#f1f9fc; border-left:5px solid #167690; padding:20px; text-align:left; margin-bottom:30px; border-radius:0 10px 10px 0;">
-      <strong style="color:#0e4b5b; display:block; margin-bottom:10px; font-size:1.1rem;">🤝 How We Keep It Safe:</strong>
+      <strong style="color:#0e4b5b; display:block; margin-bottom:10px; font-size:1.1rem;">❤️ Our Community Heart:</strong>
       <ul style="margin:0; padding-left:20px; color:#555; line-height:1.8;">
-        <li><strong>Be Kind:</strong> Disagreement is healthy; disrespect is not.</li>
-        <li><strong>Be Brave:</strong> Don't be afraid to ask "basic" questions.</li>
-        <li><strong>Help Us Moderate:</strong> If you see something unkind, <strong>Flag (⚑)</strong> it. 
-        <br><small style="color:#888;">(3 Flags removes a post automatically. You manage this room.)</small></li>
+        <li><strong>Scholarly yet Casual:</strong> Share research or just ask honest questions.</li>
+        <li><strong>Collaboration over Debate:</strong> Build ideas up, don't tear them down.</li>
+        <li><strong>Everyone is Welcome:</strong> Experts and students alike.</li>
       </ul>
+      <br>
+      <small style="color:#888;">🛡️ <strong>Safety:</strong> You can Flag (⚑) content. 3 Flags removes a post.</small>
     </div>
 
     <button onclick="acceptPledge()" style="background:linear-gradient(135deg, #167690, #0e4b5b); color:white; border:none; padding:15px 40px; font-size:1.2rem; border-radius:30px; cursor:pointer; font-weight:bold; box-shadow:0 10px 20px rgba(22,118,144,0.3); transition:transform 0.2s;">
-      Let's Chat
+      I Agree & Enter
     </button>
   </div>
 </div>
 `;
 document.body.insertAdjacentHTML('beforeend', pledgeHTML);
 
-
-// RESTORED: Chat Reaction Bar Logic
+// RESTORED: Chat Reaction Bar Logic (INDEPENDENT)
 if(reactionBar) {
     reactionBar.style.display = 'flex';
     reactionBar.innerHTML = `
@@ -538,12 +537,11 @@ if(reactionBar) {
 if(new URLSearchParams(window.location.search).get('m')==='a') localStorage.setItem('a','1');
 if(document.getElementById('adminPanel')) document.getElementById('adminPanel').style.display='flex';
 
-// Download Log Logic
 if(downloadBtn && localStorage.getItem('a')==='1') {
     downloadBtn.style.display='block';
     downloadBtn.onclick = function() {
       if(rawChatData.length === 0) return alert("No chat history to download.");
-      const lines = rawChatData.map(m => `[${new Date(m.id || Date.now()).toLocaleTimeString()}] ${m.user}: ${m.text}`);
+      const lines = rawChatData.map(m => `[${new Date(parseInt(m.id.split('-')[1]) || Date.now()).toLocaleTimeString()}] ${m.user}: ${m.text}`);
       const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -574,13 +572,11 @@ s.on('z', (state) => {
   const isLive = (typeof state === 'object') ? state.isLive : state;
   const isKilled = (typeof state === 'object') ? state.isKilled : false;
   toggleLiveUI(isLive);
-  
   if (localStorage.getItem('a') === '1' && kS) {
     kS.style.display = 'block';
     if (isKilled) { kS.disabled = true; kS.innerHTML = '✅ KILLED'; kS.style.opacity = '0.7'; }
     else { kS.disabled = false; kS.innerHTML = '⚠️ KILL STREAM'; kS.style.opacity = '1'; }
   } else if (kS) { kS.style.display = 'none'; }
-
   if(isKilled) killStreamUI();
 });
 
@@ -659,7 +655,7 @@ function renderAllMessages() {
   if(chatTab) chatTab.innerHTML = '';
   if(qaTab) qaTab.innerHTML = '';
   
-  rawChatData.forEach(msg => addMessage('chat', msg.user, msg.text, (msg.user === myName), msg.country, msg.id));
+  rawChatData.forEach(msg => addMessage('chat', msg.user, msg.text, (msg.user === myName), msg.country, msg.id, msg.reactions));
   
   rawQaData.forEach(thread => {
     addQaThread(thread.user, thread.text, (thread.user === myName), thread.country, thread.id, thread.reactions);
@@ -681,19 +677,20 @@ s.on('initialLoad', (data) => {
 
 s.on('chatIncoming', (data) => { 
   rawChatData.push(data);
-  addMessage('chat', data.user, data.text, (data.user===myName), data.country, data.id); 
+  addMessage('chat', data.user, data.text, (data.user===myName), data.country, data.id, data.reactions); 
 });
 
 // DELETE LISTENERS
 s.on('chatDeleted', (id) => {
-  rawChatData = rawChatData.filter(m => m.id != id);
-  const el = document.getElementById(`msg-${id}`);
+  rawChatData = rawChatData.filter(m => m.id !== id);
+  // Important: Use getElementById directly
+  const el = document.getElementById(id); // Since we set div.id = msg.id directly now
   if(el) el.remove();
 });
 
 s.on('qaDeleted', (id) => {
-  rawQaData = rawQaData.filter(t => t.id != id);
-  const el = document.getElementById(`qa-${id}`);
+  rawQaData = rawQaData.filter(t => t.id !== id);
+  const el = document.getElementById(id);
   if(el) el.remove();
 });
 
@@ -703,7 +700,7 @@ s.on('qaIncoming', (data) => {
 });
 
 s.on('qaReplyIncoming', (data) => { 
-  const thread = rawQaData.find(t => t.id == data.threadId);
+  const thread = rawQaData.find(t => t.id === data.threadId);
   if(thread) {
      if(!thread.replies) thread.replies = [];
      thread.replies.push({user:data.user, text:data.text});
@@ -713,10 +710,19 @@ s.on('qaReplyIncoming', (data) => {
 
 s.on('qaReactionUpdate', (data) => {
   const { threadId, reactions } = data;
-  const thread = rawQaData.find(t => t.id == threadId);
+  const thread = rawQaData.find(t => t.id === threadId);
   if(thread) thread.reactions = reactions;
   const reactBox = document.getElementById(`react-box-${threadId}`);
   if(reactBox) reactBox.innerHTML = renderReactionButtons(threadId, reactions);
+});
+
+// NEW: Chat Reaction Listener
+s.on('chatReactionUpdate', (data) => {
+    const { id, reactions } = data;
+    const msg = rawChatData.find(m => m.id === id);
+    if(msg) msg.reactions = reactions;
+    const reactContainer = document.getElementById(`chat-reacts-${id}`);
+    if(reactContainer) reactContainer.innerHTML = renderChatReactions(reactions);
 });
 
 function switchTab(name) {
@@ -739,15 +745,13 @@ function joinChat() {
   const n = document.getElementById('chatName').value.trim();
   if(!n) return alert("Name required");
   myName = n; myCountry = document.getElementById('chatCountry').value;
-  
-  // Show Pledge Modal instead of directly entering
   document.getElementById('chatLogin').style.display = 'none';
   document.getElementById('pledgeModal').style.display = 'flex';
 }
 
 function acceptPledge() {
   document.getElementById('pledgeModal').style.display = 'none';
-  renderAllMessages(); // Now show the content
+  renderAllMessages();
   s.emit('r', Intl.DateTimeFormat().resolvedOptions().timeZone);
 }
 
@@ -781,31 +785,53 @@ function flagQa(id, isMine) {
   }
 }
 
-function addMessage(target, user, text, isMe, country, id) {
-  if(!chatTab || (id && document.getElementById(`msg-${id}`))) return;
+// NEW: Show Emoji Picker for Latching
+function showChatReactPicker(id) {
+    if(!myName) return alert("Join to react!");
+    const emoji = prompt("Pick reaction: ❤️, 😂, 👍, 🔥, 🤔");
+    if(emoji) s.emit('chatReact', { id, emoji, user: myName });
+}
+
+function renderChatReactions(reactions) {
+    if(!reactions) return '';
+    let html = '';
+    for(let emoji in reactions) {
+        if(reactions[emoji].length > 0) {
+            html += `<span style="background:rgba(255,255,255,0.1); padding:2px 5px; border-radius:10px; font-size:0.75rem; margin-right:3px;">${emoji} ${reactions[emoji].length}</span>`;
+        }
+    }
+    return html;
+}
+
+function addMessage(target, user, text, isMe, country, id, reactions) {
+  if(!chatTab || (id && document.getElementById(id))) return; // Check direct ID
   const div = document.createElement('div');
   div.className = `msg ${isMe ? 'me' : ''}`;
-  if(id) div.id = `msg-${id}`;
+  div.id = id; // Set direct ID string
   
-  // SMART ICON: 🗑️ if me, ⚑ if others
   const actionIcon = isMe ? '🗑️' : '⚑';
   const opacity = isMe ? '0.8' : '0.3'; 
   
   div.innerHTML = `
     <span class="msg-meta">${user}</span>
     ${text}
-    <span onclick="flagMsg(${id}, ${isMe})" style="float:right; cursor:pointer; opacity:${opacity}; font-size:0.8rem; margin-left:10px;" title="${isMe?'Delete':'Flag'}">${actionIcon}</span>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
+        <div id="chat-reacts-${id}" style="display:flex;">${renderChatReactions(reactions)}</div>
+        <div>
+            <span onclick="showChatReactPicker('${id}')" style="cursor:pointer; opacity:0.5; font-size:0.8rem; margin-right:8px;" title="Add Reaction">➕</span>
+            <span onclick="flagMsg('${id}', ${isMe})" style="cursor:pointer; opacity:${opacity}; font-size:0.8rem;" title="${isMe?'Delete':'Flag'}">${actionIcon}</span>
+        </div>
+    </div>
   `;
   chatTab.appendChild(div);
   chatTab.scrollTop = chatTab.scrollHeight;
 }
 
 function addQaThread(user, text, isMe, country, serverId, reactions) {
-  if(!qaTab || (serverId && document.getElementById(`qa-${serverId}`))) return;
+  if(!qaTab || (serverId && document.getElementById(serverId))) return;
   const div = document.createElement('div');
   div.className = 'qa-thread'; 
-  const finalId = serverId; 
-  div.id = `qa-${finalId}`; 
+  div.id = serverId;
   
   const isAi = (user === "🤖 Session Facilitator");
   const userDisplay = isAi ? `<span style="color:#ffcc00;font-weight:bold;">${user}</span>` : user;
@@ -819,15 +845,15 @@ function addQaThread(user, text, isMe, country, serverId, reactions) {
   div.innerHTML = `
     <div style="display:flex; justify-content:space-between;">
       <span class="qa-question">Q: ${text}</span>
-      <span onclick="flagQa(${finalId}, ${isMe})" style="cursor:pointer; opacity:${opacity};" title="${isMe?'Delete':'Flag'}">${actionIcon}</span>
+      <span onclick="flagQa('${serverId}', ${isMe})" style="cursor:pointer; opacity:${opacity};" title="${isMe?'Delete':'Flag'}">${actionIcon}</span>
     </div>
     <div class="msg-meta">Asked by ${userDisplay} • ${country||'Global'}</div>
-    <div class="qa-reactions" id="react-box-${finalId}" style="margin:5px 0; display:flex; gap:8px;">
-      ${renderReactionButtons(finalId, safeReactions)}
+    <div class="qa-reactions" id="react-box-${serverId}" style="margin:5px 0; display:flex; gap:8px;">
+      ${renderReactionButtons(serverId, safeReactions)}
     </div>
-    <div class="qa-replies" id="replies-${finalId}"></div>
+    <div class="qa-replies" id="replies-${serverId}"></div>
     <div style="margin-top:8px; padding-top:5px; border-top:1px solid #eee;">
-      <span style="cursor:pointer; color:#167690; font-weight:800; font-size:0.8rem;" onclick="replyToQa('${finalId}')">💬 REPLY</span>
+      <span style="cursor:pointer; color:#167690; font-weight:800; font-size:0.8rem;" onclick="replyToQa('${serverId}')">💬 REPLY</span>
     </div>
   `;
   qaTab.appendChild(div);
@@ -1007,7 +1033,6 @@ function replyToQa(id) {
   });
 })();
 </script>
-
 
 
 
