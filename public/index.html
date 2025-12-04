@@ -473,7 +473,10 @@ s.emit('r', Intl.DateTimeFormat().resolvedOptions().timeZone);
 let myName = "";
 let myCountry = "";
 let currentTab = "chat"; 
-let chatHistory = []; // For chat log download
+
+// DATA STORAGE (The Fix: We keep the data here so we never lose it)
+let rawChatData = [];
+let rawQaData = [];
 
 // DOM Elements
 const hS = document.getElementById('heroStandard'),
@@ -495,17 +498,18 @@ const hS = document.getElementById('heroStandard'),
 if(new URLSearchParams(window.location.search).get('m')==='a') localStorage.setItem('a','1');
 if(document.getElementById('adminPanel')) document.getElementById('adminPanel').style.display='flex';
 
-// Download Button Logic
+// Download Log Logic (Built dynamically from stored data)
 if(downloadBtn && localStorage.getItem('a')==='1') {
     downloadBtn.style.display='block';
     downloadBtn.onclick = function() {
-      if(chatHistory.length === 0) return alert("No chat history to download.");
-      const blob = new Blob([chatHistory.join('\n')], { type: 'text/plain' });
+      if(rawChatData.length === 0) return alert("No chat history to download.");
+      // Convert objects to text lines
+      const lines = rawChatData.map(m => `[${new Date(m.id || Date.now()).toLocaleTimeString()}] ${m.user} (${m.country}): ${m.text}`);
+      const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url; a.download = `Human_Space_Log_${new Date().toISOString()}.txt`; 
       a.click();
-      window.URL.revokeObjectURL(url);
     };
 }
 
@@ -528,8 +532,8 @@ if(lT) lT.onclick = () => { s.emit('x'); };
 if(kS) kS.onclick = () => { if(confirm('⚠️ ACTIVATE KILL SWITCH?')) { s.emit('k'); } };
 
 s.on('z', (state) => {
-  const isLive = state.isLive;
-  const isKilled = state.isKilled;
+  const isLive = (typeof state === 'object') ? state.isLive : state;
+  const isKilled = (typeof state === 'object') ? state.isKilled : false;
   toggleLiveUI(isLive);
   
   if (localStorage.getItem('a') === '1' && kS) {
@@ -611,35 +615,63 @@ function updateStackTimes(){
 setInterval(updateStackTimes,1000); updateStackTimes();
 
 
-/* --- 5. CHAT & HISTORY LOGIC (CRITICAL PART) --- */
+/* --- 5. CHAT & HISTORY LOGIC (FIXED) --- */
+
+// Helper to clear and redraw everything
+function renderAllMessages() {
+  // 1. Clear Tabs
+  if(chatTab) chatTab.innerHTML = '';
+  if(qaTab) qaTab.innerHTML = '';
+
+  // 2. Redraw Chat
+  rawChatData.forEach(msg => {
+    addMessage('chat', msg.user, msg.text, (msg.user === myName), msg.country, msg.id);
+  });
+
+  // 3. Redraw Q&A
+  rawQaData.forEach(thread => {
+    addQaThread(thread.user, thread.text, (thread.user === myName), thread.country, thread.id);
+    if(thread.replies) {
+      thread.replies.forEach(rep => addQaReplyUI(thread.id, rep.user, rep.text));
+    }
+  });
+}
+
 s.on('initialLoad', (data) => {
-  // Load Live/Kill State
+  // Save Live State
   if (data.state) {
       toggleLiveUI(data.state.isLive);
       if(data.state.isKilled) killStreamUI();
   }
-  // Load Chat History
-  if(data.chat) {
-    chatTab.innerHTML = ''; // Clear chat before loading history
-    data.chat.forEach(msg => {
-      addMessage('chat', msg.user, msg.text, (msg.user===myName), msg.country, msg.id, true);
-    });
-  }
-  // Load Q&A History
-  if(data.qa) {
-    qaTab.innerHTML = ''; // Clear Q&A before loading history
-    data.qa.forEach(thread => {
-      addQaThread(thread.user, thread.text, (thread.user===myName), thread.country, thread.id, true);
-      if(thread.replies) {
-        thread.replies.forEach(rep => addQaReplyUI(thread.id, rep.user, rep.text, true));
-      }
-    });
-  }
+  
+  // SAVE DATA (Don't just draw it, SAVE it)
+  if(data.chat) rawChatData = data.chat;
+  if(data.qa) rawQaData = data.qa;
+
+  // Draw it
+  renderAllMessages();
 });
 
-s.on('chatIncoming', (data) => { addMessage('chat', data.user, data.text, (data.user===myName), data.country, data.id); });
-s.on('qaIncoming', (data) => { addQaThread(data.user, data.text, (data.user===myName), data.country, data.id); });
-s.on('qaReplyIncoming', (data) => { addQaReplyUI(data.threadId, data.user, data.text); });
+// Listen for new messages and update BOTH storage and UI
+s.on('chatIncoming', (data) => { 
+  rawChatData.push(data);
+  addMessage('chat', data.user, data.text, (data.user===myName), data.country, data.id); 
+});
+
+s.on('qaIncoming', (data) => { 
+  rawQaData.push(data);
+  addQaThread(data.user, data.text, (data.user===myName), data.country, data.id); 
+});
+
+s.on('qaReplyIncoming', (data) => { 
+  // Update stored thread reply (complex, so we just handle UI for now to keep it fast)
+  const thread = rawQaData.find(t => t.id == data.threadId);
+  if(thread) {
+     if(!thread.replies) thread.replies = [];
+     thread.replies.push({user:data.user, text:data.text});
+  }
+  addQaReplyUI(data.threadId, data.user, data.text); 
+});
 
 function switchTab(name) {
   currentTab = name;
@@ -661,10 +693,11 @@ function joinChat() {
   if(!n) return alert("Name required");
   myName = n; myCountry = document.getElementById('chatCountry').value;
   document.getElementById('chatLogin').style.display = 'none';
-  // Re-render chat with "me" class for messages
-  chatTab.innerHTML = ''; 
-  qaTab.innerHTML = '';
-  s.emit('r', Intl.DateTimeFormat().resolvedOptions().timeZone); //Re-emit now we have a name
+  
+  // THE CRITICAL FIX: Re-render all history now that we know "myName"
+  renderAllMessages();
+  
+  s.emit('r', Intl.DateTimeFormat().resolvedOptions().timeZone);
 }
 
 function sendMessage() {
@@ -678,10 +711,8 @@ function sendMessage() {
 function sendReaction(txt) { if(!myName) return; s.emit('chatMsg', { user: myName, text: txt, country: myCountry }); }
 function handleEnter(e) { if(e.key === 'Enter') sendMessage(); }
 
-function addMessage(target, user, text, isMe, country, id, isHistory = false) {
+function addMessage(target, user, text, isMe, country, id) {
   if(!chatTab || (id && document.getElementById(`msg-${id}`))) return;
-  if (!isHistory) chatHistory.push(`[CHAT] ${new Date().toLocaleTimeString()} - ${user} (${country||'Global'}): ${text}`);
-  
   const div = document.createElement('div');
   div.className = `msg ${isMe ? 'me' : ''}`;
   if(id) div.id = `msg-${id}`;
@@ -690,10 +721,8 @@ function addMessage(target, user, text, isMe, country, id, isHistory = false) {
   chatTab.scrollTop = chatTab.scrollHeight;
 }
 
-function addQaThread(user, text, isMe, country, serverId, isHistory = false) {
+function addQaThread(user, text, isMe, country, serverId) {
   if(!qaTab || (serverId && document.getElementById(`qa-${serverId}`))) return;
-  if (!isHistory) chatHistory.push(`[Q&A] ${new Date().toLocaleTimeString()} - Q by ${user}: ${text}`);
-
   const div = document.createElement('div');
   div.className = 'qa-thread'; 
   const finalId = serverId; 
@@ -710,11 +739,9 @@ function addQaThread(user, text, isMe, country, serverId, isHistory = false) {
   qaTab.scrollTop = qaTab.scrollHeight;
 }
 
-function addQaReplyUI(threadId, user, text, isHistory = false) {
+function addQaReplyUI(threadId, user, text) {
   const box = document.getElementById(`replies-${threadId}`);
   if(box) {
-    if (!isHistory) chatHistory.push(`[Q&A] ${new Date().toLocaleTimeString()} - Reply by ${user}: ${text}`);
-    
     const div = document.createElement('div');
     div.className = 'qa-reply-item';
     div.innerHTML = `<strong style="color:#167690">${user}:</strong> ${text}`;
@@ -864,6 +891,7 @@ function replyToQa(id) {
   });
 })();
 </script>
+
 
 
 
