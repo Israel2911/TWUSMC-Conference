@@ -461,9 +461,6 @@
 </section>
 <script>
 /* --- 1. SECURITY & SOCKET SETUP --- */
-// CSP Protection (Simulated for inline scripts)
-// In a real deployment, you'd add this to <head> as a meta tag.
-
 let s;
 try { s = io(); } catch(e) {
   console.warn("OFFLINE MODE");
@@ -490,12 +487,22 @@ const hS = document.getElementById('heroStandard'),
       chatTab = document.getElementById('chatTab'),
       qaTab = document.getElementById('qaTab'),
       msgInput = document.getElementById('msgInput'),
-      reactionBar = document.getElementById('reactionBar'), // We will HIDE this now
+      reactionBar = document.getElementById('reactionBar'),
       downloadBtn = document.getElementById('downloadLogBtn'),
       stackEl = document.getElementById('timeStack');
 
-// Hide the old "floating" reaction bar (Unprofessional)
-if(reactionBar) reactionBar.style.display = 'none';
+// RESTORED: Chat Reaction Bar Logic
+if(reactionBar) {
+    reactionBar.style.display = 'flex'; // Ensure visible
+    // Clear old buttons and add Scholarly/Chat specific ones
+    reactionBar.innerHTML = `
+      <button onclick="sendReaction('👏')">👏</button>
+      <button onclick="sendReaction('🔥')">🔥</button>
+      <button onclick="sendReaction('❤️')">❤️</button>
+      <button onclick="sendReaction('Thinking...')">🤔</button>
+      <button onclick="sendReaction('Agreed!')">✅</button>
+    `;
+}
 
 // Admin Check
 if(new URLSearchParams(window.location.search).get('m')==='a') localStorage.setItem('a','1');
@@ -664,11 +671,10 @@ s.on('qaReplyIncoming', (data) => {
 // UPDATE REACTION UI
 s.on('qaReactionUpdate', (data) => {
   const { threadId, reactions } = data;
-  // Update Data Store
   const thread = rawQaData.find(t => t.id == threadId);
   if(thread) thread.reactions = reactions;
   
-  // Update UI
+  // Re-render just the reaction bar for this thread to avoid flicker
   const reactBox = document.getElementById(`react-box-${threadId}`);
   if(reactBox) {
     reactBox.innerHTML = renderReactionButtons(threadId, reactions);
@@ -681,9 +687,11 @@ function switchTab(name) {
   event.target.classList.add('active');
   if(name === 'chat') {
     chatTab.style.display = 'flex'; qaTab.style.display = 'none';
+    if(reactionBar) reactionBar.style.display = 'flex';
     msgInput.placeholder = "Chat...";
   } else {
     qaTab.style.display = 'flex'; chatTab.style.display = 'none';
+    if(reactionBar) reactionBar.style.display = 'none';
     msgInput.placeholder = "Ask a Question...";
   }
 }
@@ -706,6 +714,12 @@ function sendMessage() {
 }
 function handleEnter(e) { if(e.key === 'Enter') sendMessage(); }
 
+// Send Quick Reaction in Chat
+function sendReaction(txt) { 
+    if(!myName) return; 
+    s.emit('chatMsg', { user: myName, text: txt, country: myCountry }); 
+}
+
 function addMessage(target, user, text, isMe, country, id) {
   if(!chatTab || (id && document.getElementById(`msg-${id}`))) return;
   const div = document.createElement('div');
@@ -724,10 +738,12 @@ function addQaThread(user, text, isMe, country, serverId, reactions) {
   const finalId = serverId; 
   div.id = `qa-${finalId}`; 
   
-  // AI Highlighting
   const isAi = (user === "🤖 Session Facilitator");
   const userDisplay = isAi ? `<span style="color:#ffcc00;font-weight:bold;">${user}</span>` : user;
   const bgStyle = isAi ? 'background:rgba(255,215,0,0.1); border-left:3px solid #ffcc00;' : '';
+
+  // Default reaction structure if undefined (for old threads)
+  const safeReactions = reactions || { '🎓':[], '💡':[], '🤝':[], '⭐':[], '📜':[] };
 
   div.style.cssText = bgStyle;
   div.innerHTML = `
@@ -736,7 +752,7 @@ function addQaThread(user, text, isMe, country, serverId, reactions) {
     
     <!-- STICKY REACTIONS BAR -->
     <div class="qa-reactions" id="react-box-${finalId}" style="margin:5px 0; display:flex; gap:8px;">
-      ${renderReactionButtons(finalId, reactions || { '🎓':0, '💡':0, '🤝':0, '⭐':0, '📜':0 })}
+      ${renderReactionButtons(finalId, safeReactions)}
     </div>
 
     <div class="qa-replies" id="replies-${finalId}"></div>
@@ -748,19 +764,37 @@ function addQaThread(user, text, isMe, country, serverId, reactions) {
   qaTab.scrollTop = qaTab.scrollHeight;
 }
 
+// DEFINITIONS MAP for Tooltips
+const EMOJI_DEF = {
+  '🎓': 'Academic Insight',
+  '💡': 'Great Idea',
+  '🤝': 'Agreement',
+  '⭐': 'Excellent Point',
+  '📜': 'Needs Citation/Source'
+};
+
 function renderReactionButtons(id, r) {
   const emojis = ['🎓', '💡', '🤝', '⭐', '📜'];
-  return emojis.map(e => 
-    `<span onclick="emitReact('${id}', '${e}')" 
-           style="cursor:pointer; background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:10px; font-size:0.85rem; border:1px solid #333;">
-       ${e} ${r[e]||0}
-     </span>`
-  ).join('');
+  return emojis.map(e => {
+    const list = Array.isArray(r[e]) ? r[e] : []; // Handle old data gracefully
+    const count = list.length;
+    const iVoted = myName && list.includes(myName);
+    
+    // Visual State: Active (Blue border + background) vs Inactive (Grey)
+    const activeStyle = iVoted ? 'border:1px solid #38bdf8; background:rgba(56,189,248,0.2);' : 'border:1px solid #333; background:rgba(255,255,255,0.05);';
+
+    return `<span onclick="emitReact('${id}', '${e}')" 
+           title="${EMOJI_DEF[e]}"
+           style="cursor:pointer; padding:4px 8px; border-radius:15px; font-size:0.9rem; transition:all 0.2s; ${activeStyle}">
+       ${e} ${count}
+     </span>`;
+  }).join('');
 }
 
 function emitReact(id, emoji) {
     if(!myName) return alert("Please Join first to react.");
-    s.emit('qaReact', { threadId: id, emoji: emoji });
+    // Server handles the Toggle/Undo logic based on user name
+    s.emit('qaReact', { threadId: id, emoji: emoji, user: myName });
 }
 
 function addQaReplyUI(threadId, user, text) {
@@ -913,6 +947,7 @@ function replyToQa(id) {
   });
 })();
 </script>
+
 
 
 
