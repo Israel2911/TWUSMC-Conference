@@ -473,6 +473,7 @@ s.emit('r', Intl.DateTimeFormat().resolvedOptions().timeZone);
 let myName = "";
 let myCountry = "";
 let currentTab = "chat"; 
+let chatHistory = []; // RESTORED: Local History Storage
 
 // DOM Elements
 const hS = document.getElementById('heroStandard'),
@@ -493,7 +494,19 @@ const hS = document.getElementById('heroStandard'),
 // Admin Mode Check
 if(new URLSearchParams(window.location.search).get('m')==='a') localStorage.setItem('a','1');
 if(document.getElementById('adminPanel')) document.getElementById('adminPanel').style.display='flex';
-if(downloadBtn && localStorage.getItem('a')==='1') downloadBtn.style.display='block';
+
+// RESTORED: Download Button Visibility & Logic
+if(downloadBtn && localStorage.getItem('a')==='1') {
+    downloadBtn.style.display='block';
+    downloadBtn.onclick = function() {
+      if(chatHistory.length === 0) return alert("No chat history to download.");
+      const blob = new Blob([chatHistory.join('\n')], { type: 'text/plain' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = `Human_Space_Log_${Date.now()}.txt`; 
+      a.click();
+    };
+}
 
 /* --- 2. SYNOPSIS READ MORE LOGIC --- */
 const expandBtn = document.getElementById('expandBtn');
@@ -538,7 +551,6 @@ function toggleLiveUI(isLive) {
   if(lT) { lT.innerHTML = isLive ? '🟢 LIVE' : '🔴 GO LIVE'; lT.style.background = isLive ? '#00cc00' : '#333'; }
 }
 
-// --- RESTORED ORIGINAL KILL UI ---
 function killStreamUI() {
   if(hL) {
     hL.innerHTML = `
@@ -653,6 +665,10 @@ function handleEnter(e) { if(e.key === 'Enter') sendMessage(); }
 function addMessage(target, user, text, isMe, country, id) {
   if(!chatTab) return;
   if(id && document.getElementById(`msg-${id}`)) return;
+  
+  // RESTORED: Push to history array for download
+  chatHistory.push(`[CHAT] ${user} (${country||'Global'}): ${text}`);
+  
   const div = document.createElement('div');
   div.className = `msg ${isMe ? 'me' : ''}`;
   if(id) div.id = `msg-${id}`;
@@ -664,6 +680,10 @@ function addMessage(target, user, text, isMe, country, id) {
 function addQaThread(user, text, isMe, country, serverId) {
   if(!qaTab) return;
   if(serverId && document.getElementById(`qa-${serverId}`)) return;
+  
+  // RESTORED: Push to history
+  chatHistory.push(`[Q&A] Q by ${user}: ${text}`);
+
   const div = document.createElement('div');
   div.className = 'qa-thread'; 
   const finalId = serverId || Date.now();
@@ -683,6 +703,9 @@ function addQaThread(user, text, isMe, country, serverId) {
 function addQaReplyUI(threadId, user, text) {
   const box = document.getElementById(`replies-${threadId}`);
   if(box) {
+    // RESTORED: Push to history
+    chatHistory.push(`[Q&A] Reply by ${user}: ${text}`);
+    
     const div = document.createElement('div');
     div.className = 'qa-reply-item';
     div.innerHTML = `<strong style="color:#167690">${user}:</strong> ${text}`;
@@ -832,6 +855,7 @@ function replyToQa(id) {
   });
 })();
 </script>
+
 
 
 
