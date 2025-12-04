@@ -495,19 +495,15 @@ if(new URLSearchParams(window.location.search).get('m')==='a') localStorage.setI
 if(document.getElementById('adminPanel')) document.getElementById('adminPanel').style.display='flex';
 if(downloadBtn && localStorage.getItem('a')==='1') downloadBtn.style.display='block';
 
-/* --- 2. SYNOPSIS READ MORE LOGIC (RESTORED) --- */
+/* --- 2. SYNOPSIS READ MORE LOGIC --- */
 const expandBtn = document.getElementById('expandBtn');
 if(expandBtn) {
   expandBtn.addEventListener('click', function() {
     const content = document.getElementById('synopsisExpanded');
     content.classList.toggle('open');
     this.classList.toggle('open');
-    
-    // Toggle Icon Rotation
     const icon = this.querySelector('.material-icons-round');
     if(icon) icon.style.transform = content.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
-    
-    // Toggle Text
     const span = this.querySelector('span');
     if(span) span.textContent = content.classList.contains('open') ? 'Read Less' : 'Read More';
   });
@@ -522,7 +518,6 @@ s.on('z', (state) => {
   const isKilled = (typeof state === 'object') ? state.isKilled : false;
   toggleLiveUI(isLive);
   
-  // Update Admin Button UI
   if (localStorage.getItem('a') === '1' && kS) {
     kS.style.display = 'block';
     if (isKilled) { kS.disabled = true; kS.innerHTML = '✅ KILLED'; kS.style.opacity = '0.7'; }
@@ -542,11 +537,24 @@ function toggleLiveUI(isLive) {
   if(vC) vC.style.display = isLive ? 'flex' : 'none';
   if(lT) { lT.innerHTML = isLive ? '🟢 LIVE' : '🔴 GO LIVE'; lT.style.background = isLive ? '#00cc00' : '#333'; }
 }
+
+// --- RESTORED ORIGINAL KILL UI ---
 function killStreamUI() {
-  if(hL) hL.innerHTML = `<div class="teams-backup" style="background:black;color:white;padding:40px;text-align:center;height:100%;display:flex;flex-direction:column;justify-content:center;"><h1>🔴 STREAM ENDED</h1><h2>Join on Teams</h2></div>`;
+  if(hL) {
+    hL.innerHTML = `
+      <div class="teams-backup" style="background:linear-gradient(135deg,#1a0000,#000);padding:40px;text-align:center;color:white;height:100%;display:flex;flex-direction:column;justify-content:center;border-radius:20px;">
+        <div style="font-size:5rem;margin-bottom:20px;animation:pulse-red 2s infinite;">🔴</div>
+        <h2 style="font-size:2.5rem;margin-bottom:15px;font-weight:900;">Stream Continues on Teams</h2>
+        <p style="font-size:1.3rem;opacity:0.9;margin-bottom:30px;">Please join the secure session below</p>
+        <a href="https://teams.microsoft.com/meet/25727590322372?p=Toyeb2xMWy8NeEJiA2" target="_blank"
+           style="background:linear-gradient(135deg,#464eb8,#3a3f9e);color:white;padding:20px 40px;border-radius:25px;font-weight:bold;font-size:1.3rem;text-decoration:none;display:inline-flex;align-items:center;gap:15px;box-shadow:0 10px 30px rgba(70,78,184,0.4);margin:0 auto;max-width:400px;width:100%;justify-content:center;">
+          📱 Join Teams Stream →
+        </a>
+      </div>`;
+  }
 }
 
-/* --- 4. TIME CARDS STACK LOGIC (RESTORED) --- */
+/* --- 4. TIME CARDS STACK LOGIC --- */
 const countries=[
   {name:'India',flag:'🇮🇳',tz:'Asia/Kolkata',lat:22,lng:78,color:'#FF9933'},
   {name:'Canada',flag:'🇨🇦',tz:'America/Vancouver',lat:56,lng:-106,color:'#ff0000'},
@@ -558,7 +566,6 @@ const countries=[
   {name:'Malaysia',flag:'🇲🇾',tz:'Asia/Kuala_Lumpur',lat:4,lng:102,color:'#FFD700'}
 ];
 
-// Render the Time Cards HTML if missing
 if(stackEl && stackEl.innerHTML.trim() === "") {
     countries.forEach((c,i)=>{
       stackEl.innerHTML+=`
@@ -578,13 +585,10 @@ function updateStackTimes(){
   countries.forEach((c,i)=>{
     const timeEl = document.getElementById(`stack-time-${i}`);
     if(timeEl) timeEl.innerText=n.toLocaleTimeString('en-GB',{timeZone:c.tz,hour:'2-digit',minute:'2-digit'});
-    
-    // Simple Day/Night Icon Logic
     const h=parseInt(n.toLocaleTimeString('en-GB',{timeZone:c.tz,hour:'numeric',hour12:false}));
     const isDay = (h>=6 && h<18);
     const icon = isDay ? 'wb_sunny' : 'bedtime';
     const color = isDay ? '#f6e05e' : '#718096';
-    
     const wEl = document.getElementById(`weather-${i}`);
     if(wEl) wEl.innerHTML=`<span class="material-icons-round" style="color:${color}">${icon}</span>`;
   });
@@ -593,7 +597,6 @@ setInterval(updateStackTimes,1000); updateStackTimes();
 
 
 /* --- 5. CHAT & HISTORY LOGIC --- */
-
 s.on('initialLoad', (data) => {
   if(data.chat) {
     data.chat.forEach(msg => {
@@ -695,7 +698,7 @@ function replyToQa(id) {
   if(txt) s.emit('qaReply', { threadId: id, user: myName, text: txt });
 }
 
-/* --- 6. 3D GLOBE (RESTORED) --- */
+/* --- 6. 3D GLOBE --- */
 (function initGlobe() {
   const container = document.getElementById('heroGlobeContainer');
   if (!container) return;
@@ -721,7 +724,6 @@ function replyToQa(id) {
       globeGroup.add(new THREE.Mesh(geo, mat));
   });
   
-  // Flag Labels (Restored)
   const flagSprites = [];
   function latLonToVec3(lat, lon, r) {
     const phi = (90 - lat) * (Math.PI / 180);
@@ -776,7 +778,7 @@ function replyToQa(id) {
   animate();
 })();
 
-/* --- 7. 3D BOOK (Restored) --- */
+/* --- 7. 3D BOOK --- */
 (function initBook() {
   const container = document.getElementById('bookContainer');
   if (!container) return;
