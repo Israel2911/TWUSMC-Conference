@@ -10,10 +10,12 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
   <style>
+
     /* --- CORE STYLES --- */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
     body { background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%); font-family: 'Nunito', sans-serif; color: #1a365d; overflow-x: hidden; line-height: 1.6; }
+    
     .header { display: flex; align-items: center; justify-content: space-between; padding: 15px 40px; background: rgba(255,255,255,0.95); position: sticky; top: 0; z-index: 1000; backdrop-filter: blur(10px); box-shadow: 0 2px 20px rgba(0,0,0,0.05); }
     .logo { font-size: 1.5rem; font-weight: 900; color: #167690; }
     .nav { display: flex; gap: 20px; align-items: center; }
@@ -30,34 +32,72 @@
     .hero-content-live { position: relative; z-index: 10; width: 100%; max-width: 1400px; display: none; margin-top: 20px; }
     .hero h1 { font-size: 4rem; font-weight: 900; color: #167690; margin:0; }
     .hero h2 { font-size: 2rem; color: white; margin: 10px 0 30px 0; }
-    .live-grid { display: grid; grid-template-columns: 2.5fr 1fr; gap: 30px; min-height: 500px; }
-    .video-wrapper { background: black; border-radius: 20px; overflow: hidden; border: 2px solid #333; position: relative; min-height: 400px; }
+
+    /* --- FIXED SECTION START (This fixes the stretching) --- */
+    .live-grid { 
+      display: grid; 
+      grid-template-columns: 2.5fr 1fr; 
+      gap: 30px; 
+      /* FIX: Fixed height prevents page stretching */
+      height: 70vh; 
+      min-height: 500px; 
+    }
+
+    .video-wrapper { 
+      background: black; 
+      border-radius: 20px; 
+      overflow: hidden; 
+      border: 2px solid #333; 
+      position: relative; 
+      /* FIX: Match grid height exactly */
+      height: 100%; 
+      width: 100%;
+    }
     .video-wrapper.killed iframe { display: none !important; }
     .live-badge { position: absolute; top: 20px; left: 20px; background: #ff0000; color: white; padding: 5px 15px; border-radius: 5px; font-weight: bold; font-size: 0.9rem; z-index: 10; }
 
     /* --- RESET: NO CROP, NO TRICKS --- */
-    .video-crop {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-    .video-crop iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-      display: block;
-    }
+    .video-crop { width: 100%; height: 100%; display: block; }
+    .video-crop iframe { width: 100%; height: 100%; border: none; display: block; }
 
-    
     /* --- "THE HUMAN SPACE" (Chat System) --- */
-    .human-space-container { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); border-radius: 20px; display: flex; flex-direction: column; height: 100%; min-height: 500px; border: 1px solid rgba(255,255,255,0.3); overflow: hidden; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+    .human-space-container { 
+      background: rgba(255, 255, 255, 0.95); 
+      backdrop-filter: blur(15px); 
+      border-radius: 20px; 
+      display: flex; 
+      flex-direction: column; 
+      /* FIX: Fill grid cell exactly */
+      height: 100%; 
+      border: 1px solid rgba(255,255,255,0.3); 
+      /* FIX: Stop box from growing */
+      overflow: hidden; 
+      position: relative; 
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2); 
+    }
+    
     .human-space-header { background: linear-gradient(135deg, #167690, #0f5c70); color: white; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
     .hs-title-row { display: flex; justify-content: space-between; align-items: center; font-weight: 900; font-size: 1.1rem; }
     .tab-row { display: flex; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 3px; }
     .hs-tab { flex: 1; background: transparent; border: none; color: rgba(255,255,255,0.7); padding: 8px; font-weight: bold; cursor: pointer; border-radius: 6px; transition: 0.2s; font-size: 0.9rem; }
     .hs-tab.active { background: white; color: #167690; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
     .hs-tab:hover:not(.active) { color: white; background: rgba(255,255,255,0.1); }
-    .human-space-messages { flex: 1; padding: 20px; overflow-y: auto; display: none; flex-direction: column; gap: 12px; font-size: 0.95rem; background: #f0f4f8; }
+    
+    .human-space-messages { 
+      flex: 1; 
+      padding: 20px; 
+      /* FIX: Enable internal scrolling */
+      overflow-y: auto; 
+      display: none; 
+      flex-direction: column; 
+      gap: 12px; 
+      font-size: 0.95rem; 
+      background: #f0f4f8; 
+      /* FIX: Firefox scrolling fix */
+      min-height: 0; 
+    }
+    /* --- FIXED SECTION END --- */
+
     .human-space-messages.active { display: flex; }
     .human-space-input { padding: 15px; background: white; border-top: 1px solid #eee; }
     .login-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.98); z-index: 20; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; }
@@ -142,8 +182,22 @@
     @keyframes pulse-red { 0% { opacity: 1; } 50% { opacity: 0.8; } 100% { opacity: 1; } }
     @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.2); color: #167690; } 100% { transform: scale(1); } }
     .pop { animation: pop 0.3s ease; }
-    @media (max-width: 1024px) { .live-grid { grid-template-columns: 1fr; height: auto; } }
-  </style>
+
+    /* --- MOBILE FIX --- */
+    @media (max-width: 1024px) { 
+      .live-grid { 
+        grid-template-columns: 1fr; 
+        height: auto; /* Mobile can grow freely */
+      } 
+      .human-space-container {
+        height: 600px; /* Fixed height for chat on mobile */
+      }
+      .video-wrapper {
+        height: 300px; /* Video height on mobile */
+      }
+    }
+</style>
+
 </head>
 <body>
 
