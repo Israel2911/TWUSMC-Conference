@@ -9,47 +9,38 @@ const io = new Server(server);
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ==========================================
-// GLOBAL STATE & SECURITY
-// ==========================================
-let K = false;   // Killed State (Global Override)
+// --- GLOBAL STATE ---
+let K = false;   // Kill State
 let T = 0;       // Total Users
-let R = {};      // Region Counts { tz: count }
-let A = {};      // Active Client Timezones { socket.id: tz }
-let userLiveStates = {}; // Track individual toggle state
+let R = {};      // Region Counts
+let A = {};      // Active Timezones
+let userLiveStates = {}; 
 
-// Rate Limiting Tracker { socket.id: lastMessageTime }
+// --- HISTORY STORAGE ---
+const MAX_HISTORY = 50;
+const chatHistory = []; 
+const qaHistory = [];   
+
 const lastMsgTime = {};
-const RATE_LIMIT_MS = 500; // Minimum 0.5s between messages
+const RATE_LIMIT_MS = 500;
 
-// --- SECURITY HELPER: Prevent XSS Injection ---
 function escapeHtml(text) {
   if (!text) return "";
-  return text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "'");
 }
 
 io.on('connection', (socket) => {
   T++;
-  // Default new user to "Not Watching"
   userLiveStates[socket.id] = false; 
-  
   console.log('🔌 Client connected:', socket.id);
 
-  // 1. Send initial state
-  socket.emit('z', { 
-    isLive: userLiveStates[socket.id], 
-    isKilled: K 
-  });
-  
+  // 1. Send Initial State + HISTORY
+  socket.emit('z', { isLive: userLiveStates[socket.id], isKilled: K });
+  socket.emit('initialLoad', { chat: chatHistory, qa: qaHistory });
   io.emit('t', T);
   io.emit('r', R);
 
-  // 2. Timezone Report
+  // 2. Timezone
   socket.on('r', (tz) => {
     A[socket.id] = tz;
     if (!R[tz]) R[tz] = 0;
@@ -57,126 +48,74 @@ io.on('connection', (socket) => {
     io.emit('r', R);
   });
 
-  // 3. TOGGLE REQUEST (User clicked "GO LIVE")
+  // 3. Toggle
   socket.on('x', () => {
-    // Toggle THIS USER'S state
     userLiveStates[socket.id] = !userLiveStates[socket.id];
-    
-    // Send update to THIS USER only
-    socket.emit('z', { 
-      isLive: userLiveStates[socket.id], 
-      isKilled: K 
-    });
-    
-    console.log(`👤 User ${socket.id} toggled view: ${userLiveStates[socket.id]} (Killed: ${K})`);
+    socket.emit('z', { isLive: userLiveStates[socket.id], isKilled: K });
   });
 
-  // ==========================================
-  // SECURE CHAT & Q&A HANDLERS
-  // ==========================================
-  
-  // Handle Chat Messages
+  // --- CHAT HANDLER ---
   socket.on('chatMsg', (payload) => {
-    // Rate Limit Check
-    const now = Date.now();
-    if (lastMsgTime[socket.id] && now - lastMsgTime[socket.id] < RATE_LIMIT_MS) {
-      return; // Ignore spam
-    }
-    lastMsgTime[socket.id] = now;
-
-    // Sanitize Input (Prevent Hacking)
-    const safeUser = escapeHtml(payload.user);
-    const safeText = escapeHtml(payload.text);
-    const safeCountry = escapeHtml(payload.country);
-
-    // Broadcast to ALL clients
-    io.emit('chatIncoming', {
-      id: Date.now() + Math.random(),
-      user: safeUser,
-      text: safeText,
-      country: safeCountry,
-      type: 'chat'
-    });
-  });
-
-  // Handle Q&A Questions
-  socket.on('qaAsk', (payload) => {
-    // Rate Limit Check
     const now = Date.now();
     if (lastMsgTime[socket.id] && now - lastMsgTime[socket.id] < RATE_LIMIT_MS) return;
     lastMsgTime[socket.id] = now;
 
-    const safeUser = escapeHtml(payload.user);
-    const safeText = escapeHtml(payload.text);
-    const safeCountry = escapeHtml(payload.country);
-
-    // Broadcast Question
-    io.emit('qaIncoming', {
+    const msgData = {
       id: Date.now() + Math.random(),
-      user: safeUser,
-      text: safeText,
-      country: safeCountry
-    });
+      user: escapeHtml(payload.user),
+      text: escapeHtml(payload.text),
+      country: escapeHtml(payload.country),
+      type: 'chat'
+    };
+    chatHistory.push(msgData);
+    if (chatHistory.length > MAX_HISTORY) chatHistory.shift();
+    io.emit('chatIncoming', msgData);
   });
 
-  // Handle Q&A Replies
+  // --- Q&A HANDLER ---
+  socket.on('qaAsk', (payload) => {
+    const now = Date.now();
+    if (lastMsgTime[socket.id] && now - lastMsgTime[socket.id] < RATE_LIMIT_MS) return;
+    lastMsgTime[socket.id] = now;
+
+    const threadData = {
+      id: Date.now() + Math.random(),
+      user: escapeHtml(payload.user),
+      text: escapeHtml(payload.text),
+      country: escapeHtml(payload.country),
+      replies: []
+    };
+    qaHistory.push(threadData);
+    io.emit('qaIncoming', threadData);
+  });
+
+  // --- REPLY HANDLER ---
   socket.on('qaReply', (payload) => {
-    const safeUser = escapeHtml(payload.user);
-    const safeText = escapeHtml(payload.text);
-    const threadId = payload.threadId; // ID is usually safe, but treat carefully
-
-    // Broadcast Reply
-    io.emit('qaReplyIncoming', {
-      threadId: threadId,
-      user: safeUser,
-      text: safeText
-    });
+    const replyData = { user: escapeHtml(payload.user), text: escapeHtml(payload.text) };
+    const thread = qaHistory.find(t => t.id == payload.threadId);
+    if (thread) thread.replies.push(replyData);
+    io.emit('qaReplyIncoming', { threadId: payload.threadId, ...replyData });
   });
 
-  // ==========================================
-  // ADMIN ACTIONS
-  // ==========================================
-
-  // KILL REQUEST (Admin Only)
+  // --- KILL SWITCH ---
   socket.on('k', () => {
-    const ip = socket.handshake.address;
-    console.log('⚠️ Kill requested from', ip);
-
-    // 1. Set Global Kill Flag
     K = true;
-
-    // 2. Reset all user states to "False"
-    for (let id in userLiveStates) {
-      userLiveStates[id] = false; 
-    }
-
-    // 3. GLOBAL BROADCAST: Force everyone OFF
+    for (let id in userLiveStates) userLiveStates[id] = false; 
     io.emit('z', { isLive: false, isKilled: true });
-    
-    // 4. Force Legacy Cleanup
     io.emit('d'); 
-
-    console.log('💀 NUCLEAR KILL ACTIVATED');
   });
 
-  // Disconnect
   socket.on('disconnect', () => {
     T--;
     const tz = A[socket.id];
     if (tz && R[tz] > 0) R[tz]--;
-    
     delete A[socket.id];
     delete userLiveStates[socket.id];
     delete lastMsgTime[socket.id];
-
     io.emit('t', T);
     io.emit('r', R);
-    
-    console.log('🔌 Client disconnected:', socket.id);
   });
 });
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-});
+server.listen(PORT, () => { console.log(`🚀 Server running on port ${PORT}`); });
