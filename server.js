@@ -10,24 +10,24 @@ const io = new Server(server);
 app.use(express.static(path.join(__dirname, 'public')));
 
 // --- GLOBAL STATE ---
-let K = false;   // Kill State
-let T = 0;       // Total Users
-let R = {};      // Region Counts
-let A = {};      // Active Timezones
+let K = false;
+let T = 0;
+let R = {};
+let A = {};
 let userLiveStates = {}; 
 
 // --- HISTORY STORAGE ---
-const MAX_HISTORY = 60; // Increased slightly
+const MAX_HISTORY = 60;
 const chatHistory = []; 
-const qaHistory = [];   // Now stores reactions too!
+const qaHistory = [];
 
-// --- SECURITY & SPAM SHIELD ---
+// --- SECURITY & SPAM ---
 const lastMsgTime = {};
 const spamCount = {};
-const RATE_LIMIT_MS = 800; // Slower, more thoughtful pace
-const MAX_MSG_LENGTH = 500; // Prevent massive text bombs
+const RATE_LIMIT_MS = 800;
+const MAX_MSG_LENGTH = 500;
 
-// --- AI FACILITATOR AGENT ---
+// --- AI FACILITATOR ---
 const AI_NAME = "🤖 Session Facilitator";
 const AI_QUESTIONS = [
   "How do you see AI influencing moral decision-making in your field?",
@@ -40,10 +40,8 @@ const AI_QUESTIONS = [
 ];
 let aiIndex = 0;
 
-// Start the AI Loop (Posts every 3 minutes)
 setInterval(() => {
-  if (K) return; // Don't speak if stream is killed
-  
+  if (K) return;
   const qText = AI_QUESTIONS[aiIndex];
   aiIndex = (aiIndex + 1) % AI_QUESTIONS.length;
   
@@ -54,30 +52,23 @@ setInterval(() => {
     country: 'System',
     isAi: true,
     replies: [],
-    reactions: { '🎓':0, '💡':0, '🤝':0, '⭐':0, '📜':0 }
+    // Store Arrays of Names now, not just numbers!
+    reactions: { '🎓':[], '💡':[], '🤝':[], '⭐':[], '📜':[] }
   };
   
   qaHistory.push(threadData);
   io.emit('qaIncoming', threadData);
-}, 180000); // 180,000ms = 3 minutes
+}, 180000); 
 
-
-// --- SECURITY HELPER ---
 function escapeHtml(text) {
   if (!text) return "";
-  // Basic sanitization against XSS
-  return text.replace(/&/g, "&amp;")
-             .replace(/</g, "&lt;")
-             .replace(/>/g, "&gt;")
-             .replace(/"/g, "&quot;")
-             .replace(/'/g, "'");
+  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "'");
 }
 
 io.on('connection', (socket) => {
   T++;
   userLiveStates[socket.id] = false; 
   
-  // Send Initial State
   socket.emit('initialLoad', { 
     chat: chatHistory, 
     qa: qaHistory,
@@ -87,7 +78,6 @@ io.on('connection', (socket) => {
   io.emit('t', T);
   io.emit('r', R);
 
-  // Timezone
   socket.on('r', (tz) => {
     A[socket.id] = tz;
     if (!R[tz]) R[tz] = 0;
@@ -95,29 +85,21 @@ io.on('connection', (socket) => {
     io.emit('r', R);
   });
 
-  // Toggle Live
   socket.on('x', () => {
     userLiveStates[socket.id] = !userLiveStates[socket.id];
     socket.emit('z', { isLive: userLiveStates[socket.id], isKilled: K });
   });
 
-  // --- SECURE CHAT HANDLER ---
   socket.on('chatMsg', (payload) => {
     const now = Date.now();
-    
-    // 1. SPAM CHECK
     if (lastMsgTime[socket.id] && now - lastMsgTime[socket.id] < RATE_LIMIT_MS) {
       spamCount[socket.id] = (spamCount[socket.id] || 0) + 1;
-      if (spamCount[socket.id] > 5) {
-        socket.disconnect(); // Kick spammer
-        return;
-      }
-      return; // Ignore fast message
+      if (spamCount[socket.id] > 5) { socket.disconnect(); return; }
+      return;
     }
     lastMsgTime[socket.id] = now;
-    spamCount[socket.id] = Math.max(0, (spamCount[socket.id] || 0) - 1); // Cool down
+    spamCount[socket.id] = Math.max(0, (spamCount[socket.id] || 0) - 1);
 
-    // 2. LENGTH CHECK
     if (payload.text.length > MAX_MSG_LENGTH) return;
 
     const msgData = {
@@ -132,17 +114,15 @@ io.on('connection', (socket) => {
     io.emit('chatIncoming', msgData);
   });
 
-  // --- Q&A HANDLER ---
   socket.on('qaAsk', (payload) => {
     if (payload.text.length > MAX_MSG_LENGTH) return;
-
     const threadData = {
       id: Date.now() + Math.random(),
       user: escapeHtml(payload.user),
       text: escapeHtml(payload.text),
       country: escapeHtml(payload.country),
       replies: [],
-      reactions: { '🎓':0, '💡':0, '🤝':0, '⭐':0, '📜':0 } // Initialize Reactions
+      reactions: { '🎓':[], '💡':[], '🤝':[], '⭐':[], '📜':[] }
     };
     qaHistory.push(threadData);
     io.emit('qaIncoming', threadData);
@@ -155,18 +135,30 @@ io.on('connection', (socket) => {
     io.emit('qaReplyIncoming', { threadId: payload.threadId, ...replyData });
   });
 
-  // --- NEW: SCHOLARLY REACTION HANDLER ---
+  // --- SMART REACTION HANDLER (TOGGLE/UNDO) ---
   socket.on('qaReact', (payload) => {
-    const { threadId, emoji } = payload;
+    const { threadId, emoji, user } = payload;
     const allowed = ['🎓', '💡', '🤝', '⭐', '📜'];
     if (!allowed.includes(emoji)) return;
 
     const thread = qaHistory.find(t => t.id == threadId);
     if (thread) {
-      if (!thread.reactions) thread.reactions = { '🎓':0, '💡':0, '🤝':0, '⭐':0, '📜':0 };
-      thread.reactions[emoji]++;
+      // Ensure structure exists
+      if (!thread.reactions) thread.reactions = { '🎓':[], '💡':[], '🤝':[], '⭐':[], '📜':[] };
+      if (!Array.isArray(thread.reactions[emoji])) thread.reactions[emoji] = [];
+
+      const list = thread.reactions[emoji];
+      const userIndex = list.indexOf(user);
+
+      if (userIndex === -1) {
+        // ADD Vote
+        list.push(user);
+      } else {
+        // UNDO Vote (Remove user)
+        list.splice(userIndex, 1);
+      }
       
-      // Broadcast update
+      // Broadcast updated lists so clients can highlight their own selection
       io.emit('qaReactionUpdate', { 
         threadId, 
         reactions: thread.reactions 
@@ -174,7 +166,6 @@ io.on('connection', (socket) => {
     }
   });
 
-  // Kill Switch
   socket.on('k', () => {
     K = true;
     for (let id in userLiveStates) userLiveStates[id] = false; 
