@@ -473,7 +473,7 @@ s.emit('r', Intl.DateTimeFormat().resolvedOptions().timeZone);
 let myName = "";
 let myCountry = "";
 let currentTab = "chat"; 
-let chatHistory = []; // RESTORED: Local History Storage
+let chatHistory = []; // For chat log download
 
 // DOM Elements
 const hS = document.getElementById('heroStandard'),
@@ -495,7 +495,7 @@ const hS = document.getElementById('heroStandard'),
 if(new URLSearchParams(window.location.search).get('m')==='a') localStorage.setItem('a','1');
 if(document.getElementById('adminPanel')) document.getElementById('adminPanel').style.display='flex';
 
-// RESTORED: Download Button Visibility & Logic
+// Download Button Logic
 if(downloadBtn && localStorage.getItem('a')==='1') {
     downloadBtn.style.display='block';
     downloadBtn.onclick = function() {
@@ -503,8 +503,9 @@ if(downloadBtn && localStorage.getItem('a')==='1') {
       const blob = new Blob([chatHistory.join('\n')], { type: 'text/plain' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url; a.download = `Human_Space_Log_${Date.now()}.txt`; 
+      a.href = url; a.download = `Human_Space_Log_${new Date().toISOString()}.txt`; 
       a.click();
+      window.URL.revokeObjectURL(url);
     };
 }
 
@@ -523,12 +524,12 @@ if(expandBtn) {
 }
 
 /* --- 3. LIVE STREAM LOGIC --- */
-if(lT) lT.onclick = () => { s.emit('x'); toggleLiveUI(true); };
-if(kS) kS.onclick = () => { if(confirm('⚠️ ACTIVATE KILL SWITCH?')) { s.emit('k'); killStreamUI(); } };
+if(lT) lT.onclick = () => { s.emit('x'); };
+if(kS) kS.onclick = () => { if(confirm('⚠️ ACTIVATE KILL SWITCH?')) { s.emit('k'); } };
 
 s.on('z', (state) => {
-  const isLive = (typeof state === 'object') ? state.isLive : state;
-  const isKilled = (typeof state === 'object') ? state.isKilled : false;
+  const isLive = state.isLive;
+  const isKilled = state.isKilled;
   toggleLiveUI(isLive);
   
   if (localStorage.getItem('a') === '1' && kS) {
@@ -596,30 +597,41 @@ function updateStackTimes(){
   const n=new Date();
   countries.forEach((c,i)=>{
     const timeEl = document.getElementById(`stack-time-${i}`);
-    if(timeEl) timeEl.innerText=n.toLocaleTimeString('en-GB',{timeZone:c.tz,hour:'2-digit',minute:'2-digit'});
-    const h=parseInt(n.toLocaleTimeString('en-GB',{timeZone:c.tz,hour:'numeric',hour12:false}));
-    const isDay = (h>=6 && h<18);
-    const icon = isDay ? 'wb_sunny' : 'bedtime';
-    const color = isDay ? '#f6e05e' : '#718096';
-    const wEl = document.getElementById(`weather-${i}`);
-    if(wEl) wEl.innerHTML=`<span class="material-icons-round" style="color:${color}">${icon}</span>`;
+    try {
+        if(timeEl) timeEl.innerText=n.toLocaleTimeString('en-GB',{timeZone:c.tz,hour:'2-digit',minute:'2-digit'});
+        const h=parseInt(n.toLocaleTimeString('en-GB',{timeZone:c.tz,hour:'numeric',hour12:false}));
+        const isDay = (h>=6 && h<18);
+        const icon = isDay ? 'wb_sunny' : 'bedtime';
+        const color = isDay ? '#f6e05e' : '#718096';
+        const wEl = document.getElementById(`weather-${i}`);
+        if(wEl) wEl.innerHTML=`<span class="material-icons-round" style="color:${color}">${icon}</span>`;
+    } catch(e) { if(timeEl) timeEl.innerText = '--:--'; }
   });
 }
 setInterval(updateStackTimes,1000); updateStackTimes();
 
 
-/* --- 5. CHAT & HISTORY LOGIC --- */
+/* --- 5. CHAT & HISTORY LOGIC (CRITICAL PART) --- */
 s.on('initialLoad', (data) => {
+  // Load Live/Kill State
+  if (data.state) {
+      toggleLiveUI(data.state.isLive);
+      if(data.state.isKilled) killStreamUI();
+  }
+  // Load Chat History
   if(data.chat) {
+    chatTab.innerHTML = ''; // Clear chat before loading history
     data.chat.forEach(msg => {
-      addMessage('chat', msg.user, msg.text, (msg.user===myName), msg.country, msg.id);
+      addMessage('chat', msg.user, msg.text, (msg.user===myName), msg.country, msg.id, true);
     });
   }
+  // Load Q&A History
   if(data.qa) {
+    qaTab.innerHTML = ''; // Clear Q&A before loading history
     data.qa.forEach(thread => {
-      addQaThread(thread.user, thread.text, (thread.user===myName), thread.country, thread.id);
+      addQaThread(thread.user, thread.text, (thread.user===myName), thread.country, thread.id, true);
       if(thread.replies) {
-        thread.replies.forEach(rep => addQaReplyUI(thread.id, rep.user, rep.text));
+        thread.replies.forEach(rep => addQaReplyUI(thread.id, rep.user, rep.text, true));
       }
     });
   }
@@ -649,25 +661,26 @@ function joinChat() {
   if(!n) return alert("Name required");
   myName = n; myCountry = document.getElementById('chatCountry').value;
   document.getElementById('chatLogin').style.display = 'none';
+  // Re-render chat with "me" class for messages
+  chatTab.innerHTML = ''; 
+  qaTab.innerHTML = '';
+  s.emit('r', Intl.DateTimeFormat().resolvedOptions().timeZone); //Re-emit now we have a name
 }
 
 function sendMessage() {
   const txt = msgInput.value.trim();
-  if(!txt) return;
+  if(!txt || !myName) return;
   if(currentTab === 'chat') s.emit('chatMsg', { user: myName, text: txt, country: myCountry });
   else s.emit('qaAsk', { user: myName, text: txt, country: myCountry });
   msgInput.value = "";
 }
 
-function sendReaction(txt) { s.emit('chatMsg', { user: myName, text: txt, country: myCountry }); }
+function sendReaction(txt) { if(!myName) return; s.emit('chatMsg', { user: myName, text: txt, country: myCountry }); }
 function handleEnter(e) { if(e.key === 'Enter') sendMessage(); }
 
-function addMessage(target, user, text, isMe, country, id) {
-  if(!chatTab) return;
-  if(id && document.getElementById(`msg-${id}`)) return;
-  
-  // RESTORED: Push to history array for download
-  chatHistory.push(`[CHAT] ${user} (${country||'Global'}): ${text}`);
+function addMessage(target, user, text, isMe, country, id, isHistory = false) {
+  if(!chatTab || (id && document.getElementById(`msg-${id}`))) return;
+  if (!isHistory) chatHistory.push(`[CHAT] ${new Date().toLocaleTimeString()} - ${user} (${country||'Global'}): ${text}`);
   
   const div = document.createElement('div');
   div.className = `msg ${isMe ? 'me' : ''}`;
@@ -677,16 +690,13 @@ function addMessage(target, user, text, isMe, country, id) {
   chatTab.scrollTop = chatTab.scrollHeight;
 }
 
-function addQaThread(user, text, isMe, country, serverId) {
-  if(!qaTab) return;
-  if(serverId && document.getElementById(`qa-${serverId}`)) return;
-  
-  // RESTORED: Push to history
-  chatHistory.push(`[Q&A] Q by ${user}: ${text}`);
+function addQaThread(user, text, isMe, country, serverId, isHistory = false) {
+  if(!qaTab || (serverId && document.getElementById(`qa-${serverId}`))) return;
+  if (!isHistory) chatHistory.push(`[Q&A] ${new Date().toLocaleTimeString()} - Q by ${user}: ${text}`);
 
   const div = document.createElement('div');
   div.className = 'qa-thread'; 
-  const finalId = serverId || Date.now();
+  const finalId = serverId; 
   div.id = `qa-${finalId}`; 
   div.innerHTML = `
     <span class="qa-question">Q: ${text}</span>
@@ -700,11 +710,10 @@ function addQaThread(user, text, isMe, country, serverId) {
   qaTab.scrollTop = qaTab.scrollHeight;
 }
 
-function addQaReplyUI(threadId, user, text) {
+function addQaReplyUI(threadId, user, text, isHistory = false) {
   const box = document.getElementById(`replies-${threadId}`);
   if(box) {
-    // RESTORED: Push to history
-    chatHistory.push(`[Q&A] Reply by ${user}: ${text}`);
+    if (!isHistory) chatHistory.push(`[Q&A] ${new Date().toLocaleTimeString()} - Reply by ${user}: ${text}`);
     
     const div = document.createElement('div');
     div.className = 'qa-reply-item';
