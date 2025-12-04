@@ -491,10 +491,39 @@ const hS = document.getElementById('heroStandard'),
       downloadBtn = document.getElementById('downloadLogBtn'),
       stackEl = document.getElementById('timeStack');
 
+// --- UPDATED: DEMOCRATIC PLEDGE MODAL ---
+const pledgeHTML = `
+<div id="pledgeModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:9999; align-items:center; justify-content:center;">
+  <div style="background:#fff; padding:35px; border-radius:15px; max-width:550px; width:90%; text-align:center; color:#333; box-shadow:0 20px 50px rgba(0,0,0,0.5);">
+    <div style="font-size:3rem; margin-bottom:10px;">🗳️</div>
+    <h2 style="color:#167690; margin-bottom:15px; font-weight:800;">A Democratic Community</h2>
+    
+    <p style="font-size:1.1rem; line-height:1.6; margin-bottom:25px; color:#444;">
+      We empower <strong>YOU</strong> to manage this space. <br>
+      By entering, you accept the responsibility to keep our discussion respectful, encouraging, and scholarly.
+    </p>
+    
+    <div style="background:#f1f9fc; border-left:5px solid #167690; padding:20px; text-align:left; margin-bottom:30px; border-radius:0 10px 10px 0;">
+      <strong style="color:#0e4b5b; display:block; margin-bottom:10px; font-size:1.1rem;">🛡️ Your Moderation Powers:</strong>
+      <ul style="margin:0; padding-left:20px; color:#555; line-height:1.8;">
+        <li>You have the right to <strong>Flag (⚑)</strong> any content you deem inappropriate.</li>
+        <li><strong>3 Flags = Automatic Deletion</strong> of the post from the room.</li>
+        <li>You can instantly <strong>Delete (🗑️)</strong> your own posts at any time.</li>
+      </ul>
+    </div>
+
+    <button onclick="acceptPledge()" style="background:linear-gradient(135deg, #167690, #0e4b5b); color:white; border:none; padding:15px 40px; font-size:1.2rem; border-radius:30px; cursor:pointer; font-weight:bold; box-shadow:0 10px 20px rgba(22,118,144,0.3); transition:transform 0.2s;">
+      I Accept Responsibility & Enter
+    </button>
+  </div>
+</div>
+`;
+document.body.insertAdjacentHTML('beforeend', pledgeHTML);
+
+
 // RESTORED: Chat Reaction Bar Logic
 if(reactionBar) {
-    reactionBar.style.display = 'flex'; // Ensure visible
-    // Clear old buttons and add Scholarly/Chat specific ones
+    reactionBar.style.display = 'flex';
     reactionBar.innerHTML = `
       <button onclick="sendReaction('👏')">👏</button>
       <button onclick="sendReaction('🔥')">🔥</button>
@@ -623,7 +652,7 @@ function updateStackTimes(){
 setInterval(updateStackTimes,1000); updateStackTimes();
 
 
-/* --- 5. CHAT, Q&A, & SCHOLARLY REACTIONS --- */
+/* --- 5. CHAT & MODERATION LOGIC --- */
 
 function renderAllMessages() {
   if(chatTab) chatTab.innerHTML = '';
@@ -654,6 +683,19 @@ s.on('chatIncoming', (data) => {
   addMessage('chat', data.user, data.text, (data.user===myName), data.country, data.id); 
 });
 
+// DELETE LISTENERS
+s.on('chatDeleted', (id) => {
+  rawChatData = rawChatData.filter(m => m.id != id);
+  const el = document.getElementById(`msg-${id}`);
+  if(el) el.remove();
+});
+
+s.on('qaDeleted', (id) => {
+  rawQaData = rawQaData.filter(t => t.id != id);
+  const el = document.getElementById(`qa-${id}`);
+  if(el) el.remove();
+});
+
 s.on('qaIncoming', (data) => { 
   rawQaData.push(data);
   addQaThread(data.user, data.text, (data.user===myName), data.country, data.id, data.reactions); 
@@ -668,17 +710,12 @@ s.on('qaReplyIncoming', (data) => {
   addQaReplyUI(data.threadId, data.user, data.text); 
 });
 
-// UPDATE REACTION UI
 s.on('qaReactionUpdate', (data) => {
   const { threadId, reactions } = data;
   const thread = rawQaData.find(t => t.id == threadId);
   if(thread) thread.reactions = reactions;
-  
-  // Re-render just the reaction bar for this thread to avoid flicker
   const reactBox = document.getElementById(`react-box-${threadId}`);
-  if(reactBox) {
-    reactBox.innerHTML = renderReactionButtons(threadId, reactions);
-  }
+  if(reactBox) reactBox.innerHTML = renderReactionButtons(threadId, reactions);
 });
 
 function switchTab(name) {
@@ -696,12 +733,20 @@ function switchTab(name) {
   }
 }
 
+// LOGIN & PLEDGE LOGIC
 function joinChat() {
   const n = document.getElementById('chatName').value.trim();
   if(!n) return alert("Name required");
   myName = n; myCountry = document.getElementById('chatCountry').value;
+  
+  // Show Pledge Modal instead of directly entering
   document.getElementById('chatLogin').style.display = 'none';
-  renderAllMessages();
+  document.getElementById('pledgeModal').style.display = 'flex';
+}
+
+function acceptPledge() {
+  document.getElementById('pledgeModal').style.display = 'none';
+  renderAllMessages(); // Now show the content
   s.emit('r', Intl.DateTimeFormat().resolvedOptions().timeZone);
 }
 
@@ -714,10 +759,25 @@ function sendMessage() {
 }
 function handleEnter(e) { if(e.key === 'Enter') sendMessage(); }
 
-// Send Quick Reaction in Chat
 function sendReaction(txt) { 
     if(!myName) return; 
     s.emit('chatMsg', { user: myName, text: txt, country: myCountry }); 
+}
+
+function flagMsg(id, isMine) {
+  if(isMine) {
+     if(confirm("🗑️ Delete your message?")) s.emit('chatFlag', { id, user: myName });
+  } else {
+     if(confirm("⚑ Flag this as inappropriate? (3 flags will remove it)")) s.emit('chatFlag', { id, user: myName });
+  }
+}
+
+function flagQa(id, isMine) {
+  if(isMine) {
+     if(confirm("🗑️ Delete your thread?")) s.emit('qaFlag', { id, user: myName });
+  } else {
+     if(confirm("⚑ Flag this thread? (3 flags will remove it)")) s.emit('qaFlag', { id, user: myName });
+  }
 }
 
 function addMessage(target, user, text, isMe, country, id) {
@@ -725,12 +785,20 @@ function addMessage(target, user, text, isMe, country, id) {
   const div = document.createElement('div');
   div.className = `msg ${isMe ? 'me' : ''}`;
   if(id) div.id = `msg-${id}`;
-  div.innerHTML = `<span class="msg-meta">${user}</span>${text}`;
+  
+  // SMART ICON: 🗑️ if me, ⚑ if others
+  const actionIcon = isMe ? '🗑️' : '⚑';
+  const opacity = isMe ? '0.8' : '0.3'; 
+  
+  div.innerHTML = `
+    <span class="msg-meta">${user}</span>
+    ${text}
+    <span onclick="flagMsg(${id}, ${isMe})" style="float:right; cursor:pointer; opacity:${opacity}; font-size:0.8rem; margin-left:10px;" title="${isMe?'Delete':'Flag'}">${actionIcon}</span>
+  `;
   chatTab.appendChild(div);
   chatTab.scrollTop = chatTab.scrollHeight;
 }
 
-// --- SCHOLARLY Q&A CARD RENDERER ---
 function addQaThread(user, text, isMe, country, serverId, reactions) {
   if(!qaTab || (serverId && document.getElementById(`qa-${serverId}`))) return;
   const div = document.createElement('div');
@@ -741,20 +809,21 @@ function addQaThread(user, text, isMe, country, serverId, reactions) {
   const isAi = (user === "🤖 Session Facilitator");
   const userDisplay = isAi ? `<span style="color:#ffcc00;font-weight:bold;">${user}</span>` : user;
   const bgStyle = isAi ? 'background:rgba(255,215,0,0.1); border-left:3px solid #ffcc00;' : '';
-
-  // Default reaction structure if undefined (for old threads)
   const safeReactions = reactions || { '🎓':[], '💡':[], '🤝':[], '⭐':[], '📜':[] };
+
+  const actionIcon = isMe ? '🗑️' : '⚑';
+  const opacity = isMe ? '0.8' : '0.3';
 
   div.style.cssText = bgStyle;
   div.innerHTML = `
-    <span class="qa-question">Q: ${text}</span>
+    <div style="display:flex; justify-content:space-between;">
+      <span class="qa-question">Q: ${text}</span>
+      <span onclick="flagQa(${finalId}, ${isMe})" style="cursor:pointer; opacity:${opacity};" title="${isMe?'Delete':'Flag'}">${actionIcon}</span>
+    </div>
     <div class="msg-meta">Asked by ${userDisplay} • ${country||'Global'}</div>
-    
-    <!-- STICKY REACTIONS BAR -->
     <div class="qa-reactions" id="react-box-${finalId}" style="margin:5px 0; display:flex; gap:8px;">
       ${renderReactionButtons(finalId, safeReactions)}
     </div>
-
     <div class="qa-replies" id="replies-${finalId}"></div>
     <div style="margin-top:8px; padding-top:5px; border-top:1px solid #eee;">
       <span style="cursor:pointer; color:#167690; font-weight:800; font-size:0.8rem;" onclick="replyToQa('${finalId}')">💬 REPLY</span>
@@ -764,23 +833,14 @@ function addQaThread(user, text, isMe, country, serverId, reactions) {
   qaTab.scrollTop = qaTab.scrollHeight;
 }
 
-// DEFINITIONS MAP for Tooltips
-const EMOJI_DEF = {
-  '🎓': 'Academic Insight',
-  '💡': 'Great Idea',
-  '🤝': 'Agreement',
-  '⭐': 'Excellent Point',
-  '📜': 'Needs Citation/Source'
-};
+const EMOJI_DEF = { '🎓': 'Academic Insight', '💡': 'Great Idea', '🤝': 'Agreement', '⭐': 'Excellent Point', '📜': 'Needs Citation' };
 
 function renderReactionButtons(id, r) {
   const emojis = ['🎓', '💡', '🤝', '⭐', '📜'];
   return emojis.map(e => {
-    const list = Array.isArray(r[e]) ? r[e] : []; // Handle old data gracefully
+    const list = Array.isArray(r[e]) ? r[e] : []; 
     const count = list.length;
     const iVoted = myName && list.includes(myName);
-    
-    // Visual State: Active (Blue border + background) vs Inactive (Grey)
     const activeStyle = iVoted ? 'border:1px solid #38bdf8; background:rgba(56,189,248,0.2);' : 'border:1px solid #333; background:rgba(255,255,255,0.05);';
 
     return `<span onclick="emitReact('${id}', '${e}')" 
@@ -793,7 +853,6 @@ function renderReactionButtons(id, r) {
 
 function emitReact(id, emoji) {
     if(!myName) return alert("Please Join first to react.");
-    // Server handles the Toggle/Undo logic based on user name
     s.emit('qaReact', { threadId: id, emoji: emoji, user: myName });
 }
 
