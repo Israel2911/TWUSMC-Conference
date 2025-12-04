@@ -465,23 +465,17 @@
 /* --- ROBUST SOCKET INITIALIZATION --- */
 let s;
 try {
-  s = io(); // Try to connect
+  s = io(); 
 } catch(e) {
-  console.warn("Socket.IO not found. Running in OFFLINE TEST MODE.");
-  // Create a dummy socket object so the code doesn't crash
-  s = {
-    emit: function(event, data) { console.log(`[Mock Emit] ${event}:`, data); },
-    on: function(event, callback) { console.log(`[Mock Listener] Registered: ${event}`); }
-  };
+  console.warn("Socket.IO not found. OFFLINE MODE.");
+  s = { emit: (e,d)=>console.log(`[Mock Emit] ${e}`,d), on: (e,c)=>console.log(`[Mock Listener] ${e}`) };
 }
 
-const u = Intl.DateTimeFormat().resolvedOptions().timeZone;
-s.emit('r', u);
-
+// Initial Setup
+s.emit('r', Intl.DateTimeFormat().resolvedOptions().timeZone);
 let myName = "";
 let myCountry = "";
 let currentTab = "chat"; 
-let chatHistory = []; 
 let myBanned = false;
 
 // DOM Elements
@@ -490,279 +484,150 @@ const hS = document.getElementById('heroStandard'),
       hB = document.getElementById('heroBg'),
       vC = document.getElementById('viewerCount'),
       cN = document.getElementById('countNum'),
-      aP = document.getElementById('adminPanel'),
       kS = document.getElementById('killSwitch'),
       lT = document.getElementById('liveToggle'),
       vW = document.getElementById('vidWrap'),
-      f = document.getElementById('feed'),
-      chatLogin = document.getElementById('chatLogin'),
       chatTab = document.getElementById('chatTab'),
       qaTab = document.getElementById('qaTab'),
       msgInput = document.getElementById('msgInput'),
       reactionBar = document.getElementById('reactionBar'),
       downloadBtn = document.getElementById('downloadLogBtn');
 
-// Admin Setup
-if(new URLSearchParams(window.location.search).get('m') === 'a'){
-  localStorage.setItem('a', '1');
-  window.history.replaceState({}, document.title, window.location.pathname);
-  if(downloadBtn) downloadBtn.style.display = 'block'; 
-}
-if(aP) aP.style.display = 'flex'; 
+// Admin
+if(new URLSearchParams(window.location.search).get('m')==='a') localStorage.setItem('a','1');
+if(document.getElementById('adminPanel')) document.getElementById('adminPanel').style.display='flex';
+if(downloadBtn && localStorage.getItem('a')==='1') downloadBtn.style.display='block';
 
-/* --- GO LIVE LOGIC --- */
-if(lT) {
-  lT.onclick = () => {
-    s.emit('x'); // Tell server
-    toggleLiveUI(true);
-  };
-}
+/* --- LIVE STREAM LOGIC --- */
+if(lT) lT.onclick = () => { s.emit('x'); toggleLiveUI(true); };
+if(kS) kS.onclick = () => { if(confirm('KILL STREAM?')) { s.emit('k'); killStreamUI(); } };
 
-if(kS) {
-  kS.onclick = () => {
-    if(confirm('⚠️ NUCLEAR KILL?')) {
-      s.emit('k');
-      killStreamUI();
-    }
-  }; 
-}
+s.on('z', (state) => {
+  const isLive = (typeof state === 'object') ? state.isLive : state;
+  const isKilled = (typeof state === 'object') ? state.isKilled : false;
+  toggleLiveUI(isLive);
+  if(isKilled) killStreamUI();
+});
 
-// Function to update UI State
+s.on('d', () => { if(vW) vW.classList.add('killed'); });
+s.on('t', (c) => { if(cN) cN.innerText = c; });
+
 function toggleLiveUI(isLive) {
   if(hS) hS.style.display = isLive ? 'none' : 'block';
   if(hL) hL.style.display = isLive ? 'block' : 'none';
   if(hB) hB.style.filter = isLive ? 'brightness(0.2)' : 'brightness(0.6)';
   if(vC) vC.style.display = isLive ? 'flex' : 'none';
-  
-  if(lT) {
-    lT.innerHTML = isLive ? '🟢 LIVE' : '🔴 GO LIVE';
-    lT.style.background = isLive ? '#00cc00' : '#333';
-  }
+  if(lT) { lT.innerHTML = isLive ? '🟢 LIVE' : '🔴 GO LIVE'; lT.style.background = isLive ? '#00cc00' : '#333'; }
 }
 
 function killStreamUI() {
-  if(hL) {
-    hL.innerHTML = `
-      <div class="teams-backup" style="background:linear-gradient(135deg,#1a0000,#000);padding:40px;text-align:center;color:white;height:100%;display:flex;flex-direction:column;justify-content:center;border-radius:20px;">
-        <div style="font-size:5rem;margin-bottom:20px;animation:pulse-red 2s infinite;">🔴</div>
-        <h2 style="font-size:2.5rem;margin-bottom:15px;font-weight:900;">Stream Continues on Teams</h2>
-        <p style="font-size:1.3rem;opacity:0.9;margin-bottom:30px;">Please join the secure session below</p>
-        <a href="https://teams.microsoft.com/meet/25727590322372?p=Toyeb2xMWy8NeEJiA2" target="_blank"
-           style="background:linear-gradient(135deg,#464eb8,#3a3f9e);color:white;padding:20px 40px;border-radius:25px;font-weight:bold;font-size:1.3rem;text-decoration:none;display:inline-flex;align-items:center;gap:15px;box-shadow:0 10px 30px rgba(70,78,184,0.4);margin:0 auto;max-width:400px;width:100%;justify-content:center;">
-          📱 Join Teams Stream →
-        </a>
-      </div>`;
-  }
+  if(hL) hL.innerHTML = `<div class="teams-backup" style="background:black;color:white;padding:40px;text-align:center;height:100%;display:flex;flex-direction:column;justify-content:center;"><h1>🔴 STREAM ENDED</h1><h2>Join on Teams</h2></div>`;
 }
 
-// Socket Listeners (Updates from Server)
-s.on('z', (state) => {
-  const isLive = typeof state === 'object' ? state.isLive : state;
-  const isKilled = typeof state === 'object' ? state.isKilled : false;
-  toggleLiveUI(isLive);
+/* --- CHAT & Q&A LOGIC (SERVER AUTHORITY) --- */
 
-  if (isKilled) killStreamUI();
-  else if (!document.getElementById('vidWrap') && isLive) location.reload(); 
-
-  if (localStorage.getItem('a') === '1') {
-    kS.style.display = 'block';
-    if (isKilled) { kS.disabled = true; kS.innerHTML = '✅ TEAMS MODE'; kS.style.opacity = '0.7'; }
-    else { kS.disabled = false; kS.innerHTML = '⚠️ END STREAM'; kS.style.opacity = '1'; }
-  } else { kS.style.display = 'none'; }
-});
-
-s.on('d', () => { f?.remove(); vW?.classList.add('killed'); });
-s.on('t', (c) => { if(cN) cN.innerText = c; });
-
-// --- FIX: ADDED MISSING LISTENERS HERE ---
-
-// Chat Listener
+// 1. Listen for CHAT (Show everything server sends)
 s.on('chatIncoming', (data) => {
-  const isMe = (data.user === myName);
-  // Only show if it's NOT me (since I add my own messages instantly)
-  if(!isMe) addMessage('chat', data.user, data.text, false, data.country);
+  const isMe = (data.user === myName); 
+  addMessage('chat', data.user, data.text, isMe, data.country);
 });
 
-// Q&A Listener (THIS WAS MISSING)
+// 2. Listen for Q&A QUESTIONS (Show everything server sends)
 s.on('qaIncoming', (data) => {
-  const isMe = (data.user === myName);
-  if(!isMe) addQaThread(data.user, data.text, false, data.country, data.id);
+  addQaThread(data.user, data.text, (data.user === myName), data.country, data.id);
 });
 
-// Reply Listener (THIS WAS MISSING)
+// 3. Listen for Q&A REPLIES (This is the part you need!)
 s.on('qaReplyIncoming', (data) => {
-  // Find the thread and append the reply
-  const replyBox = document.getElementById(`replies-${data.threadId}`);
-  if(replyBox) {
-     const replyDiv = document.createElement('div');
-     replyDiv.className = 'qa-reply-item';
-     replyDiv.innerHTML = `<strong>${data.user}:</strong> ${data.text}`;
-     replyBox.appendChild(replyDiv);
+  // Find the correct thread by ID
+  const box = document.getElementById(`replies-${data.threadId}`);
+  if(box) {
+    const div = document.createElement('div');
+    div.className = 'qa-reply-item';
+    // Make the reply look distinct
+    div.innerHTML = `<strong style="color:#167690">${data.user}:</strong> ${data.text}`;
+    box.appendChild(div);
   }
 });
 
-
-/* --- UI INTERACTION FUNCTIONS --- */
-
-const expandBtn = document.getElementById('expandBtn');
-if(expandBtn) {
-    expandBtn.addEventListener('click', function(){
-      const e = document.getElementById('synopsisExpanded');
-      e.classList.toggle('open');
-      this.classList.toggle('open');
-      this.querySelector('span:first-child').textContent = e.classList.contains('open') ? 'Read Less' : 'Read More';
-    });
-}
-
-function switchTab(tabName) {
-  currentTab = tabName;
-  document.querySelectorAll('.hs-tab').forEach(btn => btn.classList.remove('active'));
+function switchTab(name) {
+  currentTab = name;
+  document.querySelectorAll('.hs-tab').forEach(b => b.classList.remove('active'));
   event.target.classList.add('active');
   
-  if(tabName === 'chat') {
-    if(chatTab) { chatTab.classList.add('active'); chatTab.style.display='flex'; }
-    if(qaTab) { qaTab.classList.remove('active'); qaTab.style.display='none'; }
-    if(reactionBar) reactionBar.style.display = 'flex'; 
-    if(msgInput) msgInput.placeholder = "Share your thoughts...";
+  if(name === 'chat') {
+    chatTab.style.display = 'flex'; qaTab.style.display = 'none';
+    if(reactionBar) reactionBar.style.display = 'flex';
+    msgInput.placeholder = "Chat...";
   } else {
-    if(qaTab) { qaTab.classList.add('active'); qaTab.style.display='flex'; }
-    if(chatTab) { chatTab.classList.remove('active'); chatTab.style.display='none'; }
-    if(reactionBar) reactionBar.style.display = 'none'; 
-    if(msgInput) msgInput.placeholder = "Ask a question for the forum...";
+    qaTab.style.display = 'flex'; chatTab.style.display = 'none';
+    if(reactionBar) reactionBar.style.display = 'none';
+    msgInput.placeholder = "Ask a Question...";
   }
 }
 
 function joinChat() {
   const n = document.getElementById('chatName').value.trim();
-  const c = document.getElementById('chatCountry').value;
-  if(!n || !c) return alert("Please enter your name and region.");
-  myName = n; myCountry = c;
-  if(chatLogin) chatLogin.style.display = 'none';
-  addMessage('chat', "System", `Welcome to The Human Space, ${myName}.`, false);
-  startAiBot(); 
+  if(!n) return alert("Name required");
+  myName = n; myCountry = document.getElementById('chatCountry').value;
+  document.getElementById('chatLogin').style.display = 'none';
 }
 
 function sendMessage() {
-  if(myBanned) return alert("You have been restricted.");
   const txt = msgInput.value.trim();
   if(!txt) return;
   
-  // Emit to server
   if(currentTab === 'chat') {
-      s.emit('chatMsg', { user: myName, text: txt, country: myCountry });
-      addMessage('chat', myName, txt, true, myCountry);
+    s.emit('chatMsg', { user: myName, text: txt, country: myCountry });
   } else {
-      s.emit('qaAsk', { user: myName, text: txt, country: myCountry });
-      addQaThread(myName, txt, true, myCountry);
+    s.emit('qaAsk', { user: myName, text: txt, country: myCountry });
   }
-  
   msgInput.value = "";
 }
 
 function sendReaction(txt) {
-  if(currentTab !== 'chat') { alert("Switch to Chat Lounge first."); return; }
   s.emit('chatMsg', { user: myName, text: txt, country: myCountry });
-  addMessage('chat', myName, txt, true, myCountry);
 }
 
 function handleEnter(e) { if(e.key === 'Enter') sendMessage(); }
 
 function addMessage(target, user, text, isMe, country) {
-  const container = chatTab; 
-  if(!container) return;
-  
-  const id = Date.now() + Math.random();
-  const isBot = user === "AI Facilitator" || user === "System";
+  if(!chatTab) return;
   const div = document.createElement('div');
-  div.className = `msg ${isMe ? 'me' : ''} ${isBot ? 'bot' : ''}`;
-  div.id = `msg-${id}`;
-  const regionStr = country || 'Global';
-  div.innerHTML = `<span class="msg-meta">${user} ${!isMe && !isBot ? '• ' + regionStr : ''}</span>${text}
-    <div class="msg-actions">${!isMe ? `<button class="mod-btn flag" onclick="flagMsg('${id}')"><span class="material-icons-round" style="font-size:12px;">flag</span></button>` : ''}</div>`;
-  container.appendChild(div);
-  container.scrollTop = container.scrollHeight;
-  chatHistory.push(`[CHAT] ${user}: ${text}`);
+  div.className = `msg ${isMe ? 'me' : ''}`;
+  div.innerHTML = `<span class="msg-meta">${user}</span>${text}`;
+  chatTab.appendChild(div);
+  chatTab.scrollTop = chatTab.scrollHeight;
 }
 
 function addQaThread(user, text, isMe, country, id) {
   if(!qaTab) return;
-  if(!id) id = Date.now() + Math.random();
   const div = document.createElement('div');
-  div.className = 'qa-thread'; div.id = `qa-${id}`;
-  const regionStr = country || 'Global';
-  div.innerHTML = `<span class="qa-question">Q: ${text}</span><div class="msg-meta">Asked by ${user} • ${regionStr}</div>
+  div.className = 'qa-thread'; 
+  div.id = `qa-${id}`; // Use Server ID so replies can find it
+  div.innerHTML = `
+    <span class="qa-question">Q: ${text}</span>
+    <div class="msg-meta">Asked by ${user} • ${country||'Global'}</div>
     <div class="qa-replies" id="replies-${id}"></div>
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
-      <div class="reply-btn" onclick="replyToQa('${id}')">Reply / Answer</div>
-    </div>`;
+    <div style="margin-top:8px; padding-top:5px; border-top:1px solid #eee;">
+      <span style="cursor:pointer; color:#167690; font-weight:800; font-size:0.8rem;" onclick="replyToQa('${id}')">💬 REPLY</span>
+    </div>
+  `;
   qaTab.appendChild(div);
   qaTab.scrollTop = qaTab.scrollHeight;
-  chatHistory.push(`[Q&A] ${user}: ${text}`);
 }
 
 function replyToQa(id) {
-  const replyText = prompt("Enter your reply/insight:");
-  if(replyText) {
-      s.emit('qaReply', { threadId: id, user: myName, text: replyText });
-      // Optimistic update
-      const replyBox = document.getElementById(`replies-${id}`);
-      if(replyBox) {
-         const replyDiv = document.createElement('div');
-         replyDiv.className = 'qa-reply-item';
-         replyDiv.innerHTML = `<strong>${myName}:</strong> ${replyText}`;
-         replyBox.appendChild(replyDiv);
-      }
+  if(!myName) return alert("Please Join the Chat first!");
+  const txt = prompt("Enter your reply:");
+  if(txt) {
+    // Emit reply to server (Server will broadcast 'qaReplyIncoming')
+    s.emit('qaReply', { threadId: id, user: myName, text: txt });
   }
 }
 
-const botPrompts = ["What is one fear you have about AI ethics?", "Faculty are watching the Q&A tab. Post your questions there!", "How can we ensure AI remains 'human-centered'?", "Welcome to our new attendees!"];
-function startAiBot() {
-  let idx = 0;
-  setInterval(() => {
-    if(idx < botPrompts.length) { addMessage('chat', "AI Facilitator", botPrompts[idx], false); idx++; } else idx = 0;
-  }, 60000); 
-}
-
-if(downloadBtn) {
-    downloadBtn.onclick = function() {
-      const blob = new Blob([chatHistory.join('\n')], { type: 'text/plain' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = `Human_Space_Log.txt`; a.click();
-    };
-}
-
-// --- 3D GLOBE & BOOKS (Keep existing code) ---
-const countries=[{name:'India',flag:'🇮🇳',tz:'Asia/Kolkata',lat:22,lng:78,color:'#FF9933'},{name:'Canada',flag:'🇨🇦',tz:'America/Vancouver',lat:56,lng:-106,color:'#ff0000'},{name:'Thailand',flag:'🇹🇭',tz:'Asia/Bangkok',lat:13,lng:100,color:'#ffcc00'},{name:'Europe',flag:'🇪🇺',tz:'Europe/Paris',lat:48,lng:2,color:'#0000FF'},{name:'UK',flag:'🇬🇧',tz:'Europe/London',lat:53,lng:-0.1,color:'#191970'},{name:'USA',flag:'🇺🇸',tz:'America/New_York',lat:39,lng:-98,color:'#003366'},{name:'Singapore',flag:'🇸🇬',tz:'Asia/Singapore',lat:1.3,lng:103,color:'#EE2536'},{name:'Malaysia',flag:'🇲🇾',tz:'Asia/Kuala_Lumpur',lat:4,lng:102,color:'#FFD700'}];
-const stackEl=document.getElementById('timeStack');
-if(stackEl) {
-    countries.forEach((c,i)=>{
-      stackEl.innerHTML+=`
-        <div class="globe-time-item" style="border-left-color:${c.color}">
-          <div class="card-identity"><span class="globe-flag">${c.flag}</span><span class="globe-name">${c.name}</span></div>
-          <div class="card-stats">
-            <div class="stat-pill"><span class="material-icons-round">people</span><span id="count-${i}">0</span></div>
-            <div class="stat-pill" id="weather-${i}"><span class="material-icons-round">wb_sunny</span></div>
-          </div>
-          <div class="globe-time" id="stack-time-${i}">--:--</div>
-        </div>`;
-    });
-}
-
-function updateTimes(){
-  const n=new Date();
-  countries.forEach((c,i)=>{
-    const timeEl = document.getElementById(`stack-time-${i}`);
-    if(timeEl) timeEl.innerText=n.toLocaleTimeString('en-GB',{timeZone:c.tz,hour:'2-digit',minute:'2-digit'});
-    const h=parseInt(new Date().toLocaleTimeString('en-GB',{timeZone:c.tz,hour:'numeric',hour12:false}));
-    const icon=(h>=6 && h<18)?'wb_sunny':'bedtime';
-    const color=(h>=6 && h<18)?'#f6e05e':'#718096';
-    const wEl = document.getElementById(`weather-${i}`);
-    if(wEl) wEl.innerHTML=`<span class="material-icons-round" style="color:${color}">${icon}</span>`;
-  });
-}
-setInterval(updateTimes,1000); updateTimes();
-
+/* --- KEEP GLOBE & BOOK CODE BELOW --- */
+// (Paste your existing 3D Globe and Book code here)
 (function initGlobe() {
   const container = document.getElementById('heroGlobeContainer');
   if (!container) return;
@@ -869,6 +734,7 @@ setInterval(updateTimes,1000); updateTimes();
   });
 })();
 </script>
+
 
 
 </body>
