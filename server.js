@@ -18,8 +18,8 @@ let userLiveStates = {};
 
 // --- HISTORY STORAGE ---
 const MAX_HISTORY = 60;
-const chatHistory = []; 
-const qaHistory = [];
+let chatHistory = []; 
+let qaHistory = [];
 
 // --- SECURITY & SPAM ---
 const lastMsgTime = {};
@@ -44,18 +44,16 @@ setInterval(() => {
   if (K) return;
   const qText = AI_QUESTIONS[aiIndex];
   aiIndex = (aiIndex + 1) % AI_QUESTIONS.length;
-  
   const threadData = {
-    id: Date.now(),
+    id: 'qa-' + Date.now(), // String ID
     user: AI_NAME,
     text: qText,
     country: 'System',
     isAi: true,
     replies: [],
-    // Store Arrays of Names now, not just numbers!
-    reactions: { '🎓':[], '💡':[], '🤝':[], '⭐':[], '📜':[] }
+    reactions: { '🎓':[], '💡':[], '🤝':[], '⭐':[], '📜':[] },
+    flags: [] 
   };
-  
   qaHistory.push(threadData);
   io.emit('qaIncoming', threadData);
 }, 180000); 
@@ -90,6 +88,7 @@ io.on('connection', (socket) => {
     socket.emit('z', { isLive: userLiveStates[socket.id], isKilled: K });
   });
 
+  // --- CHAT MESSAGE ---
   socket.on('chatMsg', (payload) => {
     const now = Date.now();
     if (lastMsgTime[socket.id] && now - lastMsgTime[socket.id] < RATE_LIMIT_MS) {
@@ -103,66 +102,118 @@ io.on('connection', (socket) => {
     if (payload.text.length > MAX_MSG_LENGTH) return;
 
     const msgData = {
-      id: Date.now() + Math.random(),
+      id: 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9), // Robust String ID
       user: escapeHtml(payload.user),
       text: escapeHtml(payload.text),
       country: escapeHtml(payload.country),
-      type: 'chat'
+      type: 'chat',
+      flags: [],
+      reactions: {} // New: Chat Reactions
     };
     chatHistory.push(msgData);
     if (chatHistory.length > MAX_HISTORY) chatHistory.shift();
     io.emit('chatIncoming', msgData);
   });
 
+  // --- NEW: CHAT REACTION (LATCHING) ---
+  socket.on('chatReact', (payload) => {
+     const { id, emoji, user } = payload; // id is the message ID
+     const msg = chatHistory.find(m => m.id === id);
+     if(msg) {
+         if(!msg.reactions) msg.reactions = {};
+         if(!msg.reactions[emoji]) msg.reactions[emoji] = [];
+         
+         const list = msg.reactions[emoji];
+         const idx = list.indexOf(user);
+         if(idx === -1) list.push(user);
+         else list.splice(idx, 1); // Toggle
+         
+         io.emit('chatReactionUpdate', { id, reactions: msg.reactions });
+     }
+  });
+
+  // --- CHAT FLAG/DELETE ---
+  socket.on('chatFlag', (payload) => {
+    const { id, user } = payload;
+    const msg = chatHistory.find(m => m.id === id);
+    if (msg) {
+      if (msg.user === user) {
+         chatHistory = chatHistory.filter(m => m.id !== id);
+         io.emit('chatDeleted', id);
+         return;
+      }
+      if (!msg.flags.includes(user)) {
+        msg.flags.push(user);
+        if (msg.flags.length >= 3) {
+           chatHistory = chatHistory.filter(m => m.id !== id);
+           io.emit('chatDeleted', id);
+        }
+      }
+    }
+  });
+
   socket.on('qaAsk', (payload) => {
     if (payload.text.length > MAX_MSG_LENGTH) return;
     const threadData = {
-      id: Date.now() + Math.random(),
+      id: 'qa-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
       user: escapeHtml(payload.user),
       text: escapeHtml(payload.text),
       country: escapeHtml(payload.country),
       replies: [],
-      reactions: { '🎓':[], '💡':[], '🤝':[], '⭐':[], '📜':[] }
+      reactions: { '🎓':[], '💡':[], '🤝':[], '⭐':[], '📜':[] },
+      flags: []
     };
     qaHistory.push(threadData);
     io.emit('qaIncoming', threadData);
   });
 
+  socket.on('qaFlag', (payload) => {
+    const { id, user } = payload;
+    const thread = qaHistory.find(t => t.id === id);
+    if (thread) {
+      if (thread.user === user) {
+         qaHistory = qaHistory.filter(t => t.id !== id);
+         io.emit('qaDeleted', id);
+         return;
+      }
+      if (!thread.flags.includes(user)) {
+        thread.flags.push(user);
+        if (thread.flags.length >= 3) {
+           qaHistory = qaHistory.filter(t => t.id !== id);
+           io.emit('qaDeleted', id);
+        }
+      }
+    }
+  });
+
   socket.on('qaReply', (payload) => {
-    const replyData = { user: escapeHtml(payload.user), text: escapeHtml(payload.text) };
-    const thread = qaHistory.find(t => t.id == payload.threadId);
+    const replyData = { 
+      id: 'rep-' + Date.now(),
+      user: escapeHtml(payload.user), 
+      text: escapeHtml(payload.text) 
+    };
+    const thread = qaHistory.find(t => t.id === payload.threadId);
     if (thread) thread.replies.push(replyData);
     io.emit('qaReplyIncoming', { threadId: payload.threadId, ...replyData });
   });
 
-  // --- SMART REACTION HANDLER (TOGGLE/UNDO) ---
   socket.on('qaReact', (payload) => {
     const { threadId, emoji, user } = payload;
     const allowed = ['🎓', '💡', '🤝', '⭐', '📜'];
     if (!allowed.includes(emoji)) return;
 
-    const thread = qaHistory.find(t => t.id == threadId);
+    const thread = qaHistory.find(t => t.id === threadId);
     if (thread) {
-      // Ensure structure exists
       if (!thread.reactions) thread.reactions = { '🎓':[], '💡':[], '🤝':[], '⭐':[], '📜':[] };
       if (!Array.isArray(thread.reactions[emoji])) thread.reactions[emoji] = [];
 
       const list = thread.reactions[emoji];
       const userIndex = list.indexOf(user);
 
-      if (userIndex === -1) {
-        // ADD Vote
-        list.push(user);
-      } else {
-        // UNDO Vote (Remove user)
-        list.splice(userIndex, 1);
-      }
+      if (userIndex === -1) list.push(user);
+      else list.splice(userIndex, 1);
       
-      // Broadcast updated lists so clients can highlight their own selection
-      io.emit('qaReactionUpdate', { 
-        threadId, 
-        reactions: thread.reactions 
-      });
+      io.emit('qaReactionUpdate', { threadId, reactions: thread.reactions });
     }
   });
 
