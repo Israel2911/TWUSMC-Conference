@@ -491,29 +491,30 @@ const hS = document.getElementById('heroStandard'),
       downloadBtn = document.getElementById('downloadLogBtn'),
       stackEl = document.getElementById('timeStack');
 
-// --- UPDATED: DEMOCRATIC PLEDGE MODAL ---
+// --- UPDATED: WARM & WELCOMING PLEDGE MODAL ---
 const pledgeHTML = `
 <div id="pledgeModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:9999; align-items:center; justify-content:center;">
   <div style="background:#fff; padding:35px; border-radius:15px; max-width:550px; width:90%; text-align:center; color:#333; box-shadow:0 20px 50px rgba(0,0,0,0.5);">
-    <div style="font-size:3rem; margin-bottom:10px;">🗳️</div>
-    <h2 style="color:#167690; margin-bottom:15px; font-weight:800;">A Democratic Community</h2>
+    <div style="font-size:3rem; margin-bottom:10px;">☕</div>
+    <h2 style="color:#167690; margin-bottom:15px; font-weight:800;">Welcome to Human Space</h2>
     
     <p style="font-size:1.1rem; line-height:1.6; margin-bottom:25px; color:#444;">
-      We empower <strong>YOU</strong> to manage this space. <br>
-      By entering, you accept the responsibility to keep our discussion respectful, encouraging, and scholarly.
+      This is a space for <strong>curiosity, connection, and fresh ideas.</strong><br>
+      Whether you are a seasoned expert or a new student, your voice matters here.
     </p>
     
     <div style="background:#f1f9fc; border-left:5px solid #167690; padding:20px; text-align:left; margin-bottom:30px; border-radius:0 10px 10px 0;">
-      <strong style="color:#0e4b5b; display:block; margin-bottom:10px; font-size:1.1rem;">🛡️ Your Moderation Powers:</strong>
+      <strong style="color:#0e4b5b; display:block; margin-bottom:10px; font-size:1.1rem;">🤝 How We Keep It Safe:</strong>
       <ul style="margin:0; padding-left:20px; color:#555; line-height:1.8;">
-        <li>You have the right to <strong>Flag (⚑)</strong> any content you deem inappropriate.</li>
-        <li><strong>3 Flags = Automatic Deletion</strong> of the post from the room.</li>
-        <li>You can instantly <strong>Delete (🗑️)</strong> your own posts at any time.</li>
+        <li><strong>Be Kind:</strong> Disagreement is healthy; disrespect is not.</li>
+        <li><strong>Be Brave:</strong> Don't be afraid to ask "basic" questions.</li>
+        <li><strong>Help Us Moderate:</strong> If you see something unkind, <strong>Flag (⚑)</strong> it. 
+        <br><small style="color:#888;">(3 Flags removes a post automatically. You manage this room.)</small></li>
       </ul>
     </div>
 
     <button onclick="acceptPledge()" style="background:linear-gradient(135deg, #167690, #0e4b5b); color:white; border:none; padding:15px 40px; font-size:1.2rem; border-radius:30px; cursor:pointer; font-weight:bold; box-shadow:0 10px 20px rgba(22,118,144,0.3); transition:transform 0.2s;">
-      I Accept Responsibility & Enter
+      Let's Chat
     </button>
   </div>
 </div>
@@ -833,7 +834,7 @@ function addQaThread(user, text, isMe, country, serverId, reactions) {
   qaTab.scrollTop = qaTab.scrollHeight;
 }
 
-const EMOJI_DEF = { '🎓': 'Academic Insight', '💡': 'Great Idea', '🤝': 'Agreement', '⭐': 'Excellent Point', '📜': 'Needs Citation' };
+const EMOJI_DEF = { '🎓': 'Insightful', '💡': 'Great Idea', '🤝': 'Agreement', '⭐': 'Excellent', '📜': 'Source?' };
 
 function renderReactionButtons(id, r) {
   const emojis = ['🎓', '💡', '🤝', '⭐', '📜'];
