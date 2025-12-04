@@ -514,7 +514,6 @@ if(aP) aP.style.display = 'flex';
 if(lT) {
   lT.onclick = () => {
     s.emit('x'); // Tell server
-    // Fallback: If no server response, toggle UI manually for testing
     toggleLiveUI(true);
   };
 }
@@ -523,7 +522,6 @@ if(kS) {
   kS.onclick = () => {
     if(confirm('⚠️ NUCLEAR KILL?')) {
       s.emit('k');
-      // Fallback UI
       killStreamUI();
     }
   }; 
@@ -576,11 +574,33 @@ s.on('z', (state) => {
 s.on('d', () => { f?.remove(); vW?.classList.add('killed'); });
 s.on('t', (c) => { if(cN) cN.innerText = c; });
 
-// Chat Listeners
+// --- FIX: ADDED MISSING LISTENERS HERE ---
+
+// Chat Listener
 s.on('chatIncoming', (data) => {
   const isMe = (data.user === myName);
-  addMessage('chat', data.user, data.text, isMe, data.country);
+  // Only show if it's NOT me (since I add my own messages instantly)
+  if(!isMe) addMessage('chat', data.user, data.text, false, data.country);
 });
+
+// Q&A Listener (THIS WAS MISSING)
+s.on('qaIncoming', (data) => {
+  const isMe = (data.user === myName);
+  if(!isMe) addQaThread(data.user, data.text, false, data.country, data.id);
+});
+
+// Reply Listener (THIS WAS MISSING)
+s.on('qaReplyIncoming', (data) => {
+  // Find the thread and append the reply
+  const replyBox = document.getElementById(`replies-${data.threadId}`);
+  if(replyBox) {
+     const replyDiv = document.createElement('div');
+     replyDiv.className = 'qa-reply-item';
+     replyDiv.innerHTML = `<strong>${data.user}:</strong> ${data.text}`;
+     replyBox.appendChild(replyDiv);
+  }
+});
+
 
 /* --- UI INTERACTION FUNCTIONS --- */
 
@@ -600,13 +620,13 @@ function switchTab(tabName) {
   event.target.classList.add('active');
   
   if(tabName === 'chat') {
-    if(chatTab) chatTab.classList.add('active'); 
-    if(qaTab) qaTab.classList.remove('active');
+    if(chatTab) { chatTab.classList.add('active'); chatTab.style.display='flex'; }
+    if(qaTab) { qaTab.classList.remove('active'); qaTab.style.display='none'; }
     if(reactionBar) reactionBar.style.display = 'flex'; 
     if(msgInput) msgInput.placeholder = "Share your thoughts...";
   } else {
-    if(qaTab) qaTab.classList.add('active'); 
-    if(chatTab) chatTab.classList.remove('active');
+    if(qaTab) { qaTab.classList.add('active'); qaTab.style.display='flex'; }
+    if(chatTab) { chatTab.classList.remove('active'); chatTab.style.display='none'; }
     if(reactionBar) reactionBar.style.display = 'none'; 
     if(msgInput) msgInput.placeholder = "Ask a question for the forum...";
   }
@@ -628,13 +648,14 @@ function sendMessage() {
   if(!txt) return;
   
   // Emit to server
-  if(currentTab === 'chat') s.emit('chatMsg', { user: myName, text: txt, country: myCountry });
-  else s.emit('qaAsk', { user: myName, text: txt, country: myCountry });
+  if(currentTab === 'chat') {
+      s.emit('chatMsg', { user: myName, text: txt, country: myCountry });
+      addMessage('chat', myName, txt, true, myCountry);
+  } else {
+      s.emit('qaAsk', { user: myName, text: txt, country: myCountry });
+      addQaThread(myName, txt, true, myCountry);
+  }
   
-  // Optimistic UI Update (Show immediately for sender)
-  if(currentTab === 'chat') addMessage('chat', myName, txt, true, myCountry);
-  else addQaThread(myName, txt, true, myCountry);
-
   msgInput.value = "";
 }
 
@@ -742,8 +763,6 @@ function updateTimes(){
 }
 setInterval(updateTimes,1000); updateTimes();
 
-// --- COPY PASTE YOUR GLOBE & BOOK FUNCTIONS BELOW HERE ---
-// (I kept them collapsed for brevity, but ensure they are included)
 (function initGlobe() {
   const container = document.getElementById('heroGlobeContainer');
   if (!container) return;
@@ -850,6 +869,7 @@ setInterval(updateTimes,1000); updateTimes();
   });
 })();
 </script>
+
 
 </body>
 </html>
