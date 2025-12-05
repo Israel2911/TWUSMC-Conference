@@ -492,17 +492,16 @@ const hS = document.getElementById('heroStandard'),
       downloadBtn = document.getElementById('downloadLogBtn'),
       stackEl = document.getElementById('timeStack');
 
-// --- PLEDGE MODAL (Option 1: Heart of Community) ---
-const pledgeHTML = `
+// --- INJECT CUSTOM POPUPS ---
+const popupsHTML = `
+<!-- PLEDGE MODAL -->
 <div id="pledgeModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:9999; align-items:center; justify-content:center;">
   <div style="background:#fff; padding:35px; border-radius:15px; max-width:550px; width:90%; text-align:center; color:#333; box-shadow:0 20px 50px rgba(0,0,0,0.5);">
     <div style="font-size:3rem; margin-bottom:10px;">☕</div>
     <h2 style="color:#167690; margin-bottom:15px; font-weight:800;">Welcome to Human Space</h2>
-    
     <p style="font-size:1.1rem; line-height:1.6; margin-bottom:25px; color:#444;">
-      We invite you to practice <strong>inclusive leadership</strong> in a space designed for connection. Here, we balance <strong>scholarly insight</strong> with a <strong>casual, welcoming atmosphere</strong>.
+      We invite you to practice <strong>inclusive leadership</strong> in a space designed for connection.
     </p>
-    
     <div style="background:#f1f9fc; border-left:5px solid #167690; padding:20px; text-align:left; margin-bottom:30px; border-radius:0 10px 10px 0;">
       <strong style="color:#0e4b5b; display:block; margin-bottom:10px; font-size:1.1rem;">❤️ Our Community Heart:</strong>
       <ul style="margin:0; padding-left:20px; color:#555; line-height:1.8;">
@@ -513,16 +512,38 @@ const pledgeHTML = `
       <br>
       <small style="color:#888;">🛡️ <strong>Safety:</strong> You can Flag (⚑) content. 3 Flags removes a post.</small>
     </div>
-
-    <button onclick="acceptPledge()" style="background:linear-gradient(135deg, #167690, #0e4b5b); color:white; border:none; padding:15px 40px; font-size:1.2rem; border-radius:30px; cursor:pointer; font-weight:bold; box-shadow:0 10px 20px rgba(22,118,144,0.3); transition:transform 0.2s;">
+    <button onclick="acceptPledge()" style="background:linear-gradient(135deg, #167690, #0e4b5b); color:white; border:none; padding:15px 40px; font-size:1.2rem; border-radius:30px; cursor:pointer; font-weight:bold;">
       I Agree & Enter
     </button>
   </div>
 </div>
-`;
-document.body.insertAdjacentHTML('beforeend', pledgeHTML);
 
-// RESTORED: Chat Reaction Bar Logic (INDEPENDENT)
+<!-- REACTION PICKER -->
+<div id="reactPicker" style="display:none; position:absolute; background:white; border-radius:30px; padding:5px 10px; box-shadow:0 5px 15px rgba(0,0,0,0.2); z-index:1000; border:1px solid #eee;">
+    <span onclick="pickReact('❤️')" style="cursor:pointer; font-size:1.2rem; margin:0 5px;">❤️</span>
+    <span onclick="pickReact('😂')" style="cursor:pointer; font-size:1.2rem; margin:0 5px;">😂</span>
+    <span onclick="pickReact('👍')" style="cursor:pointer; font-size:1.2rem; margin:0 5px;">👍</span>
+    <span onclick="pickReact('🔥')" style="cursor:pointer; font-size:1.2rem; margin:0 5px;">🔥</span>
+    <span onclick="pickReact('🤔')" style="cursor:pointer; font-size:1.2rem; margin:0 5px;">🤔</span>
+    <span onclick="pickReact('🎉')" style="cursor:pointer; font-size:1.2rem; margin:0 5px;">🎉</span>
+    <span onclick="pickReact('🙏')" style="cursor:pointer; font-size:1.2rem; margin:0 5px;">🙏</span>
+    <span onclick="closeReact()" style="cursor:pointer; font-size:1rem; margin-left:8px; color:#999;">✕</span>
+</div>
+
+<!-- Q&A REPLY OVERLAY -->
+<div id="replyOverlay" style="display:none; position:absolute; bottom:0; left:0; width:100%; background:#f8f9fa; border-top:1px solid #ddd; padding:15px; z-index:1001; box-shadow:0 -5px 20px rgba(0,0,0,0.1);">
+    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+        <strong style="color:#167690;">Reply to Question</strong>
+        <span onclick="closeReply()" style="cursor:pointer; font-weight:bold; color:#666;">✕</span>
+    </div>
+    <input type="text" id="replyInput" placeholder="Type your answer..." style="width:100%; padding:12px; border-radius:8px; border:1px solid #ccc; margin-bottom:10px;">
+    <button onclick="submitReply()" style="width:100%; background:#167690; color:white; border:none; padding:10px; border-radius:8px; font-weight:bold; cursor:pointer;">Post Reply</button>
+</div>
+`;
+document.body.insertAdjacentHTML('beforeend', popupsHTML);
+
+
+// RESTORED: Chat Reaction Bar Logic
 if(reactionBar) {
     reactionBar.style.display = 'flex';
     reactionBar.innerHTML = `
@@ -534,7 +555,6 @@ if(reactionBar) {
     `;
 }
 
-// Admin Check
 if(new URLSearchParams(window.location.search).get('m')==='a') localStorage.setItem('a','1');
 if(document.getElementById('adminPanel')) document.getElementById('adminPanel').style.display='flex';
 
@@ -651,15 +671,14 @@ setInterval(updateStackTimes,1000); updateStackTimes();
 
 
 /* --- 5. CHAT & MODERATION LOGIC --- */
-
 function renderAllMessages() {
   if(chatTab) chatTab.innerHTML = '';
   if(qaTab) qaTab.innerHTML = '';
   
-  rawChatData.forEach(msg => addMessage('chat', msg.user, msg.text, (msg.user === myName), msg.country, msg.id, msg.reactions));
+  rawChatData.forEach(msg => addMessage('chat', msg.user, msg.text, (msg.user === myName), msg.country, msg.id, msg.reactions, msg.flags));
   
   rawQaData.forEach(thread => {
-    addQaThread(thread.user, thread.text, (thread.user === myName), thread.country, thread.id, thread.reactions);
+    addQaThread(thread.user, thread.text, (thread.user === myName), thread.country, thread.id, thread.reactions, thread.flags);
     if(thread.replies) {
       thread.replies.forEach(rep => addQaReplyUI(thread.id, rep.user, rep.text));
     }
@@ -678,14 +697,12 @@ s.on('initialLoad', (data) => {
 
 s.on('chatIncoming', (data) => { 
   rawChatData.push(data);
-  addMessage('chat', data.user, data.text, (data.user===myName), data.country, data.id, data.reactions); 
+  addMessage('chat', data.user, data.text, (data.user===myName), data.country, data.id, data.reactions, data.flags); 
 });
 
-// DELETE LISTENERS
 s.on('chatDeleted', (id) => {
   rawChatData = rawChatData.filter(m => m.id !== id);
-  // Important: Use getElementById directly
-  const el = document.getElementById(id); // Since we set div.id = msg.id directly now
+  const el = document.getElementById(id); 
   if(el) el.remove();
 });
 
@@ -697,7 +714,7 @@ s.on('qaDeleted', (id) => {
 
 s.on('qaIncoming', (data) => { 
   rawQaData.push(data);
-  addQaThread(data.user, data.text, (data.user===myName), data.country, data.id, data.reactions); 
+  addQaThread(data.user, data.text, (data.user===myName), data.country, data.id, data.reactions, data.flags); 
 });
 
 s.on('qaReplyIncoming', (data) => { 
@@ -717,7 +734,6 @@ s.on('qaReactionUpdate', (data) => {
   if(reactBox) reactBox.innerHTML = renderReactionButtons(threadId, reactions);
 });
 
-// NEW: Chat Reaction Listener
 s.on('chatReactionUpdate', (data) => {
     const { id, reactions } = data;
     const msg = rawChatData.find(m => m.id === id);
@@ -741,7 +757,6 @@ function switchTab(name) {
   }
 }
 
-// LOGIN & PLEDGE LOGIC
 function joinChat() {
   const n = document.getElementById('chatName').value.trim();
   if(!n) return alert("Name required");
@@ -774,7 +789,16 @@ function flagMsg(id, isMine) {
   if(isMine) {
      if(confirm("🗑️ Delete your message?")) s.emit('chatFlag', { id, user: myName });
   } else {
-     if(confirm("⚑ Flag this as inappropriate? (3 flags will remove it)")) s.emit('chatFlag', { id, user: myName });
+     if(confirm("⚑ Flag this as inappropriate? (3 flags will remove it)")) {
+        // Immediate visual feedback
+        const btn = document.getElementById(`flag-btn-${id}`);
+        if(btn) {
+            btn.style.color = 'red';
+            btn.style.opacity = '1';
+            btn.innerText = '⚑';
+        }
+        s.emit('chatFlag', { id, user: myName });
+     }
   }
 }
 
@@ -782,15 +806,38 @@ function flagQa(id, isMine) {
   if(isMine) {
      if(confirm("🗑️ Delete your thread?")) s.emit('qaFlag', { id, user: myName });
   } else {
-     if(confirm("⚑ Flag this thread? (3 flags will remove it)")) s.emit('qaFlag', { id, user: myName });
+     if(confirm("⚑ Flag this thread? (3 flags will remove it)")) {
+         const btn = document.getElementById(`qa-flag-btn-${id}`);
+         if(btn) {
+             btn.style.color = 'red';
+             btn.style.opacity = '1';
+         }
+         s.emit('qaFlag', { id, user: myName });
+     }
   }
 }
 
-// NEW: Show Emoji Picker for Latching
-function showChatReactPicker(id) {
+// --- POP-OVER REACTION PICKER ---
+let targetMsgId = null;
+
+function showChatReactPicker(id, event) {
     if(!myName) return alert("Join to react!");
-    const emoji = prompt("Pick reaction: ❤️, 😂, 👍, 🔥, 🤔");
-    if(emoji) s.emit('chatReact', { id, emoji, user: myName });
+    targetMsgId = id;
+    const picker = document.getElementById('reactPicker');
+    const rect = event.target.getBoundingClientRect();
+    picker.style.top = (rect.top - 40) + 'px'; 
+    picker.style.left = (rect.left - 50) + 'px';
+    picker.style.display = 'block';
+}
+
+function pickReact(emoji) {
+    if(targetMsgId) s.emit('chatReact', { id: targetMsgId, emoji, user: myName });
+    closeReact();
+}
+
+function closeReact() {
+    document.getElementById('reactPicker').style.display = 'none';
+    targetMsgId = null;
 }
 
 function renderChatReactions(reactions) {
@@ -798,29 +845,62 @@ function renderChatReactions(reactions) {
     let html = '';
     for(let emoji in reactions) {
         if(reactions[emoji].length > 0) {
-            html += `<span style="background:rgba(255,255,255,0.1); padding:2px 5px; border-radius:10px; font-size:0.75rem; margin-right:3px;">${emoji} ${reactions[emoji].length}</span>`;
+            html += `<span style="background:rgba(255,255,255,0.1); padding:2px 5px; border-radius:10px; font-size:0.75rem; margin-right:3px; cursor:default;">${emoji} ${reactions[emoji].length}</span>`;
         }
     }
     return html;
 }
 
-function addMessage(target, user, text, isMe, country, id, reactions) {
-  if(!chatTab || (id && document.getElementById(id))) return; // Check direct ID
+// --- IN-WINDOW QA REPLY ---
+let targetQaId = null;
+
+function openReplyUI(id) {
+    if(!myName) return alert("Please Join the Chat first!");
+    targetQaId = id;
+    const overlay = document.getElementById('replyOverlay');
+    document.getElementById('qaTab').appendChild(overlay);
+    overlay.style.display = 'block';
+    document.getElementById('replyInput').focus();
+}
+
+function closeReply() {
+    document.getElementById('replyOverlay').style.display = 'none';
+    targetQaId = null;
+}
+
+function submitReply() {
+    const txt = document.getElementById('replyInput').value.trim();
+    if(txt && targetQaId) {
+        s.emit('qaReply', { threadId: targetQaId, user: myName, text: txt });
+        document.getElementById('replyInput').value = '';
+        closeReply();
+    }
+}
+
+function addMessage(target, user, text, isMe, country, id, reactions, flags) {
+  if(!chatTab || (id && document.getElementById(id))) return; 
   const div = document.createElement('div');
   div.className = `msg ${isMe ? 'me' : ''}`;
-  div.id = id; // Set direct ID string
+  div.id = id; 
   
   const actionIcon = isMe ? '🗑️' : '⚑';
-  const opacity = isMe ? '0.8' : '0.3'; 
-  
+  // Flag Logic: If I flagged it, make it RED and opaque.
+  const hasFlagged = flags && flags.includes(myName);
+  const flagColor = hasFlagged ? 'red' : 'inherit';
+  const flagOpacity = hasFlagged || isMe ? '1' : '0.3'; 
+  const flagPointer = hasFlagged ? 'default' : 'pointer'; // Disable click if already flagged
+
   div.innerHTML = `
     <span class="msg-meta">${user}</span>
     ${text}
     <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
         <div id="chat-reacts-${id}" style="display:flex;">${renderChatReactions(reactions)}</div>
         <div>
-            <span onclick="showChatReactPicker('${id}')" style="cursor:pointer; opacity:0.5; font-size:0.8rem; margin-right:8px;" title="Add Reaction">➕</span>
-            <span onclick="flagMsg('${id}', ${isMe})" style="cursor:pointer; opacity:${opacity}; font-size:0.8rem;" title="${isMe?'Delete':'Flag'}">${actionIcon}</span>
+            <span onclick="showChatReactPicker('${id}', event)" style="cursor:pointer; opacity:0.5; font-size:0.8rem; margin-right:10px;" title="Add Reaction">➕</span>
+            <span id="flag-btn-${id}" 
+                  onclick="${hasFlagged ? '' : `flagMsg('${id}', ${isMe})`}" 
+                  style="cursor:${flagPointer}; opacity:${flagOpacity}; color:${flagColor}; font-size:0.85rem;" 
+                  title="${isMe?'Delete':'Flag Inappropriate'}">${actionIcon}</span>
         </div>
     </div>
   `;
@@ -828,7 +908,7 @@ function addMessage(target, user, text, isMe, country, id, reactions) {
   chatTab.scrollTop = chatTab.scrollHeight;
 }
 
-function addQaThread(user, text, isMe, country, serverId, reactions) {
+function addQaThread(user, text, isMe, country, serverId, reactions, flags) {
   if(!qaTab || (serverId && document.getElementById(serverId))) return;
   const div = document.createElement('div');
   div.className = 'qa-thread'; 
@@ -840,13 +920,19 @@ function addQaThread(user, text, isMe, country, serverId, reactions) {
   const safeReactions = reactions || { '🎓':[], '💡':[], '🤝':[], '⭐':[], '📜':[] };
 
   const actionIcon = isMe ? '🗑️' : '⚑';
-  const opacity = isMe ? '0.8' : '0.3';
+  const hasFlagged = flags && flags.includes(myName);
+  const flagColor = hasFlagged ? 'red' : 'inherit';
+  const flagOpacity = hasFlagged || isMe ? '1' : '0.3';
+  const flagPointer = hasFlagged ? 'default' : 'pointer';
 
   div.style.cssText = bgStyle;
   div.innerHTML = `
     <div style="display:flex; justify-content:space-between;">
       <span class="qa-question">Q: ${text}</span>
-      <span onclick="flagQa('${serverId}', ${isMe})" style="cursor:pointer; opacity:${opacity};" title="${isMe?'Delete':'Flag'}">${actionIcon}</span>
+      <span id="qa-flag-btn-${serverId}"
+            onclick="${hasFlagged ? '' : `flagQa('${serverId}', ${isMe})`}" 
+            style="cursor:${flagPointer}; opacity:${flagOpacity}; color:${flagColor};" 
+            title="${isMe?'Delete':'Flag'}">${actionIcon}</span>
     </div>
     <div class="msg-meta">Asked by ${userDisplay} • ${country||'Global'}</div>
     <div class="qa-reactions" id="react-box-${serverId}" style="margin:5px 0; display:flex; gap:8px;">
@@ -854,7 +940,7 @@ function addQaThread(user, text, isMe, country, serverId, reactions) {
     </div>
     <div class="qa-replies" id="replies-${serverId}"></div>
     <div style="margin-top:8px; padding-top:5px; border-top:1px solid #eee;">
-      <span style="cursor:pointer; color:#167690; font-weight:800; font-size:0.8rem;" onclick="replyToQa('${serverId}')">💬 REPLY</span>
+      <span style="cursor:pointer; color:#167690; font-weight:800; font-size:0.8rem;" onclick="openReplyUI('${serverId}')">💬 REPLY</span>
     </div>
   `;
   qaTab.appendChild(div);
@@ -892,12 +978,6 @@ function addQaReplyUI(threadId, user, text) {
     div.innerHTML = `<strong style="color:#167690">${user}:</strong> ${text}`;
     box.appendChild(div);
   }
-}
-
-function replyToQa(id) {
-  if(!myName) return alert("Please Join the Chat first!");
-  const txt = prompt("Enter your reply:");
-  if(txt) s.emit('qaReply', { threadId: id, user: myName, text: txt });
 }
 
 /* --- 6. 3D GLOBE --- */
@@ -1034,7 +1114,6 @@ function replyToQa(id) {
   });
 })();
 </script>
-
 
 
 
