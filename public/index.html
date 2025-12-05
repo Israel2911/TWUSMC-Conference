@@ -789,7 +789,6 @@ function flagMsg(id, isMine) {
      if(confirm("🗑️ Delete your message?")) s.emit('chatFlag', { id, user: myName });
   } else {
      if(confirm("⚑ Flag this as inappropriate? (3 flags will remove it)")) {
-        // Immediate visual feedback
         const btn = document.getElementById(`flag-btn-${id}`);
         if(btn) {
             btn.style.color = 'red';
@@ -883,11 +882,10 @@ function addMessage(target, user, text, isMe, country, id, reactions, flags) {
   div.id = id; 
   
   const actionIcon = isMe ? '🗑️' : '⚑';
-  // Flag Logic: If I flagged it, make it RED and opaque.
   const hasFlagged = flags && flags.includes(myName);
   const flagColor = hasFlagged ? 'red' : 'inherit';
   const flagOpacity = hasFlagged || isMe ? '1' : '0.3'; 
-  const flagPointer = hasFlagged ? 'default' : 'pointer'; // Disable click if already flagged
+  const flagPointer = hasFlagged ? 'default' : 'pointer';
 
   div.innerHTML = `
     <span class="msg-meta">${user}</span>
@@ -944,39 +942,6 @@ function addQaThread(user, text, isMe, country, serverId, reactions, flags) {
   `;
   qaTab.appendChild(div);
   qaTab.scrollTop = qaTab.scrollHeight;
-}
-
-const EMOJI_DEF = { '🎓': 'Insightful', '💡': 'Great Idea', '🤝': 'Agreement', '⭐': 'Excellent', '📜': 'Source?' };
-
-function renderReactionButtons(id, r) {
-  const emojis = ['🎓', '💡', '🤝', '⭐', '📜'];
-  return emojis.map(e => {
-    const list = Array.isArray(r[e]) ? r[e] : []; 
-    const count = list.length;
-    const iVoted = myName && list.includes(myName);
-    const activeStyle = iVoted ? 'border:1px solid #38bdf8; background:rgba(56,189,248,0.2);' : 'border:1px solid #333; background:rgba(255,255,255,0.05);';
-
-    return `<span onclick="emitReact('${id}', '${e}')" 
-           title="${EMOJI_DEF[e]}"
-           style="cursor:pointer; padding:4px 8px; border-radius:15px; font-size:0.9rem; transition:all 0.2s; ${activeStyle}">
-       ${e} ${count}
-     </span>`;
-  }).join('');
-}
-
-function emitReact(id, emoji) {
-    if(!myName) return alert("Please Join first to react.");
-    s.emit('qaReact', { threadId: id, emoji: emoji, user: myName });
-}
-
-function addQaReplyUI(threadId, user, text) {
-  const box = document.getElementById(`replies-${threadId}`);
-  if(box) {
-    const div = document.createElement('div');
-    div.className = 'qa-reply-item';
-    div.innerHTML = `<strong style="color:#167690">${user}:</strong> ${text}`;
-    box.appendChild(div);
-  }
 }
 
 /* --- 6. 3D GLOBE --- */
@@ -1113,6 +1078,7 @@ function addQaReplyUI(threadId, user, text) {
   });
 })();
 </script>
+
 
 
 
