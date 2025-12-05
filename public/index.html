@@ -984,7 +984,7 @@ function emitReact(id, emoji) {
     s.emit('qaReact', { threadId: id, emoji: emoji, user: myName });
 }
 
-// *** NEW: UPDATED addQaReplyUI to support Reactions ***
+// *** NEW: UPDATED addQaReplyUI to support SCHOLARLY Reactions ***
 function addQaReplyUI(threadId, replyId, user, text, reactions) {
   const box = document.getElementById(`replies-${threadId}`);
   if(box) {
@@ -992,7 +992,8 @@ function addQaReplyUI(threadId, replyId, user, text, reactions) {
     const div = document.createElement('div');
     div.className = 'qa-reply-item';
     div.id = `reply-${replyId}`;
-    const safeReacts = reactions || { '❤️':[], '👍':[], '💡':[] };
+    // *** UPDATED: Default to Scholarly Emojis ***
+    const safeReacts = reactions || { '🎓':[], '💡':[], '🤝':[], '⭐':[], '📜':[] };
     div.innerHTML = `
       <div><strong style="color:#167690">${user}:</strong> ${text}</div>
       <div id="reply-reacts-${replyId}" style="margin-top:5px; display:flex; gap:5px;">
@@ -1003,8 +1004,9 @@ function addQaReplyUI(threadId, replyId, user, text, reactions) {
   }
 }
 
+// *** NEW: UPDATED to Render SCHOLARLY Emojis ***
 function renderReplyReactionButtons(threadId, replyId, r) {
-  const emojis = ['❤️', '👍', '💡'];
+  const emojis = ['🎓', '💡', '🤝', '⭐', '📜'];
   return emojis.map(e => {
     const list = Array.isArray(r[e]) ? r[e] : [];
     const count = list.length;
@@ -1154,6 +1156,7 @@ function emitReplyReact(threadId, replyId, emoji) {
     camera.updateProjectionMatrix();
   });
 })();
+
   </script>
   
 </body>
