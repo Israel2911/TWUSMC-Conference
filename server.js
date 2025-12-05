@@ -2,51 +2,42 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
-const helmet = require('helmet'); // SECURITY: Hides server info
-const cors = require('cors');     // SECURITY: Restricts access
-const rateLimit = require('express-rate-limit'); // SECURITY: Prevents spam
+const helmet = require('helmet'); 
+const cors = require('cors');     
+const rateLimit = require('express-rate-limit'); 
 
 const app = express();
 const server = http.createServer(app);
 
 // --- SECURITY CONFIGURATION ---
-// 1. Secure Headers (Allows YouTube & Google Fonts)
+
+// 1. HELMET: DISABLE CSP FOR NOW (Fixes Video & Chat Blocking)
 app.use(
   helmet({
-    contentSecurityPolicy: {
-      directives: {
-        "default-src": ["'self'"],
-        "script-src": ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://cdn.jsdelivr.net", "https://www.youtube.com", "https://s.ytimg.com"],
-        "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-        "font-src": ["'self'", "https://fonts.gstatic.com"],
-        "img-src": ["'self'", "data:", "https://upload.wikimedia.org"], // Allow Globe Texture
-        "frame-src": ["'self'", "https://www.youtube.com", "https://www.youtube-nocookie.com"], // <-- IMPORTANT: Allows YouTube Iframe
-        "connect-src": ["'self'", "https://www.youtube.com"], // Socket.io & YouTube
-      },
-    },
-    crossOriginEmbedderPolicy: false, // Required for some cross-origin embeds
+    contentSecurityPolicy: false, // <--- THIS TURNS OFF THE BLOCKER
+    crossOriginEmbedderPolicy: false,
   })
 );
 
-// 2. CORS (Only allow your own domain)
+// 2. CORS: ALLOW EVERYTHING (Fixes Socket Connection)
 app.use(cors({
-  origin: "*", // CHANGE THIS to your actual domain (e.g., "https://human-space.com") in production!
+  origin: "*", 
   methods: ["GET", "POST"]
 }));
 
-// 3. Rate Limiting (Prevents DDoS on the main page)
+// 3. RATE LIMITING
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000, 
+  max: 100 
 });
 app.use(limiter);
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Socket.io Security Setup
+// Socket.io Setup
 const io = new Server(server, {
   cors: {
-    origin: "*", // CHANGE THIS in production
+    origin: "*", 
     methods: ["GET", "POST"]
   }
 });
@@ -58,15 +49,15 @@ let R = {};
 let A = {};    
 let userLiveStates = {}; 
 
-// SECURITY: Admin Password for Kill Switch
-const ADMIN_PASS = "TWU2025"; // CHANGE THIS!
+// SECURITY: Admin Password
+const ADMIN_PASS = "TWU2025"; 
 
-// --- HISTORY STORAGE ---
+// --- HISTORY ---
 const MAX_HISTORY = 60;
 let chatHistory = []; 
 let qaHistory = [];
 
-// --- SECURITY & SPAM ---
+// --- SPAM CONTROL ---
 const lastMsgTime = {};
 const spamCount = {};
 const RATE_LIMIT_MS = 800;
@@ -85,7 +76,7 @@ const AI_QUESTIONS = [
 ];
 let aiIndex = 0;
 
-// AI Timer: 10 seconds for testing (Change back to 180000 for production)
+// AI Timer
 setInterval(() => {
   if (K) return;
   const qText = AI_QUESTIONS[aiIndex];
@@ -102,9 +93,8 @@ setInterval(() => {
   };
   qaHistory.push(threadData);
   io.emit('qaIncoming', threadData);
-}, 10000);
+}, 10000); 
 
-// Sanitize Input (Prevent HTML Injection)
 function escapeHtml(text) {
   if (!text) return "";
   return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "'");
@@ -135,19 +125,16 @@ io.on('connection', (socket) => {
     socket.emit('z', { isLive: userLiveStates[socket.id], isKilled: K });
   });
 
-  // --- SECURE CHAT HANDLER ---
   socket.on('chatMsg', (payload) => {
-    // 1. Rate Limit Check
     const now = Date.now();
     if (lastMsgTime[socket.id] && now - lastMsgTime[socket.id] < RATE_LIMIT_MS) {
       spamCount[socket.id] = (spamCount[socket.id] || 0) + 1;
-      if (spamCount[socket.id] > 5) { socket.disconnect(); return; } // Ban spammer
+      if (spamCount[socket.id] > 5) { socket.disconnect(); return; } 
       return;
     }
     lastMsgTime[socket.id] = now;
     spamCount[socket.id] = Math.max(0, (spamCount[socket.id] || 0) - 1);
 
-    // 2. Length Limit Check
     if (!payload.text || payload.text.length > MAX_MSG_LENGTH) return;
 
     const msgData = {
@@ -173,7 +160,7 @@ io.on('connection', (socket) => {
          
          const list = msg.reactions[emoji];
          const idx = list.indexOf(user);
-         if(idx === -1) list.push(user); else list.splice(idx, 1); // Toggle
+         if(idx === -1) list.push(user); else list.splice(idx, 1); 
          
          io.emit('chatReactionUpdate', { id, reactions: msg.reactions });
      }
@@ -183,14 +170,13 @@ io.on('connection', (socket) => {
     const { id, user } = payload;
     const msg = chatHistory.find(m => m.id === id);
     if (msg) {
-      if (msg.user === user) { // Self-delete
+      if (msg.user === user) { 
          chatHistory = chatHistory.filter(m => m.id !== id);
          io.emit('chatDeleted', id);
          return;
       }
       if (!msg.flags.includes(user)) {
         msg.flags.push(user);
-        // MODERATION: 3 Flags = Auto Delete
         if (msg.flags.length >= 3) {
            chatHistory = chatHistory.filter(m => m.id !== id);
            io.emit('chatDeleted', id);
@@ -255,9 +241,7 @@ io.on('connection', (socket) => {
     }
   });
 
-  // --- ADMIN KILL SWITCH (SECURED) ---
   socket.on('k', (password) => {
-    // SECURITY: Only allow if password matches
     if (password !== ADMIN_PASS) {
       console.log("⚠️ Unauthorized Kill Attempt:", socket.id);
       return; 
