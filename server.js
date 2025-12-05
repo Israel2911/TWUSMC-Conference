@@ -10,10 +10,23 @@ const app = express();
 const server = http.createServer(app);
 
 // --- SECURITY CONFIGURATION ---
-// 1. Secure Headers (Prevents XSS and Sniffing)
-app.use(helmet({
-  contentSecurityPolicy: false, // Allow YouTube iframes
-}));
+// 1. Secure Headers (Allows YouTube & Google Fonts)
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        "default-src": ["'self'"],
+        "script-src": ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://cdn.jsdelivr.net", "https://www.youtube.com", "https://s.ytimg.com"],
+        "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        "font-src": ["'self'", "https://fonts.gstatic.com"],
+        "img-src": ["'self'", "data:", "https://upload.wikimedia.org"], // Allow Globe Texture
+        "frame-src": ["'self'", "https://www.youtube.com", "https://www.youtube-nocookie.com"], // <-- IMPORTANT: Allows YouTube Iframe
+        "connect-src": ["'self'", "https://www.youtube.com"], // Socket.io & YouTube
+      },
+    },
+    crossOriginEmbedderPolicy: false, // Required for some cross-origin embeds
+  })
+);
 
 // 2. CORS (Only allow your own domain)
 app.use(cors({
