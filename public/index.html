@@ -573,7 +573,13 @@ if(expandBtn) {
 
 /* --- 3. LIVE STREAM LOGIC --- */
 if(lT) lT.onclick = () => { s.emit('x'); };
-if(kS) kS.onclick = () => { if(confirm('⚠️ ACTIVATE KILL SWITCH?')) { s.emit('k'); } };
+
+// *** SECURE KILL SWITCH LOGIC ***
+if(kS) kS.onclick = () => { 
+    const pass = prompt("Enter Admin Password to Kill Stream:");
+    if(pass) s.emit('k', pass); 
+};
+// ********************************
 
 s.on('z', (state) => {
   const isLive = (typeof state === 'object') ? state.isLive : state;
@@ -1085,6 +1091,8 @@ function addQaReplyUI(threadId, user, text) {
   });
 })();
 </script>
+
+
 
 
 
