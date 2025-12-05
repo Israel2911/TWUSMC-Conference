@@ -10,7 +10,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
   <style>
-
     /* --- CORE STYLES --- */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
@@ -33,12 +32,11 @@
     .hero h1 { font-size: 4rem; font-weight: 900; color: #167690; margin:0; }
     .hero h2 { font-size: 2rem; color: white; margin: 10px 0 30px 0; }
 
-    /* --- FIXED SECTION START (This fixes the stretching) --- */
+    /* --- FIXED SECTION START --- */
     .live-grid { 
       display: grid; 
       grid-template-columns: 2.5fr 1fr; 
       gap: 30px; 
-      /* FIX: Fixed height prevents page stretching */
       height: 70vh; 
       min-height: 500px; 
     }
@@ -49,14 +47,12 @@
       overflow: hidden; 
       border: 2px solid #333; 
       position: relative; 
-      /* FIX: Match grid height exactly */
       height: 100%; 
       width: 100%;
     }
     .video-wrapper.killed iframe { display: none !important; }
     .live-badge { position: absolute; top: 20px; left: 20px; background: #ff0000; color: white; padding: 5px 15px; border-radius: 5px; font-weight: bold; font-size: 0.9rem; z-index: 10; }
 
-    /* --- RESET: NO CROP, NO TRICKS --- */
     .video-crop { width: 100%; height: 100%; display: block; }
     .video-crop iframe { width: 100%; height: 100%; border: none; display: block; }
 
@@ -67,10 +63,8 @@
       border-radius: 20px; 
       display: flex; 
       flex-direction: column; 
-      /* FIX: Fill grid cell exactly */
       height: 100%; 
       border: 1px solid rgba(255,255,255,0.3); 
-      /* FIX: Stop box from growing */
       overflow: hidden; 
       position: relative; 
       box-shadow: 0 10px 30px rgba(0,0,0,0.2); 
@@ -86,17 +80,14 @@
     .human-space-messages { 
       flex: 1; 
       padding: 20px; 
-      /* FIX: Enable internal scrolling */
       overflow-y: auto; 
       display: none; 
       flex-direction: column; 
       gap: 12px; 
       font-size: 0.95rem; 
       background: #f0f4f8; 
-      /* FIX: Firefox scrolling fix */
       min-height: 0; 
     }
-    /* --- FIXED SECTION END --- */
 
     .human-space-messages.active { display: flex; }
     .human-space-input { padding: 15px; background: white; border-top: 1px solid #eee; }
@@ -106,10 +97,45 @@
     .msg.me { background: #167690; color: white; align-self: flex-end; border-bottom-left-radius: 12px; border-bottom-right-radius: 2px; }
     .msg.bot { background: #e6fffa; border-left: 4px solid #38b2ac; align-self: center; max-width: 95%; font-style: italic; color: #234e52; }
     .msg-meta { font-size: 0.7rem; opacity: 0.6; margin-bottom: 4px; display: block; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+    
+    /* --- QA STYLES --- */
     .qa-thread { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
     .qa-question { font-weight: bold; color: #2d3748; margin-bottom: 8px; font-size: 1rem; display: block; }
     .qa-replies { margin-top: 10px; padding-left: 15px; border-left: 3px solid #e2e8f0; font-size: 0.9rem; display: flex; flex-direction: column; gap: 8px; }
-    .qa-reply-item { background: #f8fafc; padding: 8px 12px; border-radius: 6px; border: 1px solid #edf2f7; }
+    
+    /* *** NEW REPLY REACTION STYLES *** */
+    .qa-reply-item {
+        background: #f8f9fa;
+        padding: 10px;
+        margin-top: 5px;
+        border-radius: 8px;
+        border-left: 3px solid #ccc;
+        font-size: 0.95rem;
+    }
+    .qa-reply-item span[onclick] {
+        display: inline-block;
+        margin-right: 5px;
+        font-size: 0.8rem;
+        color: #555;
+        background: rgba(0,0,0,0.03);
+        padding: 3px 8px;
+        border-radius: 12px;
+        border: 1px solid transparent;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .qa-reply-item span[onclick]:hover {
+        background: rgba(0,0,0,0.08);
+        transform: scale(1.05);
+    }
+    .qa-reply-item span[onclick][style*="opacity:1"] {
+        border-color: #167690 !important;
+        background: rgba(22, 118, 144, 0.15) !important;
+        color: #0e4b5b;
+        font-weight: bold;
+    }
+    /* ******************************** */
+
     .reply-btn { font-size: 0.8rem; color: #167690; cursor: pointer; margin-top: 8px; display: inline-block; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
     .reply-btn:hover { text-decoration: underline; }
     .msg-actions { display: flex; gap: 8px; margin-top: 5px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 5px; justify-content: flex-end; }
@@ -135,6 +161,7 @@
     .teams-backup h2 { font-size: 2.8rem; margin-bottom: 15px; font-weight: 900; }
     .teams-backup a { background: linear-gradient(135deg, #464eb8, #3a3f9e); color: white; padding: 20px 40px; border-radius: 25px; font-weight: bold; font-size: 1.3rem; text-decoration: none; display: inline-flex; align-items: center; gap: 15px; box-shadow: 0 10px 30px rgba(70,78,184,0.4); transition: all 0.3s; margin: 20px 0; max-width: 400px; width: 100%; justify-content: center; }
     .teams-backup a:hover { transform: scale(1.05); box-shadow: 0 15px 40px rgba(70,78,184,0.6); }
+    
     .global-connect-section { position: relative; z-index: 5; background: linear-gradient(135deg, #0a0e1a 0%, #1a1f35 50%, #000000 100%); padding: 80px 40px; display: flex; flex-wrap: wrap; justify-content: center; gap: 60px; max-width: 1400px; margin: 0 auto; }
     .globe-wrapper { width: 500px; height: 500px; position: relative; border-radius: 50%; background: radial-gradient(circle at 40% 40%, #1e2636 0%, #000000 90%); border: 4px solid #333; box-shadow: 0 20px 50px rgba(0,0,0,0.5); overflow: hidden; }
     .globe-wrapper::before { content: ""; position: absolute; inset: -10px; border-radius: 50%; pointer-events: none; mix-blend-mode: screen; background: radial-gradient(circle at 20% 15%, rgba(255, 230, 150, 0.45) 0, transparent 55%), radial-gradient(circle at 75% 25%, rgba(255,255,255,0.9) 0 2px, transparent 2px), radial-gradient(circle at 30% 70%, rgba(255,255,255,0.7) 0 1.5px, transparent 1.5px), radial-gradient(circle at 60% 85%, rgba(255,255,255,0.6) 0 1.8px, transparent 1.8px); animation: starTwinkle 6s ease-in-out infinite; }
@@ -153,6 +180,7 @@
     .stat-pill { display: flex; align-items: center; gap: 6px; background: #f7fafc; padding: 4px 10px; border-radius: 20px; }
     .material-icons-round { font-size: 16px; color: #a0aec0; }
     .globe-time { font-family: 'Courier New', monospace; font-weight: 900; font-size: 1.4rem; color: #ff6b35; text-align: right; }
+    
     .section { padding: 80px 40px; max-width: 1200px; margin: 0 auto; text-align: center; }
     .section-header { font-size: 2.5rem; color: #167690; margin-bottom: 40px; font-weight:900; }
     .content-box { background: white; padding: 60px; border-radius: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.05); text-align: left; font-size: 1.1rem; }
@@ -187,13 +215,13 @@
     @media (max-width: 1024px) { 
       .live-grid { 
         grid-template-columns: 1fr; 
-        height: auto; /* Mobile can grow freely */
+        height: auto; 
       } 
       .human-space-container {
-        height: 600px; /* Fixed height for chat on mobile */
+        height: 600px; 
       }
       .video-wrapper {
-        height: 300px; /* Video height on mobile */
+        height: 300px; 
       }
     }
 </style>
@@ -1127,5 +1155,6 @@ function emitReplyReact(threadId, replyId, emoji) {
   });
 })();
   </script>
+  
 </body>
 </html>
