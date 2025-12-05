@@ -11,30 +11,30 @@ const server = http.createServer(app);
 
 // --- SECURITY CONFIGURATION ---
 
-// 1. HELMET: DISABLE CSP FOR NOW (Fixes Video & Chat Blocking)
+// 1. HELMET: DISABLE CSP & COEP (Fixes Video & Chat Blocking)
 app.use(
   helmet({
-    contentSecurityPolicy: false, // <--- THIS TURNS OFF THE BLOCKER
-    crossOriginEmbedderPolicy: false,
+    contentSecurityPolicy: false, // Disables CSP to allow all external content (YouTube, scripts)
+    crossOriginEmbedderPolicy: false, // Disables COEP to allow cross-origin embeds (YouTube)
   })
 );
 
-// 2. CORS: ALLOW EVERYTHING (Fixes Socket Connection)
+// 2. CORS: ALLOW EVERYTHING (Fixes Socket Connection issues)
 app.use(cors({
   origin: "*", 
   methods: ["GET", "POST"]
 }));
 
-// 3. RATE LIMITING
+// 3. RATE LIMITING (Basic DDoS protection)
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, 
-  max: 100 
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100 // limit each IP to 100 requests per windowMs
 });
 app.use(limiter);
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Socket.io Setup
+// Socket.io Setup (configured to allow connections from anywhere)
 const io = new Server(server, {
   cors: {
     origin: "*", 
@@ -76,7 +76,7 @@ const AI_QUESTIONS = [
 ];
 let aiIndex = 0;
 
-// AI Timer
+// AI Timer (Currently set to 10s for testing)
 setInterval(() => {
   if (K) return;
   const qText = AI_QUESTIONS[aiIndex];
@@ -95,6 +95,7 @@ setInterval(() => {
   io.emit('qaIncoming', threadData);
 }, 10000); 
 
+// Helper to sanitize text
 function escapeHtml(text) {
   if (!text) return "";
   return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "'");
@@ -104,6 +105,7 @@ io.on('connection', (socket) => {
   T++;
   userLiveStates[socket.id] = false; 
   
+  // Send initial history
   socket.emit('initialLoad', { 
     chat: chatHistory, 
     qa: qaHistory,
@@ -113,6 +115,7 @@ io.on('connection', (socket) => {
   io.emit('t', T);
   io.emit('r', R);
 
+  // Region tracking
   socket.on('r', (tz) => {
     A[socket.id] = tz;
     if (!R[tz]) R[tz] = 0;
@@ -120,11 +123,13 @@ io.on('connection', (socket) => {
     io.emit('r', R);
   });
 
+  // Live toggle
   socket.on('x', () => {
     userLiveStates[socket.id] = !userLiveStates[socket.id];
     socket.emit('z', { isLive: userLiveStates[socket.id], isKilled: K });
   });
 
+  // Chat Message Handler
   socket.on('chatMsg', (payload) => {
     const now = Date.now();
     if (lastMsgTime[socket.id] && now - lastMsgTime[socket.id] < RATE_LIMIT_MS) {
@@ -151,6 +156,7 @@ io.on('connection', (socket) => {
     io.emit('chatIncoming', msgData);
   });
 
+  // Chat Reaction Handler
   socket.on('chatReact', (payload) => {
      const { id, emoji, user } = payload;
      const msg = chatHistory.find(m => m.id === id);
@@ -166,6 +172,7 @@ io.on('connection', (socket) => {
      }
   });
 
+  // Chat Flag Handler
   socket.on('chatFlag', (payload) => {
     const { id, user } = payload;
     const msg = chatHistory.find(m => m.id === id);
@@ -185,6 +192,7 @@ io.on('connection', (socket) => {
     }
   });
 
+  // QA Ask Handler
   socket.on('qaAsk', (payload) => {
     if (!payload.text || payload.text.length > MAX_MSG_LENGTH) return;
     const threadData = {
@@ -200,6 +208,7 @@ io.on('connection', (socket) => {
     io.emit('qaIncoming', threadData);
   });
 
+  // QA Flag Handler
   socket.on('qaFlag', (payload) => {
     const { id, user } = payload;
     const thread = qaHistory.find(t => t.id === id);
@@ -219,6 +228,7 @@ io.on('connection', (socket) => {
     }
   });
 
+  // QA Reply Handler
   socket.on('qaReply', (payload) => {
     const replyData = { id: 'rep-' + Date.now(), user: escapeHtml(payload.user), text: escapeHtml(payload.text) };
     const thread = qaHistory.find(t => t.id === payload.threadId);
@@ -226,6 +236,7 @@ io.on('connection', (socket) => {
     io.emit('qaReplyIncoming', { threadId: payload.threadId, ...replyData });
   });
 
+  // QA React Handler
   socket.on('qaReact', (payload) => {
     const { threadId, emoji, user } = payload;
     const allowed = ['🎓', '💡', '🤝', '⭐', '📜'];
@@ -241,6 +252,7 @@ io.on('connection', (socket) => {
     }
   });
 
+  // Admin Kill Switch Handler
   socket.on('k', (password) => {
     if (password !== ADMIN_PASS) {
       console.log("⚠️ Unauthorized Kill Attempt:", socket.id);
