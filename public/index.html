@@ -211,19 +211,78 @@
     @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.2); color: #167690; } 100% { transform: scale(1); } }
     .pop { animation: pop 0.3s ease; }
 
-    /* --- MOBILE FIX --- */
-    @media (max-width: 1024px) { 
-      .live-grid { 
-        grid-template-columns: 1fr; 
-        height: auto; 
-      } 
-      .human-space-container {
-        height: 600px; 
-      }
-      .video-wrapper {
-        height: 300px; 
-      }
+   /* --- MOBILE DEMO FIXES --- */
+@media (max-width: 768px) {
+
+    /* 1. Fix the Page Width & Overflow */
+    html, body {
+        width: 100%;
+        overflow-x: hidden; /* Stops the side-scrolling/white bar */
+        position: relative;
     }
+
+    /* 2. Fix the Navigation Bar */
+    header {
+        flex-direction: column;
+        align-items: center;
+        padding: 15px 10px;
+        gap: 15px;
+    }
+    
+    .logo {
+        font-size: 1.5rem; /* Make logo smaller to fit */
+        text-align: center;
+    }
+
+    nav {
+        display: flex;
+        gap: 15px; /* Reduce gap between links */
+        justify-content: center;
+        flex-wrap: wrap; /* Allow links to wrap if needed */
+        width: 100%;
+    }
+
+    nav a {
+        font-size: 0.9rem; /* Smaller text for links */
+        padding: 5px 8px;
+    }
+
+    /* 3. Fix the Hero Section Text */
+    .hero-content h1 {
+        font-size: 2.5rem; /* Shrink the big title */
+        line-height: 1.2;
+        word-wrap: break-word; /* Prevent text cutting off */
+    }
+
+    .hero-content p {
+        font-size: 1.1rem;
+        padding: 0 10px;
+    }
+
+    /* 4. Fix the "Go Live" Button Position */
+    #liveToggle {
+        bottom: 20px;
+        right: 20px;
+        padding: 10px 20px; /* Slightly smaller button */
+        font-size: 0.9rem;
+        z-index: 9999; /* Ensure it sits on top */
+    }
+
+    /* 5. Fix the Chat/Video Container stacking */
+    .main-container {
+        flex-direction: column; /* Stack video on top of chat */
+        height: auto;
+        padding: 10px;
+    }
+
+    .video-section, .chat-section {
+        width: 100%; /* Full width for phone */
+        height: 50vh; /* Split screen half/half */
+        border-radius: 15px;
+        margin-bottom: 10px;
+    }
+}
+
 </style>
 
 </head>
