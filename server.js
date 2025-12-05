@@ -56,7 +56,7 @@ const AI_QUESTIONS = [
 ];
 let aiIndex = 0;
 
-// *** CHANGED: AI TIMER SET TO 3 MINUTES (180000ms) ***
+// *** CHANGED: AI TIMER SET TO 15 SECONDS ***
 setInterval(() => {
   if (K) return;
   const qText = AI_QUESTIONS[aiIndex];
@@ -73,7 +73,7 @@ setInterval(() => {
   };
   qaHistory.push(threadData);
   io.emit('qaIncoming', threadData);
-}, 180000); // <--- UPDATED TIME
+}, 15000); // <--- UPDATED TO 15000ms (15 Seconds)
 
 function escapeHtml(text) {
   if (!text) return "";
@@ -185,8 +185,8 @@ io.on('connection', (socket) => {
       id: 'rep-' + Date.now(), 
       user: escapeHtml(payload.user), 
       text: escapeHtml(payload.text),
-      // *** NEW: Initialize reactions for the REPLY ***
-      reactions: { '❤️':[], '👍':[], '💡':[] } 
+      // *** CHANGED: Initialize SCHOLARLY emojis for REPLY ***
+      reactions: { '🎓':[], '💡':[], '🤝':[], '⭐':[], '📜':[] } 
     };
     const thread = qaHistory.find(t => t.id === payload.threadId);
     if (thread) thread.replies.push(replyData);
@@ -207,17 +207,18 @@ io.on('connection', (socket) => {
     }
   });
 
-  // *** NEW: QA REPLY REACTION HANDLER ***
+  // *** QA REPLY REACTION HANDLER (UPDATED FOR SCHOLARLY EMOJIS) ***
   socket.on('qaReplyReact', (payload) => {
     const { threadId, replyId, emoji, user } = payload;
-    const allowed = ['❤️', '👍', '💡']; // Simpler emojis for replies
+    // *** CHANGED: Allowed emojis match the main question styles ***
+    const allowed = ['🎓', '💡', '🤝', '⭐', '📜']; 
     if (!allowed.includes(emoji)) return;
 
     const thread = qaHistory.find(t => t.id === threadId);
     if (thread && thread.replies) {
        const reply = thread.replies.find(r => r.id === replyId);
        if(reply) {
-          if(!reply.reactions) reply.reactions = { '❤️':[], '👍':[], '💡':[] };
+          if(!reply.reactions) reply.reactions = { '🎓':[], '💡':[], '🤝':[], '⭐':[], '📜':[] };
           if(!reply.reactions[emoji]) reply.reactions[emoji] = [];
           
           const list = reply.reactions[emoji];
