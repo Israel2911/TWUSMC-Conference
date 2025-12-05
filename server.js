@@ -10,10 +10,10 @@ const io = new Server(server);
 app.use(express.static(path.join(__dirname, 'public')));
 
 // --- GLOBAL STATE ---
-let K = false;
-let T = 0;
-let R = {};
-let A = {};
+let K = false; // Kill Switch
+let T = 0;     // Total Connections
+let R = {};    // Region Counts
+let A = {};    // Active Sockets
 let userLiveStates = {}; 
 
 // --- HISTORY STORAGE ---
@@ -40,12 +40,17 @@ const AI_QUESTIONS = [
 ];
 let aiIndex = 0;
 
+// *** UPDATED TIMER: 10 SECONDS (10000ms) FOR TESTING ***
 setInterval(() => {
-  if (K) return;
+  if (K) return; // Don't post if Kill Switch is active
+  
   const qText = AI_QUESTIONS[aiIndex];
   aiIndex = (aiIndex + 1) % AI_QUESTIONS.length;
+  
+  console.log(`🤖 AI Posting Question: "${qText}"`); // DEBUG LOG
+  
   const threadData = {
-    id: 'qa-' + Date.now(), // String ID
+    id: 'qa-' + Date.now(),
     user: AI_NAME,
     text: qText,
     country: 'System',
@@ -56,7 +61,7 @@ setInterval(() => {
   };
   qaHistory.push(threadData);
   io.emit('qaIncoming', threadData);
-}, 180000); 
+}, 10000); // CHANGED FROM 180000 TO 10000
 
 function escapeHtml(text) {
   if (!text) return "";
@@ -67,6 +72,7 @@ io.on('connection', (socket) => {
   T++;
   userLiveStates[socket.id] = false; 
   
+  // Send History on Connect
   socket.emit('initialLoad', { 
     chat: chatHistory, 
     qa: qaHistory,
@@ -102,22 +108,22 @@ io.on('connection', (socket) => {
     if (payload.text.length > MAX_MSG_LENGTH) return;
 
     const msgData = {
-      id: 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9), // Robust String ID
+      id: 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
       user: escapeHtml(payload.user),
       text: escapeHtml(payload.text),
       country: escapeHtml(payload.country),
       type: 'chat',
       flags: [],
-      reactions: {} // New: Chat Reactions
+      reactions: {} 
     };
     chatHistory.push(msgData);
     if (chatHistory.length > MAX_HISTORY) chatHistory.shift();
     io.emit('chatIncoming', msgData);
   });
 
-  // --- NEW: CHAT REACTION (LATCHING) ---
+  // --- CHAT REACTION (TOGGLE) ---
   socket.on('chatReact', (payload) => {
-     const { id, emoji, user } = payload; // id is the message ID
+     const { id, emoji, user } = payload;
      const msg = chatHistory.find(m => m.id === id);
      if(msg) {
          if(!msg.reactions) msg.reactions = {};
@@ -125,14 +131,17 @@ io.on('connection', (socket) => {
          
          const list = msg.reactions[emoji];
          const idx = list.indexOf(user);
-         if(idx === -1) list.push(user);
-         else list.splice(idx, 1); // Toggle
+         
+         if(idx === -1) {
+             list.push(user); // Add
+         } else {
+             list.splice(idx, 1); // Remove (Toggle)
+         }
          
          io.emit('chatReactionUpdate', { id, reactions: msg.reactions });
      }
   });
 
-  // --- CHAT FLAG/DELETE ---
   socket.on('chatFlag', (payload) => {
     const { id, user } = payload;
     const msg = chatHistory.find(m => m.id === id);
@@ -154,6 +163,7 @@ io.on('connection', (socket) => {
 
   socket.on('qaAsk', (payload) => {
     if (payload.text.length > MAX_MSG_LENGTH) return;
+    console.log("New Question Asked:", payload.text); // DEBUG
     const threadData = {
       id: 'qa-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
       user: escapeHtml(payload.user),
