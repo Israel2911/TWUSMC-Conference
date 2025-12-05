@@ -10,43 +10,22 @@ const app = express();
 const server = http.createServer(app);
 
 // --- SECURITY CONFIGURATION ---
-
-// 1. HELMET: Fix YouTube "Error 153" & Allow Chat
 app.use(
   helmet({
-    contentSecurityPolicy: false,        // Disable CSP to allow external scripts/frames
-    crossOriginEmbedderPolicy: false,    // Disable COEP to allow cross-origin embeds
-    referrerPolicy: { 
-      policy: "strict-origin-when-cross-origin" // <--- CRITICAL FIX FOR YOUTUBE
-    }
+    contentSecurityPolicy: false, 
+    crossOriginEmbedderPolicy: false, 
+    referrerPolicy: { policy: "strict-origin-when-cross-origin" } 
   })
 );
 
-// 2. CORS: ALLOW EVERYTHING (Fixes Socket Connection)
-app.use(cors({
-  origin: "*", 
-  methods: ["GET", "POST"]
-}));
+app.use(cors({ origin: "*", methods: ["GET", "POST"] }));
 
-// 3. RATE LIMITING
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, 
-  max: 100 
-});
+const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100 });
 app.use(limiter);
 
-// 4. STATIC FILES: Fix "Range Not Satisfiable" Error
-app.use(express.static(path.join(__dirname, 'public'), {
-  acceptRanges: false // <--- PREVENTS CRASHES ON PARTIAL CONTENT REQUESTS
-}));
+app.use(express.static(path.join(__dirname, 'public'), { acceptRanges: false }));
 
-// Socket.io Setup
-const io = new Server(server, {
-  cors: {
-    origin: "*", 
-    methods: ["GET", "POST"]
-  }
-});
+const io = new Server(server, { cors: { origin: "*", methods: ["GET", "POST"] } });
 
 // --- GLOBAL STATE ---
 let K = false; 
@@ -54,22 +33,17 @@ let T = 0;
 let R = {};    
 let A = {};    
 let userLiveStates = {}; 
-
-// SECURITY: Admin Password
 const ADMIN_PASS = "TWU2025"; 
 
-// --- HISTORY ---
 const MAX_HISTORY = 60;
 let chatHistory = []; 
 let qaHistory = [];
 
-// --- SPAM CONTROL ---
 const lastMsgTime = {};
 const spamCount = {};
 const RATE_LIMIT_MS = 800;
 const MAX_MSG_LENGTH = 500;
 
-// --- AI FACILITATOR ---
 const AI_NAME = "🤖 Session Facilitator";
 const AI_QUESTIONS = [
   "How do you see AI influencing moral decision-making in your field?",
@@ -82,7 +56,7 @@ const AI_QUESTIONS = [
 ];
 let aiIndex = 0;
 
-// AI Timer
+// *** CHANGED: AI TIMER SET TO 3 MINUTES (180000ms) ***
 setInterval(() => {
   if (K) return;
   const qText = AI_QUESTIONS[aiIndex];
@@ -99,7 +73,7 @@ setInterval(() => {
   };
   qaHistory.push(threadData);
   io.emit('qaIncoming', threadData);
-}, 10000); 
+}, 180000); // <--- UPDATED TIME
 
 function escapeHtml(text) {
   if (!text) return "";
@@ -131,15 +105,11 @@ io.on('connection', (socket) => {
     socket.emit('z', { isLive: userLiveStates[socket.id], isKilled: K });
   });
 
+  // CHAT LOGIC
   socket.on('chatMsg', (payload) => {
     const now = Date.now();
-    if (lastMsgTime[socket.id] && now - lastMsgTime[socket.id] < RATE_LIMIT_MS) {
-      spamCount[socket.id] = (spamCount[socket.id] || 0) + 1;
-      if (spamCount[socket.id] > 5) { socket.disconnect(); return; } 
-      return;
-    }
+    if (lastMsgTime[socket.id] && now - lastMsgTime[socket.id] < RATE_LIMIT_MS) return;
     lastMsgTime[socket.id] = now;
-    spamCount[socket.id] = Math.max(0, (spamCount[socket.id] || 0) - 1);
 
     if (!payload.text || payload.text.length > MAX_MSG_LENGTH) return;
 
@@ -163,11 +133,9 @@ io.on('connection', (socket) => {
      if(msg) {
          if(!msg.reactions) msg.reactions = {};
          if(!msg.reactions[emoji]) msg.reactions[emoji] = [];
-         
          const list = msg.reactions[emoji];
          const idx = list.indexOf(user);
          if(idx === -1) list.push(user); else list.splice(idx, 1); 
-         
          io.emit('chatReactionUpdate', { id, reactions: msg.reactions });
      }
   });
@@ -176,21 +144,15 @@ io.on('connection', (socket) => {
     const { id, user } = payload;
     const msg = chatHistory.find(m => m.id === id);
     if (msg) {
-      if (msg.user === user) { 
-         chatHistory = chatHistory.filter(m => m.id !== id);
-         io.emit('chatDeleted', id);
-         return;
-      }
-      if (!msg.flags.includes(user)) {
-        msg.flags.push(user);
-        if (msg.flags.length >= 3) {
+       if (!msg.flags.includes(user)) msg.flags.push(user);
+       if (msg.flags.length >= 3 || msg.user === user) {
            chatHistory = chatHistory.filter(m => m.id !== id);
            io.emit('chatDeleted', id);
-        }
-      }
+       }
     }
   });
 
+  // QA LOGIC
   socket.on('qaAsk', (payload) => {
     if (!payload.text || payload.text.length > MAX_MSG_LENGTH) return;
     const threadData = {
@@ -210,23 +172,22 @@ io.on('connection', (socket) => {
     const { id, user } = payload;
     const thread = qaHistory.find(t => t.id === id);
     if (thread) {
-      if (thread.user === user) {
-         qaHistory = qaHistory.filter(t => t.id !== id);
-         io.emit('qaDeleted', id);
-         return;
-      }
-      if (!thread.flags.includes(user)) {
-        thread.flags.push(user);
-        if (thread.flags.length >= 3) {
+       if (!thread.flags.includes(user)) thread.flags.push(user);
+       if (thread.flags.length >= 3 || thread.user === user) {
            qaHistory = qaHistory.filter(t => t.id !== id);
            io.emit('qaDeleted', id);
-        }
-      }
+       }
     }
   });
 
   socket.on('qaReply', (payload) => {
-    const replyData = { id: 'rep-' + Date.now(), user: escapeHtml(payload.user), text: escapeHtml(payload.text) };
+    const replyData = { 
+      id: 'rep-' + Date.now(), 
+      user: escapeHtml(payload.user), 
+      text: escapeHtml(payload.text),
+      // *** NEW: Initialize reactions for the REPLY ***
+      reactions: { '❤️':[], '👍':[], '💡':[] } 
+    };
     const thread = qaHistory.find(t => t.id === payload.threadId);
     if (thread) thread.replies.push(replyData);
     io.emit('qaReplyIncoming', { threadId: payload.threadId, ...replyData });
@@ -238,20 +199,39 @@ io.on('connection', (socket) => {
     if (!allowed.includes(emoji)) return;
     const thread = qaHistory.find(t => t.id === threadId);
     if (thread) {
-      if (!thread.reactions) thread.reactions = { '🎓':[], '💡':[], '🤝':[], '⭐':[], '📜':[] };
       if (!Array.isArray(thread.reactions[emoji])) thread.reactions[emoji] = [];
       const list = thread.reactions[emoji];
-      const userIndex = list.indexOf(user);
-      if (userIndex === -1) list.push(user); else list.splice(userIndex, 1);
+      const idx = list.indexOf(user);
+      if (idx === -1) list.push(user); else list.splice(idx, 1);
       io.emit('qaReactionUpdate', { threadId, reactions: thread.reactions });
     }
   });
 
-  socket.on('k', (password) => {
-    if (password !== ADMIN_PASS) {
-      console.log("⚠️ Unauthorized Kill Attempt:", socket.id);
-      return; 
+  // *** NEW: QA REPLY REACTION HANDLER ***
+  socket.on('qaReplyReact', (payload) => {
+    const { threadId, replyId, emoji, user } = payload;
+    const allowed = ['❤️', '👍', '💡']; // Simpler emojis for replies
+    if (!allowed.includes(emoji)) return;
+
+    const thread = qaHistory.find(t => t.id === threadId);
+    if (thread && thread.replies) {
+       const reply = thread.replies.find(r => r.id === replyId);
+       if(reply) {
+          if(!reply.reactions) reply.reactions = { '❤️':[], '👍':[], '💡':[] };
+          if(!reply.reactions[emoji]) reply.reactions[emoji] = [];
+          
+          const list = reply.reactions[emoji];
+          const idx = list.indexOf(user);
+          if(idx === -1) list.push(user); else list.splice(idx, 1); // Toggle
+
+          // Broadcast specific reply update
+          io.emit('qaReplyReactionUpdate', { threadId, replyId, reactions: reply.reactions });
+       }
     }
+  });
+
+  socket.on('k', (password) => {
+    if (password !== ADMIN_PASS) return;
     K = true;
     for (let id in userLiveStates) userLiveStates[id] = false; 
     io.emit('z', { isLive: false, isKilled: true });
