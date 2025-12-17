@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>TWU-SMC 11th Annual Leadership Conference</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <script src="/socket.io/socket.io.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
@@ -103,7 +103,6 @@
     .qa-question { font-weight: bold; color: #2d3748; margin-bottom: 8px; font-size: 1rem; display: block; }
     .qa-replies { margin-top: 10px; padding-left: 15px; border-left: 3px solid #e2e8f0; font-size: 0.9rem; display: flex; flex-direction: column; gap: 8px; }
     
-    /* NEW REPLY REACTION STYLES */
     .qa-reply-item { background: #f8f9fa; padding: 10px; margin-top: 5px; border-radius: 8px; border-left: 3px solid #ccc; font-size: 0.95rem; }
     .qa-reply-item span[onclick] { display: inline-block; margin-right: 5px; font-size: 0.8rem; color: #555; background: rgba(0,0,0,0.03); padding: 3px 8px; border-radius: 12px; border: 1px solid transparent; cursor: pointer; transition: all 0.2s ease; }
     .qa-reply-item span[onclick]:hover { background: rgba(0,0,0,0.08); transform: scale(1.05); }
@@ -184,6 +183,16 @@
     @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.2); color: #167690; } 100% { transform: scale(1); } }
     .pop { animation: pop 0.3s ease; }
 
+    /* --- LAYOUT GRID FOR OVERVIEW (Desktop) --- */
+    .synopsis-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 60px;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
     /* --- MOBILE RESPONSIVE SUITE (Max-Width 768px) --- */
     @media screen and (max-width: 768px) {
     
@@ -198,54 +207,52 @@
         .hero h2 { font-size: 1.2rem; margin-bottom: 20px; }
         .hero { min-height: 60vh; padding: 40px 15px; }
     
-        /* 3. CONFERENCE OVERVIEW & BOOK (The "Squashed Text" Fix) */
+        /* 3. CONFERENCE OVERVIEW GRID FIX */
+        .synopsis-grid {
+            display: flex !important;
+            flex-direction: column-reverse !important; /* Book goes on TOP, Text on BOTTOM */
+            gap: 20px !important;
+        }
+
         .synopsis-card { 
+            width: 100% !important;
             padding: 20px !important; 
-            display: flex; 
-            flex-direction: column-reverse; /* Text goes BELOW book on mobile */
-            gap: 20px;
+            margin: 0 !important;
         }
         
         /* Force 3D Book Container Size */
-        #canvas-container-book, .book-section { 
+        #bookContainer { 
             width: 100% !important; 
-            height: 300px !important; 
-            min-height: 300px;
-            margin: 0 auto;
-            display: block;
+            height: 350px !important; 
+            max-width: 350px !important; /* Keep it from getting too huge */
+            margin: 0 auto !important;
+            display: block !important;
             position: relative;
         }
-        
-        /* Force Text Full Width */
-        .synopsis-preview, .synopsis-content, .text-col {
-            width: 100% !important;
-            max-width: 100% !important;
-            display: block !important;
-        }
     
-        /* 4. LIVE STREAM & CHAT (Stacking) */
+        /* 4. LIVE STREAM & CHAT */
         .live-grid {
             display: flex !important;
             flex-direction: column;
-            height: auto !important; /* Allow scrolling */
+            height: auto !important;
             gap: 15px;
         }
     
         .video-wrapper {
             width: 100% !important;
             height: auto !important;
-            aspect-ratio: 16 / 9; /* Perfect YouTube shape */
+            aspect-ratio: 16 / 9;
             min-height: 220px;
         }
     
         .human-space-container {
             width: 100% !important;
-            height: 600px !important; /* Fixed height for chat scrolling */
+            height: 600px !important;
             border-left: none;
             border-top: 1px solid #ddd;
         }
     
-        /* 5. GLOBAL COMMUNITY (Globe + 2-Column Cards) */
+        /* 5. GLOBAL COMMUNITY */
         .global-connect-section {
             flex-direction: column;
             padding: 40px 15px;
@@ -253,7 +260,7 @@
         }
     
         .globe-wrapper {
-            width: 280px !important; /* Smaller Globe for Mobile */
+            width: 280px !important;
             height: 280px !important;
             margin: 0 auto;
         }
@@ -263,14 +270,12 @@
             max-width: 100% !important;
         }
     
-        /* The 2-Column Grid for Country Cards */
         .globe-times-stack {
             display: grid !important;
-            grid-template-columns: 1fr 1fr; /* 2 cards side-by-side */
+            grid-template-columns: 1fr 1fr;
             gap: 10px;
         }
     
-        /* Compact Card Styling for Grid */
         .globe-time-item {
             flex-direction: column;
             align-items: center;
@@ -281,7 +286,7 @@
         
         .card-identity { flex-direction: column; gap: 5px; }
         .globe-time { font-size: 1.1rem; text-align: center; width: 100%; margin-top: 5px; }
-        .card-stats { display: none; } /* Hide stats on mobile grid to save space */
+        .card-stats { display: none; }
     }
 </style>
 
@@ -298,7 +303,6 @@
 <header class="header">
   <div class="logo">TWU-SMC 11th Annual Leadership Conference</div>
   <nav class="nav">
-    <!-- VIEWER COUNT -->
     <div class="viewer-count" id="viewerCount">
       <span class="material-icons-round">visibility</span>
       <span id="countNum">0</span> Watching
@@ -326,8 +330,6 @@
     <!-- 1. VIDEO COLUMN -->
     <div class="video-wrapper" id="vidWrap">
       <div class="live-badge">🔴 LIVE</div>
-      
-      <!-- CROP CONTAINER -->
       <div class="video-crop">
         <iframe 
           id="feed" 
@@ -432,9 +434,10 @@
   </div>
 </section>
 
+<!-- UPDATED SECTION: Uses .synopsis-grid instead of inline style -->
 <section class="section" id="synopsis">
   <h2 class="section-header">Conference Overview</h2>
-  <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 60px; align-items: center; max-width: 1200px; margin: 0 auto;">
+  <div class="synopsis-grid">
     <div class="synopsis-card">
       <div class="synopsis-preview">
         <p style="margin-bottom: 20px;">
@@ -499,8 +502,9 @@
       </button>
     </div>
 
+    <!-- BOOK CONTAINER -->
     <div style="display:flex; justify-content:center;">
-      <div id="bookContainer" style="width: 400px; height: 500px; position: relative; border-radius: 30px; background: radial-gradient(circle at 50% 50%, #2a3242 0%, #000000 100%); border: 4px solid #333; box-shadow: 0 20px 50px rgba(0,0,0,0.3); overflow: hidden;"></div>
+      <div id="bookContainer"></div>
     </div>
   </div>
 </section>
@@ -518,7 +522,7 @@
     </table>
   </div>
 </section>
-  
+
 <section class="section" id="resources">
   <h2 class="section-header">Resources</h2>
   <div class="content-box" style="text-align:center; padding: 40px 20px;">
@@ -547,6 +551,7 @@
     </a>
   </div>
 </section>
+
 <script>
 /* --- 1. SECURITY & SOCKET SETUP --- */
 let s;
