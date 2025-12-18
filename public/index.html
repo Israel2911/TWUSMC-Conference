@@ -149,6 +149,9 @@
     .synopsis-preview { font-size: 1.1rem; line-height: 1.8; }
     .synopsis-expanded { max-height: 0; overflow: hidden; transition: max-height 0.5s ease; }
     .synopsis-expanded.open { max-height: 3000px; }
+    .synopsis-expanded h3 { font-size: 1.35rem; color: #265057; margin-top: 25px; margin-bottom: 15px; }
+    .synopsis-expanded blockquote { margin: 25px 0; padding: 20px; background: #f7f9ff; border-left: 6px solid #128fa7; font-size: 1.15rem; color: #265057; font-style: italic; }
+    
     .expand-btn { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 25px; padding: 12px 30px; background: #167690; color: white; border: none; border-radius: 25px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.3s ease; width: 100%; }
     .expand-btn:hover { background: #128fa7; transform: translateY(-2px); }
     .expand-btn .material-icons-round { transition: transform 0.3s ease; }
@@ -301,18 +304,73 @@
 
 <section class="section" id="synopsis">
   <h2 class="section-header">Conference Overview</h2>
+  <!-- CHANGED from inline style to class "synopsis-grid" -->
   <div class="synopsis-grid">
     <div class="synopsis-card">
       <div class="synopsis-preview">
-        <p style="margin-bottom: 20px;">Join us as <strong>Dr. Laird</strong> unveils concepts from his new book on <strong>"Fifth Intelligence."</strong></p>
-        <p style="font-size: 1.05rem; color: #265057;">Transformative insights from global thought leaders.</p>
+        <p style="margin-bottom: 20px;">
+          Join us as <strong>Dr. Laird</strong>, Vice President of Innovation, Global and Academic Partnerships at TWU, unveils concepts from his new book on <strong>"Fifth Intelligence."</strong>
+        </p>
+        <p style="margin-bottom: 20px;">
+          Joined by industry experts, educators, and government leaders, engage in provocative panel discussions on AI's impact on consciousness, behavior, work, and institutions.
+        </p>
+        <p style="font-size: 1.05rem; color: #265057;">
+          Transformative insights from global thought leaders united by a shared vision for responsible AI leadership.
+        </p>
       </div>
       <div class="synopsis-expanded" id="synopsisExpanded">
-        <h3 style="font-size: 1.5rem; color: #167690; margin-top: 30px; margin-bottom: 15px;">Integrating the Human Factor</h3>
-        <p style="margin-bottom: 30px;">This conference explores how higher-order human thinking can steer AI development.</p>
+        <h3 style="font-size: 1.5rem; color: #167690; margin-top: 30px; margin-bottom: 15px;">Integrating the Human Factor in the Age of AI</h3>
+        <p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 20px; color: #265057;">
+          <strong>How do we take back the human mind?</strong>
+        </p>
+        <p style="margin-bottom: 30px;">
+          This conference explores how higher-order human thinking, critical consciousness, and emotional intelligence can steer AI development.
+        </p>
+
+        <!-- SUB-CARDS GRID -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 30px;">
+          <div style="background: #f7fafc; padding: 20px; border-radius: 15px; border-left: 5px solid #167690; box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
+            <h4 style="color: #2d3748; margin-bottom: 10px; font-size: 1.1rem;">Emotional Intelligence & Perspective-Taking</h4>
+            <p style="font-size: 0.95rem; color: #4a5568;">Understanding how AI impacts human empathy and our ability to see the world through others' eyes.</p>
+          </div>
+
+          <div style="background: #f7fafc; padding: 20px; border-radius: 15px; border-left: 5px solid #48bb78; box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
+            <h4 style="color: #2d3748; margin-bottom: 10px; font-size: 1.1rem;">Truth, Transparency, and Accountability</h4>
+            <p style="font-size: 0.95rem; color: #4a5568;">Ensuring AI systems operate with verifiable truth and clear lines of responsibility for their outputs.</p>
+          </div>
+
+          <div style="background: #f7fafc; padding: 20px; border-radius: 15px; border-left: 5px solid #ed8936; box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
+            <h4 style="color: #2d3748; margin-bottom: 10px; font-size: 1.1rem;">Critical Thinking & Higher-Order Consciousness</h4>
+            <p style="font-size: 0.95rem; color: #4a5568;">Cultivating the uniquely human cognitive skills that AI cannot replicate, preserving our intellectual autonomy.</p>
+          </div>
+
+          <div style="background: #f7fafc; padding: 20px; border-radius: 15px; border-left: 5px solid #ecc94b; box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
+            <h4 style="color: #2d3748; margin-bottom: 10px; font-size: 1.1rem;">Relationship-Centered AI</h4>
+            <p style="font-size: 0.95rem; color: #4a5568;">Designing technology that enhances rather than replaces authentic human connection and social fabric.</p>
+          </div>
+
+          <div style="background: #f7fafc; padding: 20px; border-radius: 15px; border-left: 5px solid #9f7aea; box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
+            <h4 style="color: #2d3748; margin-bottom: 10px; font-size: 1.1rem;">Human Oversight & AI Quality</h4>
+            <p style="font-size: 0.95rem; color: #4a5568;">Maintaining meaningful human control over automated systems to ensure quality, safety, and ethical alignment.</p>
+          </div>
+
+          <div style="background: #f7fafc; padding: 20px; border-radius: 15px; border-left: 5px solid #f56565; box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
+            <h4 style="color: #2d3748; margin-bottom: 10px; font-size: 1.1rem;">Trustworthy AI for Global Good</h4>
+            <p style="font-size: 0.95rem; color: #4a5568;">Building AI frameworks that promote global well-being, fairness, and sustainable progress for all nations.</p>
+          </div>
+        </div>
+
+        <blockquote>
+          <strong>Key Message:</strong> AI amplifies capabilities, but human sensitivity and ethical grounding must lead the way.
+        </blockquote>
       </div>
-      <button class="expand-btn" id="expandBtn"><span>Read More</span><span class="material-icons-round">expand_more</span></button>
+      <button class="expand-btn" id="expandBtn">
+        <span>Read More</span>
+        <span class="material-icons-round">expand_more</span>
+      </button>
     </div>
+
+    <!-- BOOK CONTAINER -->
     <div style="width: 100%; display: flex; justify-content: center; align-items: center;">
       <div id="bookContainer"></div>
     </div>
@@ -324,9 +382,11 @@
   <div class="content-box" style="padding:0; overflow:hidden;">
     <table class="agenda-table" style="width:100%; border-collapse:collapse;">
       <tr style="background:#167690; color:white;"><th style="padding:15px;">Time (IST)</th><th style="padding:15px;">Session</th></tr>
-      <tr><td style="padding:15px;">10:00 AM</td><td style="padding:15px;">Welcome & Opening</td></tr>
-      <tr><td style="padding:15px;">10:30 AM</td><td style="padding:15px;">Keynote: Fifth Intelligence</td></tr>
-      <tr><td style="padding:15px;">03:30 PM</td><td style="padding:15px;">Closing</td></tr>
+      <tr><td style="padding:15px; border-bottom:1px solid #eee;">10:00 AM</td><td style="padding:15px; border-bottom:1px solid #eee;">Welcome & Opening</td></tr>
+      <tr><td style="padding:15px; border-bottom:1px solid #eee;">10:15 AM</td><td style="padding:15px; border-bottom:1px solid #eee;">Conference Overview / Book Launch</td></tr>
+      <tr><td style="padding:15px; border-bottom:1px solid #eee;">10:30 AM</td><td style="padding:15px; border-bottom:1px solid #eee;">Keynote: Fifth Intelligence</td></tr>
+      <tr><td style="padding:15px; border-bottom:1px solid #eee;">11:15 AM</td><td style="padding:15px; border-bottom:1px solid #eee;">Workshop: Human-AI Integration</td></tr>
+      <tr><td style="padding:15px; border-bottom:1px solid #eee;">03:30 PM</td><td style="padding:15px; border-bottom:1px solid #eee;">Closing</td></tr>
     </table>
   </div>
 </section>
@@ -335,7 +395,28 @@
   <h2 class="section-header">Resources</h2>
   <div class="content-box" style="text-align:center; padding: 40px 20px;">
     <h3>Conference Brochure</h3>
-    <a href="GLOB%20SMC%20Leadership%20Conference%202025_Brochure_Final5.pdf" download class="pdf-btn">Download PDF</a>
+    <p style="margin-bottom:20px; opacity:0.8;">View, scroll, and download the full schedule below.</p>
+    
+    <div style="position: relative; width: 100%; height: 0; padding-bottom: 75%; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid #ddd; background: #525659;">
+      <object 
+        data="GLOB%20SMC%20Leadership%20Conference%202025_Brochure_Final5.pdf#toolbar=1&view=FitH&navpanes=0" 
+        type="application/pdf" 
+        width="100%" 
+        height="100%" 
+        style="position: absolute; top: 0; left: 0; border: none;">
+          <iframe 
+            src="GLOB%20SMC%20Leadership%20Conference%202025_Brochure_Final5.pdf#toolbar=1&view=FitH" 
+            width="100%" 
+            height="100%" 
+            style="border:none;">
+          </iframe>
+      </object>
+    </div>
+
+    <br>
+    <a href="GLOB%20SMC%20Leadership%20Conference%202025_Brochure_Final5.pdf" download class="pdf-btn">
+      <span class="material-icons-round" style="vertical-align:middle; margin-right:5px;">download</span> Download PDF
+    </a>
   </div>
 </section>
 
