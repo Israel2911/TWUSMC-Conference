@@ -270,41 +270,64 @@
             border-top: 1px solid #ddd;
         }
     
-        /* 5. GLOBAL COMMUNITY */
+        /* 5. GLOBAL COMMUNITY MOBILE FIX */
         .global-connect-section {
             flex-direction: column;
             padding: 40px 15px;
-            gap: 30px;
+            gap: 20px; /* Reduced gap */
         }
     
+        /* Fix Globe Size on Mobile */
         .globe-wrapper {
             width: 280px !important;
             height: 280px !important;
-            margin: 0 auto;
+            margin: 0 auto 20px auto; /* Add margin bottom */
         }
     
+        /* Fix Times Wrapper layout */
         .times-wrapper {
             width: 100% !important;
             max-width: 100% !important;
         }
-    
+
+        /* HORIZONTAL SCROLL FOR CARDS (Carousel) */
         .globe-times-stack {
-            display: grid !important;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            display: flex !important;
+            flex-direction: row !important; /* Switch to horizontal row */
+            overflow-x: auto; /* Enable horizontal scroll */
+            gap: 15px;
+            padding-bottom: 20px; /* Space for scrollbar */
+            scroll-snap-type: x mandatory; /* Snap to cards */
+            -webkit-overflow-scrolling: touch; /* Smooth scroll */
         }
     
+        /* Individual Card Styling for Carousel */
         .globe-time-item {
+            flex: 0 0 85%; /* Card takes 85% width */
+            scroll-snap-align: center; /* Snap to center */
             flex-direction: column;
             align-items: center;
             text-align: center;
-            padding: 10px;
-            gap: 5px;
+            padding: 20px;
+            gap: 10px;
+            border-right: 1px solid #eee; /* Add visual separation */
+            margin-right: 0;
         }
         
         .card-identity { flex-direction: column; gap: 5px; }
-        .globe-time { font-size: 1.1rem; text-align: center; width: 100%; margin-top: 5px; }
-        .card-stats { display: flex; align-items: center; gap: 15px; }
+        .globe-time { font-size: 1.4rem; text-align: center; width: 100%; margin-top: 5px; }
+        .card-stats { display: flex; align-items: center; justify-content: center; gap: 15px; width: 100%; }
+        
+        /* Center Pause Button */
+        #pauseBtn {
+            position: relative !important;
+            bottom: auto !important;
+            left: auto !important;
+            transform: none !important;
+            margin: 20px auto 0 auto;
+            display: block;
+            width: 200px;
+        }
     }
 </style>
 
@@ -442,10 +465,10 @@
 <section class="global-connect-section">
   <div class="globe-wrapper">
     <div id="heroGlobeContainer"></div> 
-    <div style="position:absolute; bottom:10px; left:50%; transform:translateX(-50%);">
-      <button class="pause-btn" id="pauseBtn">⏸ Pause</button>
-    </div>
   </div>
+  <!-- Moved button outside for better mobile layout -->
+  <button class="pause-btn" id="pauseBtn" style="display:none;">⏸ Pause</button>
+
   <div class="times-wrapper">
     <h3 style="font-size: 2rem; color:#ffffff; margin-bottom:30px; font-weight:900;">🌍 Global Community</h3>
     <div class="globe-times-stack" id="timeStack"></div>
