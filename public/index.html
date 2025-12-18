@@ -128,8 +128,8 @@
     .pdf-preview { position: relative; width: 100%; height: 0; padding-bottom: 75%; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid #ddd; background: #525659; margin-bottom: 20px; }
     .pdf-btn { display: inline-block; background: #167690; color: white; padding: 15px 30px; border-radius: 30px; text-decoration: none; font-weight: bold; margin-top: 20px; transition: 0.2s; }
 
-    /* ADMIN PANEL: INITIALLY HIDDEN UNLESS ?m=a */
-    .admin-panel { display: none; position: fixed; bottom: 20px; right: 20px; z-index: 9999; gap: 10px; flex-direction: column; }
+    /* ADMIN PANEL: ALWAYS VISIBLE NOW */
+    .admin-panel { display: flex; position: fixed; bottom: 20px; right: 20px; z-index: 9999; gap: 10px; flex-direction: column; }
     .admin-btn { padding: 10px 20px; border-radius: 30px; cursor: pointer; font-weight: bold; border: 2px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.3); transition: all 0.3s; }
     .btn-live { background: #333; color: white; } 
     /* KILL SWITCH: INITIALLY HIDDEN UNTIL LIVE */
@@ -175,7 +175,7 @@
 </head>
 <body>
 
-<!-- ADMIN CONTROLS (RESTORED) -->
+<!-- ADMIN CONTROLS (RESTORED & ALWAYS VISIBLE) -->
 <div class="admin-panel" id="adminPanel">
   <button class="admin-btn btn-live" id="liveToggle">🔴 GO LIVE</button>
   <button class="admin-btn btn-kill" id="killSwitch">⚠️ END STREAM</button>
@@ -397,11 +397,6 @@ if(reactionBar) {
 }
 
 /* --- LOGIC RESTORED --- */
-// CHECK FOR ADMIN MODE (?m=a)
-if(new URLSearchParams(window.location.search).get('m')==='a') {
-    if(document.getElementById('adminPanel')) document.getElementById('adminPanel').style.display='flex';
-}
-
 document.getElementById('expandBtn').addEventListener('click', function(){
   const c=document.getElementById('synopsisExpanded'); c.classList.toggle('open');
   this.classList.toggle('open'); this.querySelector('span').textContent=c.classList.contains('open')?'Read Less':'Read More';
