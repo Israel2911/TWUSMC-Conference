@@ -193,6 +193,14 @@
       margin: 0 auto;
     }
 
+    /* --- IMPORTANT FIX: GIVES BOOK CONTAINER VISIBLE HEIGHT --- */
+    #bookContainer {
+        width: 100%;
+        height: 500px; 
+        min-height: 400px;
+        position: relative;
+    }
+
     /* --- MOBILE RESPONSIVE SUITE (Max-Width 768px) --- */
     @media screen and (max-width: 768px) {
     
@@ -224,7 +232,7 @@
         #bookContainer { 
             width: 100% !important; 
             height: 350px !important; 
-            max-width: 350px !important; /* Keep it from getting too huge */
+            max-width: 350px !important; 
             margin: 0 auto !important;
             display: block !important;
             position: relative;
@@ -503,7 +511,7 @@
     </div>
 
     <!-- BOOK CONTAINER -->
-    <div style="display:flex; justify-content:center;">
+    <div style="width: 100%; display: flex; justify-content: center; align-items: center;">
       <div id="bookContainer"></div>
     </div>
   </div>
