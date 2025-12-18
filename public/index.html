@@ -777,14 +777,15 @@ async function fetchRealWeather() {
          const temp = Math.round(data.current_weather.temperature);
          const code = data.current_weather.weathercode;
          
-         // 2. Map WMO Code to Material Icon
+         // 2. Map WMO Code to "SAFE" Material Icons (No Text Glitches)
          let icon = 'wb_sunny'; // Default Clear
          if(code >= 1 && code <= 3) icon = 'cloud';
-         else if(code >= 45 && code <= 48) icon = 'foggy';
-         else if(code >= 51 && code <= 67) icon = 'water_drop'; // Rain
+         else if(code >= 45 && code <= 48) icon = 'blur_on'; // Fog (Safer than 'foggy')
+         else if(code >= 51 && code <= 67) icon = 'opacity'; // Rain (Safer than 'water_drop')
          else if(code >= 71 && code <= 77) icon = 'ac_unit'; // Snow
          else if(code >= 80 && code <= 82) icon = 'grain'; // Showers
-         else if(code >= 95) icon = 'thunderstorm';
+         else if(code >= 85 && code <= 86) icon = 'ac_unit'; // Snow showers
+         else if(code >= 95) icon = 'flash_on'; // Thunderstorm (Safer than 'thunderstorm')
          
          // 3. Update DOM
          const elTemp = document.getElementById(`weather-${i}`);
