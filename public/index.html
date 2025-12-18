@@ -704,7 +704,20 @@ s.on('z', (state) => {
 });
 
 s.on('d', () => { if(vW) vW.classList.add('killed'); });
-s.on('t', (c) => { if(cN) cN.innerText = c; });
+
+// *** UPDATED: Real Total User Count ***
+s.on('t', (c) => { 
+    if(cN) cN.innerText = c; 
+});
+
+// *** UPDATED: Real Regional User Count ***
+s.on('r', (regionData) => {
+    countries.forEach((c, i) => {
+        const count = regionData[c.tz] || 0; 
+        const el = document.getElementById(`count-${i}`);
+        if(el) el.innerText = count;
+    });
+});
 
 function toggleLiveUI(isLive) {
   if(hS) hS.style.display = isLive ? 'none' : 'block';
