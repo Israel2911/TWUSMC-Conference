@@ -5,7 +5,7 @@
   <title>TWU-SMC 11th Annual Leadership Conference</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <script src="/socket.io/socket.io.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -33,30 +33,13 @@
     .hero h2 { font-size: 2rem; color: white; margin: 10px 0 30px 0; }
 
     /* --- LIVE GRID --- */
-    .live-grid { 
-      display: grid; 
-      grid-template-columns: 2.5fr 1fr; 
-      gap: 30px; 
-      height: 70vh; 
-      min-height: 500px; 
-    }
-
-    .video-wrapper { 
-      background: black; 
-      border-radius: 20px; 
-      overflow: hidden; 
-      border: 2px solid #333; 
-      position: relative; 
-      height: 100%; 
-      width: 100%;
-    }
-    .video-wrapper.killed iframe { display: none !important; }
+    .live-grid { display: grid; grid-template-columns: 2.5fr 1fr; gap: 30px; height: 70vh; min-height: 500px; }
+    .video-wrapper { background: black; border-radius: 20px; overflow: hidden; border: 2px solid #333; position: relative; height: 100%; width: 100%; }
     .live-badge { position: absolute; top: 20px; left: 20px; background: #ff0000; color: white; padding: 5px 15px; border-radius: 5px; font-weight: bold; font-size: 0.9rem; z-index: 10; }
-
     .video-crop { width: 100%; height: 100%; display: block; }
     .video-crop iframe { width: 100%; height: 100%; border: none; display: block; }
 
-    /* --- CHAT SYSTEM --- */
+    /* --- CHAT SYSTEM (RESTORED FULLY) --- */
     .human-space-container { 
       background: rgba(255, 255, 255, 0.95); 
       backdrop-filter: blur(15px); 
@@ -72,64 +55,55 @@
     
     .human-space-header { background: linear-gradient(135deg, #167690, #0f5c70); color: white; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
     .hs-title-row { display: flex; justify-content: space-between; align-items: center; font-weight: 900; font-size: 1.1rem; }
+    .teams-link-header { color: white; text-decoration: none; display: flex; align-items: center; gap: 5px; font-size: 0.9rem; background: rgba(255,255,255,0.2); padding: 5px 10px; border-radius: 15px; transition: 0.2s; }
+    .teams-link-header:hover { background: rgba(255,255,255,0.3); }
+    .download-log { color: rgba(255,255,255,0.8); font-size: 0.8rem; cursor: pointer; text-decoration: underline; }
+    
     .tab-row { display: flex; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 3px; }
     .hs-tab { flex: 1; background: transparent; border: none; color: rgba(255,255,255,0.7); padding: 8px; font-weight: bold; cursor: pointer; border-radius: 6px; transition: 0.2s; font-size: 0.9rem; }
     .hs-tab.active { background: white; color: #167690; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    .hs-tab:hover:not(.active) { color: white; background: rgba(255,255,255,0.1); }
     
     .human-space-messages { flex: 1; padding: 20px; overflow-y: auto; display: none; flex-direction: column; gap: 12px; font-size: 0.95rem; background: #f0f4f8; min-height: 0; }
     .human-space-messages.active { display: flex; }
-    .human-space-input { padding: 15px; background: white; border-top: 1px solid #eee; }
+    
     .login-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.98); z-index: 20; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; }
-    .coi-note { font-size: 0.75rem; opacity: 0.6; margin-top: 30px; font-style: italic; border-top: 1px solid #eee; padding-top: 10px; max-width: 80%; }
+    .coi-note { font-size: 0.75rem; opacity: 0.6; margin-top: 20px; font-style: italic; border-top: 1px solid #eee; padding-top: 10px; max-width: 80%; color: #666; }
     
     .msg { padding: 10px 15px; border-radius: 12px; background: white; align-self: flex-start; max-width: 90%; word-wrap: break-word; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-bottom-left-radius: 2px; position: relative; margin-bottom: 5px; }
     .msg.me { background: #167690; color: white; align-self: flex-end; border-bottom-left-radius: 12px; border-bottom-right-radius: 2px; }
     .msg-meta { font-size: 0.7rem; opacity: 0.6; margin-bottom: 4px; display: block; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
     
     .qa-thread { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
-    .qa-question { font-weight: bold; color: #2d3748; margin-bottom: 8px; font-size: 1rem; display: block; }
     .qa-replies { margin-top: 10px; padding-left: 15px; border-left: 3px solid #e2e8f0; font-size: 0.9rem; display: flex; flex-direction: column; gap: 8px; }
     .qa-reply-item { background: #f8f9fa; padding: 10px; margin-top: 5px; border-radius: 8px; border-left: 3px solid #ccc; font-size: 0.95rem; }
     
     .reaction-bar { display: flex; gap: 8px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 5px; }
     .reaction-btn { background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 20px; padding: 6px 12px; font-size: 0.85rem; cursor: pointer; white-space: nowrap; transition: all 0.2s; color: #2d3748; font-weight: 600; }
-    .reaction-btn:hover { background: #167690; color: white; border-color: #167690; transform: translateY(-2px); }
+    .reaction-btn:hover { background: #167690; color: white; transform: translateY(-2px); }
     
+    .human-space-input { padding: 15px; background: white; border-top: 1px solid #eee; }
     .input-row { display: flex; gap: 10px; }
     .chat-input { flex: 1; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; outline: none; transition: 0.2s; font-family: inherit; }
-    .chat-input:focus { border-color: #167690; }
     .send-btn { background: #167690; color: white; border: none; padding: 0 20px; border-radius: 10px; cursor: pointer; transition: 0.2s; }
     .login-input { width: 100%; padding: 15px; margin: 10px 0; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1rem; outline: none; }
     .join-btn { background: linear-gradient(135deg, #167690, #0f5c70); color: white; padding: 15px 30px; border-radius: 30px; border: none; font-weight: 800; cursor: pointer; width: 100%; font-size: 1.1rem; margin-top: 10px; box-shadow: 0 5px 15px rgba(22, 118, 144, 0.3); transition: 0.2s; }
     
     .teams-backup { background: linear-gradient(135deg, #1a0000, #000); padding: 40px; text-align: center; color: white; height: 100%; display: flex; flex-direction: column; justify-content: center; border-radius: 20px; }
     
-    /* --- GLOBAL SECTION --- */
+    /* --- GLOBAL SECTION (WITH RESTORED SLIDING CARDS & FIX) --- */
     .global-connect-section { position: relative; z-index: 5; background: linear-gradient(135deg, #0a0e1a 0%, #1a1f35 50%, #000000 100%); padding: 80px 40px; display: flex; flex-wrap: wrap; justify-content: center; gap: 60px; max-width: 1400px; margin: 0 auto; }
     
-    /* ** FIX 1: FORCE HIDDEN OVERFLOW ON THE CIRCLE ** */
+    /* GLOBE OVERFLOW FIX */
     .globe-wrapper { 
-        width: 500px; 
-        height: 500px; 
-        position: relative; 
-        border-radius: 50%; 
-        background: radial-gradient(circle at 40% 40%, #1e2636 0%, #000000 90%); 
-        border: 4px solid #333; 
-        box-shadow: 0 20px 50px rgba(0,0,0,0.5); 
-        overflow: hidden; /* CRITICAL FIX: Cuts off anything outside the circle */
-        z-index: 10;
-        transform: translateZ(0); /* Force GPU layer to fix clipping bugs on some mobiles */
+        width: 500px; height: 500px; position: relative; 
+        border-radius: 50%; background: radial-gradient(circle at 40% 40%, #1e2636 0%, #000000 90%); 
+        border: 4px solid #333; box-shadow: 0 20px 50px rgba(0,0,0,0.5); 
+        overflow: hidden; /* CRITICAL FIX */
+        z-index: 10; transform: translateZ(0); 
     }
-
-    #heroGlobeContainer { 
-        width: 100%; 
-        height: 100%; 
-        border-radius: 50%; 
-        overflow: hidden; /* Double safety */
-    }
-    
+    #heroGlobeContainer { width: 100%; height: 100%; border-radius: 50%; overflow: hidden; }
     .pause-btn { background: #167690; color: white; padding: 8px 20px; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 0.9rem; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: 0.2s; }
+    
     .times-wrapper { flex: 1; min-width: 350px; max-width: 600px; }
     .globe-times-stack { display: flex; flex-direction: column; gap: 12px; }
     .globe-time-item { background: white; padding: 15px 25px; border-radius: 16px; border: 1px solid #edf2f7; border-left: 6px solid #ddd; display: grid; grid-template-columns: 1.5fr 1.5fr 1fr; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.03); transition: transform 0.2s; }
@@ -141,12 +115,11 @@
     .stat-pill { display: flex; align-items: center; gap: 6px; background: #f7fafc; padding: 4px 10px; border-radius: 20px; }
     .globe-time { font-family: 'Courier New', monospace; font-weight: 900; font-size: 1.4rem; color: #ff6b35; text-align: right; }
     
-    /* --- SYNOPSIS & CONTENT --- */
+    /* --- SYNOPSIS & RESTORED GRID --- */
     .section { padding: 80px 40px; max-width: 1200px; margin: 0 auto; text-align: center; }
     .section-header { font-size: 2.5rem; color: #167690; margin-bottom: 40px; font-weight:900; }
-    .content-box { background: white; padding: 60px; border-radius: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.05); text-align: left; font-size: 1.1rem; }
+    .synopsis-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 60px; align-items: center; max-width: 1200px; margin: 0 auto; }
     .synopsis-card { background: white; padding: 40px; border-radius: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.05); text-align: left; position: relative; overflow: hidden; transition: all 0.3s ease; }
-    .synopsis-preview { font-size: 1.1rem; line-height: 1.8; }
     .synopsis-expanded { max-height: 0; overflow: hidden; transition: max-height 0.5s ease; }
     .synopsis-expanded.open { max-height: 3000px; }
     .synopsis-expanded h3 { font-size: 1.35rem; color: #265057; margin-top: 25px; margin-bottom: 15px; }
@@ -156,21 +129,26 @@
     .expand-btn:hover { background: #128fa7; transform: translateY(-2px); }
     .expand-btn .material-icons-round { transition: transform 0.3s ease; }
     .expand-btn.open .material-icons-round { transform: rotate(180deg); }
-    .agenda-table { width: 100%; border-collapse: collapse; }
+    
+    /* RESTORED AGENDA TABLE */
+    .agenda-table { width: 100%; border-collapse: collapse; text-align: left; }
     .agenda-table tr { transition: background 0.2s; }
     .agenda-table tr:hover { background: #f7fafc; }
-    .pdf-btn { display: inline-block; background: #167690; color: white; padding: 15px 30px; border-radius: 30px; text-decoration: none; font-weight: bold; margin-top: 20px; transition: 0.2s; }
     
+    /* RESTORED RESOURCES */
+    .content-box { background: white; padding: 60px; border-radius: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.05); text-align: left; font-size: 1.1rem; }
+    .pdf-preview { position: relative; width: 100%; height: 0; padding-bottom: 75%; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid #ddd; background: #525659; margin-bottom: 20px; }
+    .pdf-btn { display: inline-block; background: #167690; color: white; padding: 15px 30px; border-radius: 30px; text-decoration: none; font-weight: bold; margin-top: 20px; transition: 0.2s; }
+
     .admin-panel { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; gap: 10px; flex-direction: column; }
     .admin-btn { padding: 10px 20px; border-radius: 30px; cursor: pointer; font-weight: bold; border: 2px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.3); transition: all 0.3s; }
     .btn-live { background: #333; color: white; } 
     .btn-kill { background: #ff0000; color: white; display: none; }
     @keyframes pulse-red { 0% { opacity: 1; } 50% { opacity: 0.8; } 100% { opacity: 1; } }
 
-    .synopsis-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 60px; align-items: center; max-width: 1200px; margin: 0 auto; }
     #bookContainer { width: 100%; height: 500px; min-height: 400px; position: relative; background: radial-gradient(circle at 50% 50%, #2c3e50 0%, #000000 100%); border-radius: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
 
-    /* --- MOBILE RESPONSIVE SUITE (Max-Width 768px) --- */
+    /* --- MOBILE RESPONSIVE SUITE --- */
     @media screen and (max-width: 768px) {
         html, body { overflow-x: hidden; width: 100%; position: relative; }
         .header { flex-direction: column; padding: 15px; gap: 15px; }
@@ -191,17 +169,15 @@
     
         .global-connect-section { flex-direction: column; padding: 40px 15px; gap: 20px; }
         
-        /* ** FIX 2: MOBILE GLOBE SIZING & MARGINS ** */
+        /* RESTORED MOBILE GLOBE SIZING & MARGINS */
         .globe-wrapper { 
-            width: 280px !important; 
-            height: 280px !important; 
-            margin: 0 auto 20px auto; 
-            border-radius: 50% !important; /* Ensure circle shape persists */
-            overflow: hidden !important; /* STRICT overflow check */
+            width: 280px !important; height: 280px !important; 
+            margin: 0 auto 20px auto; border-radius: 50% !important; overflow: hidden !important; 
         }
         
         .times-wrapper { width: 100% !important; max-width: 100% !important; }
 
+        /* RESTORED SLIDING CARDS (CAROUSEL) */
         .globe-times-stack { display: flex !important; flex-direction: row !important; overflow-x: auto; gap: 15px; padding-bottom: 20px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
         .globe-time-item { flex: 0 0 85%; scroll-snap-align: center; flex-direction: column; align-items: center; text-align: center; padding: 20px; gap: 10px; border-right: 1px solid #eee; margin-right: 0; }
         .card-identity { flex-direction: column; gap: 5px; }
@@ -256,7 +232,7 @@
             <div style="display:flex; align-items:center; gap:10px;"><span class="material-icons-round">forum</span> The Human Space</div>
             <div style="display:flex; gap:10px;">
               <a href="https://teams.microsoft.com/meet/25727590322372?p=Toyeb2xMWy8NeEJiA2" target="_blank" class="teams-link-header"><span class="material-icons-round" style="font-size:16px;">videocam</span> Teams</a>
-              <a id="downloadLogBtn" class="download-log">⬇ LOG</a>
+              <span id="downloadLogBtn" class="download-log">⬇ LOG</span>
             </div>
           </div>
           <div class="tab-row">
@@ -265,7 +241,7 @@
           </div>
         </div>
         
-        <!-- LOGIN OVERLAY -->
+        <!-- RESTORED: LOGIN OVERLAY -->
         <div class="login-overlay" id="chatLogin">
           <h3 style="font-size:1.5rem; color:#167690; margin-bottom:10px;">Enter the Human Space</h3>
           <p style="font-size:1rem; margin-bottom:30px; color:#666;">Secure, Proprietary, Connected.</p>
@@ -279,6 +255,7 @@
             <option value="Other">🌍 Global</option>
           </select>
           <button class="join-btn" onclick="joinChat()">Join Conversation</button>
+          <!-- RESTORED: CoI NOTE -->
           <div class="coi-note">Inspired by the <strong>Community of Inquiry (CoI)</strong> framework.</div>
         </div>
 
@@ -308,7 +285,6 @@
 </section>
 
 <section class="global-connect-section">
-  <!-- ** FIX 3: Container for the 3D Canvas ** -->
   <div class="globe-wrapper">
     <div id="heroGlobeContainer"></div> 
   </div>
@@ -325,12 +301,31 @@
   <div class="synopsis-grid">
     <div class="synopsis-card">
       <div class="synopsis-preview">
-        <p style="margin-bottom: 20px;">Join us as <strong>Dr. Laird</strong> unveils concepts from his new book on <strong>"Fifth Intelligence."</strong></p>
+        <p style="margin-bottom: 20px;">
+          Join us as <strong>Dr. Laird</strong>, Vice President of Innovation at TWU, unveils concepts from his new book on <strong>"Fifth Intelligence."</strong>
+        </p>
         <p style="font-size: 1.05rem; color: #265057;">Transformative insights from global thought leaders.</p>
       </div>
       <div class="synopsis-expanded" id="synopsisExpanded">
         <h3 style="font-size: 1.5rem; color: #167690; margin-top: 30px; margin-bottom: 15px;">Integrating the Human Factor</h3>
         <p style="margin-bottom: 30px;">This conference explores how higher-order human thinking can steer AI development.</p>
+
+        <!-- RESTORED: THE 6 PILLARS GRID -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
+          <div style="background: #f7fafc; padding: 20px; border-radius: 15px; border-left: 5px solid #167690;">
+            <h4 style="color: #2d3748; margin-bottom: 5px; font-size: 1rem;">Emotional Intelligence</h4>
+            <p style="font-size: 0.9rem; color: #4a5568;">Empathy & Perspective-Taking</p>
+          </div>
+          <div style="background: #f7fafc; padding: 20px; border-radius: 15px; border-left: 5px solid #48bb78;">
+            <h4 style="color: #2d3748; margin-bottom: 5px; font-size: 1rem;">Truth & Transparency</h4>
+            <p style="font-size: 0.9rem; color: #4a5568;">Accountability in Systems</p>
+          </div>
+          <div style="background: #f7fafc; padding: 20px; border-radius: 15px; border-left: 5px solid #ed8936;">
+            <h4 style="color: #2d3748; margin-bottom: 5px; font-size: 1rem;">Critical Consciousness</h4>
+            <p style="font-size: 0.9rem; color: #4a5568;">Higher-Order Thinking</p>
+          </div>
+        </div>
+
         <blockquote><strong>Key Message:</strong> AI amplifies capabilities, but human sensitivity and ethical grounding must lead the way.</blockquote>
       </div>
       <button class="expand-btn" id="expandBtn"><span>Read More</span><span class="material-icons-round">expand_more</span></button>
@@ -346,9 +341,10 @@
   <div class="content-box" style="padding:0; overflow:hidden;">
     <table class="agenda-table" style="width:100%; border-collapse:collapse;">
       <tr style="background:#167690; color:white;"><th style="padding:15px;">Time (IST)</th><th style="padding:15px;">Session</th></tr>
-      <tr><td style="padding:15px;">10:00 AM</td><td style="padding:15px;">Welcome & Opening</td></tr>
-      <tr><td style="padding:15px;">10:30 AM</td><td style="padding:15px;">Keynote: Fifth Intelligence</td></tr>
-      <tr><td style="padding:15px;">03:30 PM</td><td style="padding:15px;">Closing</td></tr>
+      <tr><td style="padding:15px; border-bottom:1px solid #eee;">10:00 AM</td><td style="padding:15px; border-bottom:1px solid #eee;">Welcome & Opening</td></tr>
+      <tr><td style="padding:15px; border-bottom:1px solid #eee;">10:30 AM</td><td style="padding:15px; border-bottom:1px solid #eee;">Keynote: Fifth Intelligence</td></tr>
+      <tr><td style="padding:15px; border-bottom:1px solid #eee;">11:15 AM</td><td style="padding:15px; border-bottom:1px solid #eee;">Workshop: Human-AI Integration</td></tr>
+      <tr><td style="padding:15px; border-bottom:1px solid #eee;">03:30 PM</td><td style="padding:15px; border-bottom:1px solid #eee;">Closing</td></tr>
     </table>
   </div>
 </section>
@@ -357,7 +353,12 @@
   <h2 class="section-header">Resources</h2>
   <div class="content-box" style="text-align:center; padding: 40px 20px;">
     <h3>Conference Brochure</h3>
-    <a href="GLOB%20SMC%20Leadership%20Conference%202025_Brochure_Final5.pdf" download class="pdf-btn">Download PDF</a>
+    <p style="margin-bottom:20px; opacity:0.8;">View, scroll, and download the full schedule below.</p>
+    <!-- RESTORED: PDF PREVIEW IFRAME -->
+    <div class="pdf-preview">
+      <iframe src="GLOB%20SMC%20Leadership%20Conference%202025_Brochure_Final5.pdf#toolbar=1&view=FitH" width="100%" height="100%" style="border:none; position:absolute; top:0; left:0;"></iframe>
+    </div>
+    <a href="GLOB%20SMC%20Leadership%20Conference%202025_Brochure_Final5.pdf" download class="pdf-btn"><span class="material-icons-round" style="vertical-align:middle; margin-right:5px;">download</span> Download PDF</a>
   </div>
 </section>
 
@@ -373,9 +374,9 @@ const hS=document.getElementById('heroStandard'), hL=document.getElementById('he
 const vC=document.getElementById('viewerCount'), cN=document.getElementById('countNum'), kS=document.getElementById('killSwitch'), lT=document.getElementById('liveToggle');
 const chatTab=document.getElementById('chatTab'), qaTab=document.getElementById('qaTab'), msgInput=document.getElementById('msgInput'), stackEl=document.getElementById('timeStack');
 
-// --- INJECT POPUPS (PLEDGE, REACT, REPLY) ---
+// --- RESTORED: INJECT POPUPS (PLEDGE, REACT, REPLY) ---
 const popupsHTML = `
-<!-- PLEDGE MODAL -->
+<!-- RESTORED: FULL PLEDGE MODAL -->
 <div id="pledgeModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:9999; align-items:center; justify-content:center;">
   <div style="background:#fff; padding:35px; border-radius:15px; max-width:550px; width:90%; text-align:center; color:#333; box-shadow:0 20px 50px rgba(0,0,0,0.5);">
     <div style="font-size:3rem; margin-bottom:10px;">☕</div>
@@ -389,7 +390,7 @@ const popupsHTML = `
   </div>
 </div>
 
-<!-- REACTION PICKER -->
+<!-- RESTORED: REACTION PICKER -->
 <div id="reactPicker" style="display:none; position:absolute; background:white; border-radius:30px; padding:5px 10px; box-shadow:0 5px 15px rgba(0,0,0,0.2); z-index:1000; border:1px solid #eee;">
     <span onclick="pickReact('❤️')" style="cursor:pointer; font-size:1.2rem; margin:0 5px;">❤️</span>
     <span onclick="pickReact('😂')" style="cursor:pointer; font-size:1.2rem; margin:0 5px;">😂</span>
@@ -398,7 +399,7 @@ const popupsHTML = `
     <span onclick="closeReact()" style="cursor:pointer; font-size:1rem; margin-left:8px; color:#999;">✕</span>
 </div>
 
-<!-- REPLY OVERLAY -->
+<!-- RESTORED: REPLY OVERLAY -->
 <div id="replyOverlay" style="display:none; position:absolute; bottom:0; left:0; width:100%; background:#f8f9fa; border-top:1px solid #ddd; padding:15px; z-index:1001;">
     <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><strong style="color:#167690;">Reply</strong><span onclick="closeReply()" style="cursor:pointer; color:#666;">✕</span></div>
     <input type="text" id="replyInput" placeholder="Type answer..." style="width:100%; padding:12px; border-radius:8px; border:1px solid #ccc; margin-bottom:10px;">
