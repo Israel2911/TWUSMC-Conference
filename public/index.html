@@ -430,8 +430,8 @@ if(kS) kS.onclick=()=>{
 s.on('z', st=>{ toggleLiveUI(st.isLive||st); if(st.isKilled) killStreamUI(); });
 s.on('t', c=>{if(cN)cN.innerText=c;});
 s.on('r', d=>{countries.forEach((c,i)=>{const el=document.getElementById(`count-${i}`);if(el)el.innerText=d[c.tz]||0;});});
-s.on('chatIncoming', d=>{ rawChatData.push(d); addMessage('chat',d.user,d.text,(d.user===myName),d.country,d.id,d.reactions); });
-s.on('qaIncoming', d=>{ rawQaData.push(d); addQaThread(d.user,d.text,(d.user===myName),d.country,d.id,d.reactions); });
+s.on('chatIncoming', d=>{ rawChatData.push(d); addMessage('chat',d.user,d.text,(d.user===myName),d.country,d.id,d.reactions, d.flags); });
+s.on('qaIncoming', d=>{ rawQaData.push(d); addQaThread(d.user,d.text,(d.user===myName),d.country,d.id,d.reactions, d.flags); });
 s.on('qaReplyIncoming', d=>{ 
   const t=rawQaData.find(x=>x.id===d.threadId); if(t){ if(!t.replies)t.replies=[]; t.replies.push(d); }
   addQaReplyUI(d.threadId, d.id, d.user, d.text, d.reactions);
@@ -498,11 +498,41 @@ async function fetchRealWeather() {
 }
 fetchRealWeather(); setInterval(fetchRealWeather, 900000);
 
-function switchTab(name) {
-  currentTab = name; document.querySelectorAll('.hs-tab').forEach(b => b.classList.remove('active')); event.target.classList.add('active');
-  chatTab.style.display = name==='chat'?'flex':'none'; qaTab.style.display = name==='qa'?'flex':'none';
-  document.getElementById('reactionBar').style.display = name==='chat'?'flex':'none';
+/* --- DYNAMIC EMOJI SETS --- */
+const EMOJI_SETS = {
+    chat: [
+        { icon: '👏', label: 'Clap' },
+        { icon: '🔥', label: 'Fire' },
+        { icon: '❤️', label: 'Love' },
+        { icon: '😂', label: 'Haha' }
+    ],
+    qa: [
+        { icon: '💡', label: 'Insight' },
+        { icon: '🧠', label: 'Deep' },
+        { icon: '🤝', label: 'Agree' },
+        { icon: '🙋', label: 'Me Too' }
+    ]
+};
+
+function updateReactionBar(type) {
+    const bar = document.getElementById('reactionBar');
+    if(!bar) return;
+    bar.style.display = 'flex'; 
+    bar.innerHTML = EMOJI_SETS[type].map(e => 
+        `<button class="reaction-btn" onclick="sendReaction('${e.icon}')" title="${e.label}">${e.icon}</button>`
+    ).join('');
 }
+
+function switchTab(name) {
+  currentTab = name; 
+  document.querySelectorAll('.hs-tab').forEach(b => b.classList.remove('active')); 
+  event.target.classList.add('active');
+  chatTab.style.display = name==='chat'?'flex':'none'; 
+  qaTab.style.display = name==='qa'?'flex':'none';
+  updateReactionBar(name); 
+}
+// Initial Load
+updateReactionBar('chat');
 
 function joinChat(){ 
     if(!document.getElementById('chatName').value)return alert('Name?'); 
@@ -518,11 +548,21 @@ function sendReaction(txt){ if(myName) s.emit('chatMsg',{user:myName,text:txt});
 let targetReactId = null;
 let targetReactType = 'chat'; // 'chat' or 'qaReply'
 
-// UPDATED: REACT PICKER HANDLES REPLIES NOW TOO
 function showChatReactPicker(id, event, type='chat'){ 
     targetReactId=id; 
     targetReactType=type;
     const p=document.getElementById('reactPicker'); 
+    // Define sets for the POPUP picker
+    const chatOptions = ['❤️', '😂', '👍', '🔥', '👏'];
+    const qaOptions   = ['💡', '✅', '🧠', '⬆️', '🎯']; 
+    const currentOptions = (type === 'chat') ? chatOptions : qaOptions;
+    
+    let html = currentOptions.map(emoji => 
+        `<span onclick="pickReact('${emoji}')" style="cursor:pointer; font-size:1.2rem; margin:0 5px;">${emoji}</span>`
+    ).join('');
+    html += `<span onclick="closeReact()" style="cursor:pointer; font-size:1rem; margin-left:8px; color:#999;">✕</span>`;
+    p.innerHTML = html;
+
     p.style.top=(event.clientY-40)+'px'; 
     p.style.left=(event.clientX-40)+'px'; 
     p.style.display='block'; 
@@ -533,21 +573,38 @@ function pickReact(e){
         if(targetReactType === 'chat') {
             s.emit('chatReact',{id:targetReactId,emoji:e,user:myName});
         } else if(targetReactType === 'qaReply') {
-            // New event for reacting to Q&A replies
             s.emit('qaReplyReact',{id:targetReactId,emoji:e,user:myName});
         }
     }
     closeReact(); 
 }
 function closeReact(){ document.getElementById('reactPicker').style.display='none'; }
+function renderChatReactions(id, r) { if(!r) return ''; return Object.keys(r).map(e => `<span style="font-size:0.8rem; margin-right:3px;">${e} ${r[e].length}</span>`).join(''); }
+function flagMsg(id, isMe){ if(isMe) s.emit('deleteMsg', id); else s.emit('flagMsg', id); }
 
-function addMessage(target, user, text, isMe, country, id, reactions) {
+function addMessage(target, user, text, isMe, country, id, reactions, flags) {
   if(!chatTab || (id && document.getElementById(id))) return; 
   const div = document.createElement('div');
-  div.className = `msg ${isMe ? 'me' : ''}`; div.id = id; 
-  div.innerHTML = `<span class="msg-meta">${user}</span>${text}
-    <div style="display:flex; justify-content:space-between; margin-top:5px;">
-        <span onclick="showChatReactPicker('${id}', event, 'chat')" style="cursor:pointer; opacity:0.5; font-size:0.8rem;">➕</span>
+  div.className = `msg ${isMe ? 'me' : ''}`;
+  div.id = id; 
+  const actionIcon = isMe ? '🗑️' : '⚑';
+  const hasFlagged = flags && flags.includes(myName);
+  const flagColor = hasFlagged ? 'red' : 'inherit';
+  const flagOpacity = hasFlagged || isMe ? '1' : '0.3'; 
+  const flagPointer = hasFlagged ? 'default' : 'pointer';
+
+  div.innerHTML = `
+    <span class="msg-meta">${user}</span>
+    ${text}
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
+        <div id="chat-reacts-${id}" style="display:flex;">${renderChatReactions(id, reactions)}</div>
+        <div>
+            <span onclick="showChatReactPicker('${id}', event, 'chat')" style="cursor:pointer; opacity:0.5; font-size:0.8rem; margin-right:10px;" title="Add Reaction">➕</span>
+            <span id="flag-btn-${id}" 
+                  onclick="${hasFlagged ? '' : `flagMsg('${id}', ${isMe})`}" 
+                  style="cursor:${flagPointer}; opacity:${flagOpacity}; color:${flagColor}; font-size:0.85rem;" 
+                  title="${isMe?'Delete':'Flag Inappropriate'}">${actionIcon}</span>
+        </div>
     </div>`;
   chatTab.appendChild(div); chatTab.scrollTop = chatTab.scrollHeight;
 }
@@ -557,30 +614,78 @@ function openReplyUI(id){ targetQaId=id; document.getElementById('replyOverlay')
 function closeReply(){ document.getElementById('replyOverlay').style.display='none'; }
 function submitReply(){ const t=document.getElementById('replyInput').value; if(t)s.emit('qaReply',{threadId:targetQaId,user:myName,text:t}); closeReply(); document.getElementById('replyInput').value=''; }
 
-function addQaThread(user, text, isMe, country, serverId, reactions) {
-  if(!qaTab || document.getElementById(serverId)) return;
-  const div = document.createElement('div'); div.className = 'qa-thread'; div.id = serverId;
-  div.innerHTML = `<span class="qa-question">Q: ${text}</span><div class="msg-meta">Asked by ${user}</div><div class="qa-replies" id="replies-${serverId}"></div><span style="color:#167690; font-size:0.8rem; cursor:pointer;" onclick="openReplyUI('${serverId}')">💬 REPLY</span>`;
-  qaTab.appendChild(div);
+const EMOJI_DEF = { '🎓': 'Insightful', '💡': 'Great Idea', '🤝': 'Agreement', '⭐': 'Excellent', '📜': 'Source?' };
+function renderReactionButtons(id, r) {
+  const emojis = ['🎓', '💡', '🤝', '⭐', '📜'];
+  return emojis.map(e => {
+    const list = (r && Array.isArray(r[e])) ? r[e] : []; 
+    const count = list.length;
+    const iVoted = myName && list.includes(myName);
+    const activeStyle = iVoted ? 'border:1px solid #38bdf8; background:rgba(56,189,248,0.2);' : 'border:1px solid #333; background:rgba(255,255,255,0.05);';
+    return `<span onclick="emitReact('${id}', '${e}')" title="${EMOJI_DEF[e]}" style="cursor:pointer; padding:4px 8px; border-radius:15px; font-size:0.9rem; transition:all 0.2s; ${activeStyle}">${e} ${count}</span>`;
+  }).join('');
+}
+function emitReact(id, emoji) { if(!myName) return alert("Please Join first to react."); s.emit('qaReact', { threadId: id, emoji: emoji, user: myName }); }
+function flagQa(id, isMe){ if(isMe) s.emit('deleteQa', id); else s.emit('flagQa', id); }
+
+function addQaThread(user, text, isMe, country, serverId, reactions, flags) {
+  if(!qaTab) return; 
+  if(serverId && document.getElementById(serverId)) return;
+  const div = document.createElement('div');
+  div.className = 'qa-thread'; div.id = serverId;
+  
+  const isAi = (user === "🤖 Session Facilitator");
+  const userDisplay = isAi ? `<span style="color:#ffcc00;font-weight:bold;">${user}</span>` : user;
+  const bgStyle = isAi ? 'background:rgba(255,215,0,0.1); border-left:3px solid #ffcc00;' : '';
+  const safeReactions = reactions || { '🎓':[], '💡':[], '🤝':[], '⭐':[], '📜':[] };
+
+  const actionIcon = isMe ? '🗑️' : '⚑';
+  const hasFlagged = flags && flags.includes(myName);
+  const flagColor = hasFlagged ? 'red' : 'inherit';
+  const flagOpacity = hasFlagged || isMe ? '1' : '0.3';
+  const flagPointer = hasFlagged ? 'default' : 'pointer';
+
+  div.style.cssText = bgStyle;
+  div.innerHTML = `
+    <div style="display:flex; justify-content:space-between;">
+      <span class="qa-question">Q: ${text}</span>
+      <span id="qa-flag-btn-${serverId}" onclick="${hasFlagged ? '' : `flagQa('${serverId}', ${isMe})`}" style="cursor:${flagPointer}; opacity:${flagOpacity}; color:${flagColor};" title="${isMe?'Delete':'Flag'}">${actionIcon}</span>
+    </div>
+    <div class="msg-meta">Asked by ${userDisplay} • ${country||'Global'}</div>
+    <div class="qa-reactions" id="react-box-${serverId}" style="margin:5px 0; display:flex; gap:8px;">${renderReactionButtons(serverId, safeReactions)}</div>
+    <div class="qa-replies" id="replies-${serverId}"></div>
+    <div style="margin-top:8px; padding-top:5px; border-top:1px solid #eee;">
+      <span style="cursor:pointer; color:#167690; font-weight:800; font-size:0.8rem;" onclick="openReplyUI('${serverId}')">💬 REPLY</span>
+    </div>`;
+  qaTab.appendChild(div); qaTab.scrollTop = qaTab.scrollHeight;
 }
 
-// FIXED: ADDED REACTION BUTTON TO REPLIES
-function addQaReplyUI(tId, rId, user, text){
-    const b=document.getElementById(`replies-${tId}`);
-    if(b){ 
-        const d=document.createElement('div'); 
-        d.className='qa-reply-item'; 
-        d.id = rId;
-        // Added the reaction ➕ button here:
-        d.innerHTML=`
-            <div style="display:flex; justify-content:space-between;">
-                <span><strong>${user}:</strong> ${text}</span>
-                <span onclick="showChatReactPicker('${rId}', event, 'qaReply')" style="cursor:pointer; opacity:0.5; font-size:0.8rem;">➕</span>
-            </div>
-            <div id="reacts-${rId}" style="display:flex; gap:2px; font-size:0.8rem; margin-top:3px;"></div>
-        `; 
-        b.appendChild(d); 
-    }
+function renderReplyReactionButtons(threadId, replyId, r) {
+  const emojis = ['🎓', '💡', '🤝', '⭐', '📜'];
+  return emojis.map(e => {
+    const list = (r && Array.isArray(r[e])) ? r[e] : [];
+    const count = list.length;
+    const iVoted = myName && list.includes(myName);
+    const activeStyle = iVoted ? 'opacity:1; background:rgba(22,118,144,0.1);' : 'opacity:0.6;';
+    const border = iVoted ? '1px solid #167690' : '1px solid transparent';
+    return `<span onclick="emitReplyReact('${threadId}', '${replyId}', '${e}')" style="cursor:pointer; font-size:0.75rem; padding:2px 6px; border-radius:10px; ${activeStyle} border:${border}; transition:0.2s;">${e} ${count > 0 ? count : ''}</span>`;
+  }).join('');
+}
+function emitReplyReact(threadId, replyId, emoji) { if(!myName) return alert("Join to react!"); s.emit('qaReplyReact', { threadId, replyId, emoji, user: myName }); }
+
+function addQaReplyUI(threadId, replyId, user, text, reactions) {
+  const box = document.getElementById(`replies-${threadId}`);
+  if(box) {
+    if(document.getElementById(`reply-${replyId}`)) return;
+    const div = document.createElement('div');
+    div.className = 'qa-reply-item'; div.id = `reply-${replyId}`;
+    const safeReacts = reactions || { '🎓':[], '💡':[], '🤝':[], '⭐':[], '📜':[] };
+    div.innerHTML = `
+      <div><strong style="color:#167690">${user}:</strong> ${text}</div>
+      <div id="reply-reacts-${replyId}" style="margin-top:5px; display:flex; gap:5px;">${renderReplyReactionButtons(threadId, replyId, safeReacts)}</div>
+    `;
+    box.appendChild(div);
+  }
 }
 
 (function initGlobe() {
