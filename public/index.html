@@ -743,7 +743,24 @@ function killStreamUI() {
 }
 
 /* --- 4. TIME CARDS + REAL WEATHER --- */
-const countries=[{name:'India',flag:'🇮🇳',tz:'Asia/Kolkata',lat:22,lng:78,color:'#FF9933'},{name:'Canada',flag:'🇨🇦',tz:'America/Vancouver',lat:56,lng:-106,color:'#ff0000'},{name:'Thailand',flag:'🇹🇭',tz:'Asia/Bangkok',lat:13,lng:100,color:'#ffcc00'},{name:'Europe',flag:'🇪🇺',tz:'Europe/Paris',lat:48,lng:2,color:'#0000FF'},{name:'UK',flag:'🇬🇧',tz:'Europe/London',lat:53,lng:-0.1,color:'#191970'},{name:'USA',flag:'🇺🇸',tz:'America/New_York',lat:39,lng:-98,color:'#003366'},{name:'Singapore',flag:'🇸🇬',tz:'Asia/Singapore',lat:1.3,lng:103,color:'#EE2536'},{name:'Malaysia',flag:'🇲🇾',tz:'Asia/Kuala_Lumpur',lat:4,lng:102,color:'#FFD700'}];
+// ** UPDATED ARRAY WITH NEW COUNTRIES & PRECISE COORDINATES **
+const countries = [
+  { name: 'India', flag: '🇮🇳', tz: 'Asia/Kolkata', lat: 13.0827, lng: 80.2707, color: '#FF9933' },    // Chennai
+  { name: 'Canada', flag: '🇨🇦', tz: 'America/Vancouver', lat: 49.2827, lng: -123.1207, color: '#ff0000' }, // Vancouver
+  { name: 'Thailand', flag: '🇹🇭', tz: 'Asia/Bangkok', lat: 13.7563, lng: 100.5018, color: '#ffcc00' },
+  { name: 'Europe', flag: '🇪🇺', tz: 'Europe/Paris', lat: 48.8566, lng: 2.3522, color: '#0000FF' },
+  { name: 'UK', flag: '🇬🇧', tz: 'Europe/London', lat: 51.5074, lng: -0.1278, color: '#191970' },
+  { name: 'USA', flag: '🇺🇸', tz: 'America/New_York', lat: 40.7128, lng: -74.0060, color: '#003366' },
+  { name: 'Singapore', flag: '🇸🇬', tz: 'Asia/Singapore', lat: 1.3521, lng: 103.8198, color: '#EE2536' },
+  { name: 'Malaysia', flag: '🇲🇾', tz: 'Asia/Kuala_Lumpur', lat: 3.1390, lng: 101.6869, color: '#FFD700' },
+  
+  // ** NEW COUNTRIES **
+  { name: 'Nigeria', flag: '🇳🇬', tz: 'Africa/Lagos', lat: 6.5244, lng: 3.3792, color: '#008751' },       // Lagos
+  { name: 'Vietnam', flag: '🇻🇳', tz: 'Asia/Ho_Chi_Minh', lat: 10.8231, lng: 106.6297, color: '#DA251D' }, // Ho Chi Minh
+  { name: 'Japan', flag: '🇯🇵', tz: 'Asia/Tokyo', lat: 35.6762, lng: 139.6503, color: '#BC002D' },        // Tokyo
+  { name: 'Dubai', flag: '🇦🇪', tz: 'Asia/Dubai', lat: 25.2048, lng: 55.2708, color: '#00732F' }          // Dubai
+];
+
 if(stackEl && stackEl.innerHTML.trim()==="")countries.forEach((c,i)=>{stackEl.innerHTML+=`<div class="globe-time-item" style="border-left-color:${c.color}"><div class="card-identity"><span class="globe-flag">${c.flag}</span><span class="globe-name">${c.name}</span></div><div class="card-stats"><div class="stat-pill"><span class="material-icons-round">visibility</span><span id="count-${i}">0</span></div><div class="stat-pill" id="weather-pill-${i}"><span class="material-icons-round" id="w-icon-${i}">wb_sunny</span><span id="weather-${i}" style="margin-left:5px; font-weight:700;">--°C</span></div></div><div class="globe-time" id="stack-time-${i}">--:--</div></div>`;});
 function updateStackTimes(){const n=new Date();countries.forEach((c,i)=>{try{const e=document.getElementById(`stack-time-${i}`);if(e)e.innerText=n.toLocaleTimeString('en-GB',{timeZone:c.tz,hour:'2-digit',minute:'2-digit'});}catch(e){}});}
 setInterval(updateStackTimes,1000);updateStackTimes();
