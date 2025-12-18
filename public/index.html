@@ -35,7 +35,6 @@
     /* --- LIVE GRID --- */
     .live-grid { display: grid; grid-template-columns: 2.5fr 1fr; gap: 30px; height: 70vh; min-height: 500px; }
     .video-wrapper { background: black; border-radius: 20px; overflow: hidden; border: 2px solid #333; position: relative; height: 100%; width: 100%; }
-    .video-wrapper.killed iframe { display: none !important; }
     .live-badge { position: absolute; top: 20px; left: 20px; background: #ff0000; color: white; padding: 5px 15px; border-radius: 5px; font-weight: bold; font-size: 0.9rem; z-index: 10; }
     .video-crop { width: 100%; height: 100%; display: block; }
     .video-crop iframe { width: 100%; height: 100%; border: none; display: block; }
@@ -134,6 +133,20 @@
     .btn-live { background: #333; color: white; } 
     /* KILL SWITCH: INITIALLY HIDDEN UNTIL LIVE */
     .btn-kill { background: #ff0000; color: white; display: none; }
+
+    /* REPLY OVERLAY: NOW INSIDE THE CHAT CONTAINER */
+    #replyOverlay { 
+        display:none; 
+        position:absolute; 
+        bottom:0; 
+        left:0; 
+        width:100%; 
+        background:#f8f9fa; 
+        border-top:1px solid #ddd; 
+        padding:15px; 
+        z-index: 50; /* Inside container */
+        box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+    }
     
     @keyframes pulse-red { 0% { opacity: 1; } 50% { opacity: 0.8; } 100% { opacity: 1; } }
 
@@ -175,7 +188,7 @@
 </head>
 <body>
 
-<!-- ADMIN CONTROLS (RESTORED & ALWAYS VISIBLE) -->
+<!-- ADMIN CONTROLS (ALWAYS VISIBLE) -->
 <div class="admin-panel" id="adminPanel">
   <button class="admin-btn btn-live" id="liveToggle">🔴 GO LIVE</button>
   <button class="admin-btn btn-kill" id="killSwitch">⚠️ END STREAM</button>
@@ -262,6 +275,17 @@
             <button class="send-btn" onclick="sendMessage()"><span class="material-icons-round">send</span></button>
           </div>
         </div>
+
+        <!-- FIXED: REPLY WINDOW IS NOW INSIDE THE CONTAINER -->
+        <div id="replyOverlay">
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                <strong style="color:#167690;">Reply to Thread</strong>
+                <span onclick="closeReply()" style="cursor:pointer; color:#666; font-weight:bold;">✕</span>
+            </div>
+            <input type="text" id="replyInput" placeholder="Type answer..." style="width:100%; padding:12px; border-radius:8px; border:1px solid #ccc; margin-bottom:10px;">
+            <button onclick="submitReply()" style="width:100%; background:#167690; color:white; border:none; padding:10px; border-radius:8px; font-weight:bold;">Post Reply</button>
+        </div>
+
       </div>
     </div>
   </div>
@@ -355,7 +379,7 @@ const hS=document.getElementById('heroStandard'), hL=document.getElementById('he
 const vC=document.getElementById('viewerCount'), cN=document.getElementById('countNum'), kS=document.getElementById('killSwitch'), lT=document.getElementById('liveToggle');
 const chatTab=document.getElementById('chatTab'), qaTab=document.getElementById('qaTab'), msgInput=document.getElementById('msgInput'), stackEl=document.getElementById('timeStack');
 
-// --- RESTORED: INJECT POPUPS (PLEDGE, REACT, REPLY) ---
+// --- PLEDGE & REACTION PICKER ---
 const popupsHTML = `
 <!-- PLEDGE MODAL -->
 <div id="pledgeModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:9999; align-items:center; justify-content:center;">
@@ -378,13 +402,6 @@ const popupsHTML = `
     <span onclick="pickReact('👍')" style="cursor:pointer; font-size:1.2rem; margin:0 5px;">👍</span>
     <span onclick="pickReact('🔥')" style="cursor:pointer; font-size:1.2rem; margin:0 5px;">🔥</span>
     <span onclick="closeReact()" style="cursor:pointer; font-size:1rem; margin-left:8px; color:#999;">✕</span>
-</div>
-
-<!-- REPLY OVERLAY -->
-<div id="replyOverlay" style="display:none; position:absolute; bottom:0; left:0; width:100%; background:#f8f9fa; border-top:1px solid #ddd; padding:15px; z-index:1001;">
-    <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><strong style="color:#167690;">Reply</strong><span onclick="closeReply()" style="cursor:pointer; color:#666;">✕</span></div>
-    <input type="text" id="replyInput" placeholder="Type answer..." style="width:100%; padding:12px; border-radius:8px; border:1px solid #ccc; margin-bottom:10px;">
-    <button onclick="submitReply()" style="width:100%; background:#167690; color:white; border:none; padding:10px; border-radius:8px; font-weight:bold;">Post</button>
 </div>`;
 
 document.body.insertAdjacentHTML('beforeend', popupsHTML);
@@ -498,9 +515,30 @@ function sendMessage(){ const t=msgInput.value; if(t&&myName) s.emit(currentTab=
 function handleEnter(e){ if(e.key==='Enter') sendMessage(); }
 function sendReaction(txt){ if(myName) s.emit('chatMsg',{user:myName,text:txt}); }
 
-let targetMsgId = null;
-function showChatReactPicker(id, event){ targetMsgId=id; const p=document.getElementById('reactPicker'); p.style.top=(event.clientY-40)+'px'; p.style.left=(event.clientX-40)+'px'; p.style.display='block'; }
-function pickReact(e){ if(targetMsgId) s.emit('chatReact',{id:targetMsgId,emoji:e,user:myName}); closeReact(); }
+let targetReactId = null;
+let targetReactType = 'chat'; // 'chat' or 'qaReply'
+
+// UPDATED: REACT PICKER HANDLES REPLIES NOW TOO
+function showChatReactPicker(id, event, type='chat'){ 
+    targetReactId=id; 
+    targetReactType=type;
+    const p=document.getElementById('reactPicker'); 
+    p.style.top=(event.clientY-40)+'px'; 
+    p.style.left=(event.clientX-40)+'px'; 
+    p.style.display='block'; 
+}
+
+function pickReact(e){ 
+    if(targetReactId && myName) {
+        if(targetReactType === 'chat') {
+            s.emit('chatReact',{id:targetReactId,emoji:e,user:myName});
+        } else if(targetReactType === 'qaReply') {
+            // New event for reacting to Q&A replies
+            s.emit('qaReplyReact',{id:targetReactId,emoji:e,user:myName});
+        }
+    }
+    closeReact(); 
+}
 function closeReact(){ document.getElementById('reactPicker').style.display='none'; }
 
 function addMessage(target, user, text, isMe, country, id, reactions) {
@@ -509,7 +547,7 @@ function addMessage(target, user, text, isMe, country, id, reactions) {
   div.className = `msg ${isMe ? 'me' : ''}`; div.id = id; 
   div.innerHTML = `<span class="msg-meta">${user}</span>${text}
     <div style="display:flex; justify-content:space-between; margin-top:5px;">
-        <span onclick="showChatReactPicker('${id}', event)" style="cursor:pointer; opacity:0.5; font-size:0.8rem;">➕</span>
+        <span onclick="showChatReactPicker('${id}', event, 'chat')" style="cursor:pointer; opacity:0.5; font-size:0.8rem;">➕</span>
     </div>`;
   chatTab.appendChild(div); chatTab.scrollTop = chatTab.scrollHeight;
 }
@@ -517,7 +555,7 @@ function addMessage(target, user, text, isMe, country, id, reactions) {
 let targetQaId=null;
 function openReplyUI(id){ targetQaId=id; document.getElementById('replyOverlay').style.display='block'; }
 function closeReply(){ document.getElementById('replyOverlay').style.display='none'; }
-function submitReply(){ const t=document.getElementById('replyInput').value; if(t)s.emit('qaReply',{threadId:targetQaId,user:myName,text:t}); closeReply(); }
+function submitReply(){ const t=document.getElementById('replyInput').value; if(t)s.emit('qaReply',{threadId:targetQaId,user:myName,text:t}); closeReply(); document.getElementById('replyInput').value=''; }
 
 function addQaThread(user, text, isMe, country, serverId, reactions) {
   if(!qaTab || document.getElementById(serverId)) return;
@@ -525,9 +563,24 @@ function addQaThread(user, text, isMe, country, serverId, reactions) {
   div.innerHTML = `<span class="qa-question">Q: ${text}</span><div class="msg-meta">Asked by ${user}</div><div class="qa-replies" id="replies-${serverId}"></div><span style="color:#167690; font-size:0.8rem; cursor:pointer;" onclick="openReplyUI('${serverId}')">💬 REPLY</span>`;
   qaTab.appendChild(div);
 }
+
+// FIXED: ADDED REACTION BUTTON TO REPLIES
 function addQaReplyUI(tId, rId, user, text){
     const b=document.getElementById(`replies-${tId}`);
-    if(b){ const d=document.createElement('div'); d.className='qa-reply-item'; d.innerHTML=`<strong>${user}:</strong> ${text}`; b.appendChild(d); }
+    if(b){ 
+        const d=document.createElement('div'); 
+        d.className='qa-reply-item'; 
+        d.id = rId;
+        // Added the reaction ➕ button here:
+        d.innerHTML=`
+            <div style="display:flex; justify-content:space-between;">
+                <span><strong>${user}:</strong> ${text}</span>
+                <span onclick="showChatReactPicker('${rId}', event, 'qaReply')" style="cursor:pointer; opacity:0.5; font-size:0.8rem;">➕</span>
+            </div>
+            <div id="reacts-${rId}" style="display:flex; gap:2px; font-size:0.8rem; margin-top:3px;"></div>
+        `; 
+        b.appendChild(d); 
+    }
 }
 
 (function initGlobe() {
