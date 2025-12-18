@@ -39,20 +39,8 @@
     .video-crop { width: 100%; height: 100%; display: block; }
     .video-crop iframe { width: 100%; height: 100%; border: none; display: block; }
 
-    /* --- CHAT SYSTEM (RESTORED FULLY) --- */
-    .human-space-container { 
-      background: rgba(255, 255, 255, 0.95); 
-      backdrop-filter: blur(15px); 
-      border-radius: 20px; 
-      display: flex; 
-      flex-direction: column; 
-      height: 100%; 
-      border: 1px solid rgba(255,255,255,0.3); 
-      overflow: hidden; 
-      position: relative; 
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2); 
-    }
-    
+    /* --- CHAT SYSTEM --- */
+    .human-space-container { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); border-radius: 20px; display: flex; flex-direction: column; height: 100%; border: 1px solid rgba(255,255,255,0.3); overflow: hidden; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
     .human-space-header { background: linear-gradient(135deg, #167690, #0f5c70); color: white; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
     .hs-title-row { display: flex; justify-content: space-between; align-items: center; font-weight: 900; font-size: 1.1rem; }
     .teams-link-header { color: white; text-decoration: none; display: flex; align-items: center; gap: 5px; font-size: 0.9rem; background: rgba(255,255,255,0.2); padding: 5px 10px; border-radius: 15px; transition: 0.2s; }
@@ -77,11 +65,11 @@
     .qa-replies { margin-top: 10px; padding-left: 15px; border-left: 3px solid #e2e8f0; font-size: 0.9rem; display: flex; flex-direction: column; gap: 8px; }
     .qa-reply-item { background: #f8f9fa; padding: 10px; margin-top: 5px; border-radius: 8px; border-left: 3px solid #ccc; font-size: 0.95rem; }
     
+    .human-space-input { padding: 15px; background: white; border-top: 1px solid #eee; }
     .reaction-bar { display: flex; gap: 8px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 5px; }
     .reaction-btn { background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 20px; padding: 6px 12px; font-size: 0.85rem; cursor: pointer; white-space: nowrap; transition: all 0.2s; color: #2d3748; font-weight: 600; }
     .reaction-btn:hover { background: #167690; color: white; transform: translateY(-2px); }
     
-    .human-space-input { padding: 15px; background: white; border-top: 1px solid #eee; }
     .input-row { display: flex; gap: 10px; }
     .chat-input { flex: 1; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; outline: none; transition: 0.2s; font-family: inherit; }
     .send-btn { background: #167690; color: white; border: none; padding: 0 20px; border-radius: 10px; cursor: pointer; transition: 0.2s; }
@@ -93,7 +81,6 @@
     /* --- GLOBAL SECTION (WITH RESTORED SLIDING CARDS & FIX) --- */
     .global-connect-section { position: relative; z-index: 5; background: linear-gradient(135deg, #0a0e1a 0%, #1a1f35 50%, #000000 100%); padding: 80px 40px; display: flex; flex-wrap: wrap; justify-content: center; gap: 60px; max-width: 1400px; margin: 0 auto; }
     
-    /* GLOBE OVERFLOW FIX */
     .globe-wrapper { 
         width: 500px; height: 500px; position: relative; 
         border-radius: 50%; background: radial-gradient(circle at 40% 40%, #1e2636 0%, #000000 90%); 
@@ -130,12 +117,10 @@
     .expand-btn .material-icons-round { transition: transform 0.3s ease; }
     .expand-btn.open .material-icons-round { transform: rotate(180deg); }
     
-    /* RESTORED AGENDA TABLE */
     .agenda-table { width: 100%; border-collapse: collapse; text-align: left; }
     .agenda-table tr { transition: background 0.2s; }
     .agenda-table tr:hover { background: #f7fafc; }
     
-    /* RESTORED RESOURCES */
     .content-box { background: white; padding: 60px; border-radius: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.05); text-align: left; font-size: 1.1rem; }
     .pdf-preview { position: relative; width: 100%; height: 0; padding-bottom: 75%; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid #ddd; background: #525659; margin-bottom: 20px; }
     .pdf-btn { display: inline-block; background: #167690; color: white; padding: 15px 30px; border-radius: 30px; text-decoration: none; font-weight: bold; margin-top: 20px; transition: 0.2s; }
@@ -169,15 +154,9 @@
     
         .global-connect-section { flex-direction: column; padding: 40px 15px; gap: 20px; }
         
-        /* RESTORED MOBILE GLOBE SIZING & MARGINS */
-        .globe-wrapper { 
-            width: 280px !important; height: 280px !important; 
-            margin: 0 auto 20px auto; border-radius: 50% !important; overflow: hidden !important; 
-        }
-        
+        .globe-wrapper { width: 280px !important; height: 280px !important; margin: 0 auto 20px auto; border-radius: 50% !important; overflow: hidden !important; }
         .times-wrapper { width: 100% !important; max-width: 100% !important; }
 
-        /* RESTORED SLIDING CARDS (CAROUSEL) */
         .globe-times-stack { display: flex !important; flex-direction: row !important; overflow-x: auto; gap: 15px; padding-bottom: 20px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
         .globe-time-item { flex: 0 0 85%; scroll-snap-align: center; flex-direction: column; align-items: center; text-align: center; padding: 20px; gap: 10px; border-right: 1px solid #eee; margin-right: 0; }
         .card-identity { flex-direction: column; gap: 5px; }
@@ -190,7 +169,7 @@
 </head>
 <body>
 
-<!-- ADMIN CONTROLS -->
+<!-- ADMIN CONTROLS (RESTORED) -->
 <div class="admin-panel" id="adminPanel">
   <button class="admin-btn btn-live" id="liveToggle">🔴 GO LIVE</button>
   <button class="admin-btn btn-kill" id="killSwitch">⚠️ END STREAM</button>
@@ -241,7 +220,6 @@
           </div>
         </div>
         
-        <!-- RESTORED: LOGIN OVERLAY -->
         <div class="login-overlay" id="chatLogin">
           <h3 style="font-size:1.5rem; color:#167690; margin-bottom:10px;">Enter the Human Space</h3>
           <p style="font-size:1rem; margin-bottom:30px; color:#666;">Secure, Proprietary, Connected.</p>
@@ -255,7 +233,6 @@
             <option value="Other">🌍 Global</option>
           </select>
           <button class="join-btn" onclick="joinChat()">Join Conversation</button>
-          <!-- RESTORED: CoI NOTE -->
           <div class="coi-note">Inspired by the <strong>Community of Inquiry (CoI)</strong> framework.</div>
         </div>
 
@@ -354,7 +331,6 @@
   <div class="content-box" style="text-align:center; padding: 40px 20px;">
     <h3>Conference Brochure</h3>
     <p style="margin-bottom:20px; opacity:0.8;">View, scroll, and download the full schedule below.</p>
-    <!-- RESTORED: PDF PREVIEW IFRAME -->
     <div class="pdf-preview">
       <iframe src="GLOB%20SMC%20Leadership%20Conference%202025_Brochure_Final5.pdf#toolbar=1&view=FitH" width="100%" height="100%" style="border:none; position:absolute; top:0; left:0;"></iframe>
     </div>
@@ -363,7 +339,6 @@
 </section>
 
 <script>
-/* --- SOCKET MOCK SETUP --- */
 let s; try{s=io()}catch(e){console.warn("OFFLINE");s={emit:(e,d)=>{},on:(e,c)=>{}};}
 s.emit('r', Intl.DateTimeFormat().resolvedOptions().timeZone);
 
@@ -376,7 +351,7 @@ const chatTab=document.getElementById('chatTab'), qaTab=document.getElementById(
 
 // --- RESTORED: INJECT POPUPS (PLEDGE, REACT, REPLY) ---
 const popupsHTML = `
-<!-- RESTORED: FULL PLEDGE MODAL -->
+<!-- PLEDGE MODAL -->
 <div id="pledgeModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:9999; align-items:center; justify-content:center;">
   <div style="background:#fff; padding:35px; border-radius:15px; max-width:550px; width:90%; text-align:center; color:#333; box-shadow:0 20px 50px rgba(0,0,0,0.5);">
     <div style="font-size:3rem; margin-bottom:10px;">☕</div>
@@ -390,7 +365,7 @@ const popupsHTML = `
   </div>
 </div>
 
-<!-- RESTORED: REACTION PICKER -->
+<!-- REACTION PICKER -->
 <div id="reactPicker" style="display:none; position:absolute; background:white; border-radius:30px; padding:5px 10px; box-shadow:0 5px 15px rgba(0,0,0,0.2); z-index:1000; border:1px solid #eee;">
     <span onclick="pickReact('❤️')" style="cursor:pointer; font-size:1.2rem; margin:0 5px;">❤️</span>
     <span onclick="pickReact('😂')" style="cursor:pointer; font-size:1.2rem; margin:0 5px;">😂</span>
@@ -399,7 +374,7 @@ const popupsHTML = `
     <span onclick="closeReact()" style="cursor:pointer; font-size:1rem; margin-left:8px; color:#999;">✕</span>
 </div>
 
-<!-- RESTORED: REPLY OVERLAY -->
+<!-- REPLY OVERLAY -->
 <div id="replyOverlay" style="display:none; position:absolute; bottom:0; left:0; width:100%; background:#f8f9fa; border-top:1px solid #ddd; padding:15px; z-index:1001;">
     <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><strong style="color:#167690;">Reply</strong><span onclick="closeReply()" style="cursor:pointer; color:#666;">✕</span></div>
     <input type="text" id="replyInput" placeholder="Type answer..." style="width:100%; padding:12px; border-radius:8px; border:1px solid #ccc; margin-bottom:10px;">
@@ -408,6 +383,7 @@ const popupsHTML = `
 
 document.body.insertAdjacentHTML('beforeend', popupsHTML);
 
+/* --- RESTORED: EMOJI BAR INJECTION --- */
 const reactionBar = document.getElementById('reactionBar');
 if(reactionBar) {
     reactionBar.style.display = 'flex';
@@ -424,9 +400,13 @@ document.getElementById('expandBtn').addEventListener('click', function(){
 });
 
 if(lT) lT.onclick=()=>s.emit('x');
-if(kS) kS.onclick=()=>{const p=prompt("Pass:");if(p)s.emit('k',p);};
 
-/* --- SOCKET HANDLERS --- */
+// --- RESTORED: KILL SWITCH LOGIC ---
+if(kS) kS.onclick=()=>{
+    const p=prompt("Pass:");
+    if(p)s.emit('k',p);
+};
+
 s.on('z', st=>{ toggleLiveUI(st.isLive||st); if(st.isKilled) killStreamUI(); });
 s.on('t', c=>{if(cN)cN.innerText=c;});
 s.on('r', d=>{countries.forEach((c,i)=>{const el=document.getElementById(`count-${i}`);if(el)el.innerText=d[c.tz]||0;});});
@@ -540,7 +520,6 @@ function addQaReplyUI(tId, rId, user, text){
     if(b){ const d=document.createElement('div'); d.className='qa-reply-item'; d.innerHTML=`<strong>${user}:</strong> ${text}`; b.appendChild(d); }
 }
 
-/* --- 3D GLOBE INITIALIZATION (FIXED FOR MOBILE) --- */
 (function initGlobe() {
   const container = document.getElementById('heroGlobeContainer');
   if (!container) return;
