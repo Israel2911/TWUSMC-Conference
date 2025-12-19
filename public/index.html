@@ -127,16 +127,14 @@
     .pdf-preview { position: relative; width: 100%; height: 0; padding-bottom: 75%; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid #ddd; background: #525659; margin-bottom: 20px; }
     .pdf-btn { display: inline-block; background: #167690; color: white; padding: 15px 30px; border-radius: 30px; text-decoration: none; font-weight: bold; margin-top: 20px; transition: 0.2s; }
 
-    /* --- ADMIN PANEL: ALWAYS VISIBLE NOW --- */
+    /* --- ADMIN PANEL: ALWAYS VISIBLE --- */
     .admin-panel { display: flex; position: fixed; bottom: 20px; right: 20px; z-index: 9999; gap: 10px; flex-direction: column; }
-    
     .admin-btn { padding: 10px 20px; border-radius: 30px; cursor: pointer; font-weight: bold; border: 2px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.3); transition: all 0.3s; }
     .btn-live { background: #333; color: white; } 
-    
     /* KILL SWITCH: HIDDEN BY DEFAULT (Shown only via JS if Admin & Live) */
     .btn-kill { background: #ff0000; color: white; display: none; }
 
-    /* REPLY OVERLAY: NOW INSIDE THE CHAT CONTAINER */
+    /* REPLY OVERLAY: INSIDE THE CONTAINER */
     #replyOverlay { 
         display:none; 
         position:absolute; 
@@ -184,7 +182,6 @@
 </head>
 <body>
 
-<!-- ADMIN CONTROLS (Live button always visible) -->
 <div class="admin-panel" id="adminPanel">
   <button class="admin-btn btn-live" id="liveToggle">🔴 GO LIVE</button>
   <button class="admin-btn btn-kill" id="killSwitch">⚠️ END STREAM</button>
@@ -362,7 +359,10 @@
 
 <script>
 let s; try{s=io()}catch(e){console.warn("OFFLINE");s={emit:(e,d)=>{},on:(e,c)=>{}};}
+
+// 1. Force History Request on Connection
 s.emit('r', Intl.DateTimeFormat().resolvedOptions().timeZone);
+s.emit('getHistory'); 
 
 let myName="", myCountry="", currentTab="chat", rawChatData=[], rawQaData=[];
 const isAdmin = new URLSearchParams(window.location.search).get('m')==='a';
@@ -423,29 +423,33 @@ s.on('qaReplyIncoming', d=>{
   const t=rawQaData.find(x=>x.id===d.threadId); if(t){ if(!t.replies)t.replies=[]; t.replies.push(d); }
   addQaReplyUI(d.threadId, d.id, d.user, d.text, d.reactions);
 });
+
+// 2. ROBUST HISTORY HANDLER
 s.on('history', d => {
-    if(d.chat) d.chat.forEach(m => addMessage('chat', m.user, m.text, (m.user===myName), m.country, m.id, m.reactions, m.flags));
-    if(d.qa) d.qa.forEach(q => {
-        addQaThread(q.user, q.text, (q.user===myName), q.country, q.id, q.reactions, q.flags);
-        if(q.replies) q.replies.forEach(r => addQaReplyUI(q.id, r.id, r.user, r.text, r.reactions));
-    });
+    if(d.chat) {
+        d.chat.forEach(m => {
+            // Renders safely even if myName is "" (empty)
+            addMessage('chat', m.user, m.text, (myName && m.user===myName), m.country, m.id, m.reactions, m.flags);
+        });
+    }
+    if(d.qa) {
+        d.qa.forEach(q => {
+            addQaThread(q.user, q.text, (myName && q.user===myName), q.country, q.id, q.reactions, q.flags);
+            if(q.replies) q.replies.forEach(r => addQaReplyUI(q.id, r.id, r.user, r.text, r.reactions));
+        });
+    }
 });
 
-// *** FIXED LOGIC: LIVE BUTTON FOR ALL, KILL SWITCH FOR ADMIN ***
 function toggleLiveUI(isLive){
-  // 1. Live Elements
   hS.style.display=isLive?'none':'block'; 
   hL.style.display=isLive?'block':'none';
   if(hB) hB.style.filter=isLive?'brightness(0.2)':'brightness(0.6)';
   vC.style.display=isLive?'flex':'none';
-  
-  // 2. LIVE Button (Visible to ALL)
   if(lT){
     lT.innerHTML=isLive?'🟢 LIVE':'🔴 GO LIVE'; 
     lT.style.background=isLive?'#00cc00':'#333';
   }
-
-  // 3. KILL SWITCH (Visible ONLY to Admin AND ONLY if Live)
+  // ADMIN ONLY CHECK FOR KILL SWITCH
   if(kS) kS.style.display = (isLive && isAdmin) ? 'block' : 'none';
 }
 
