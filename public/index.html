@@ -127,11 +127,10 @@
     .pdf-preview { position: relative; width: 100%; height: 0; padding-bottom: 75%; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid #ddd; background: #525659; margin-bottom: 20px; }
     .pdf-btn { display: inline-block; background: #167690; color: white; padding: 15px 30px; border-radius: 30px; text-decoration: none; font-weight: bold; margin-top: 20px; transition: 0.2s; }
 
-    /* ADMIN PANEL: ALWAYS VISIBLE NOW */
-    .admin-panel { display: flex; position: fixed; bottom: 20px; right: 20px; z-index: 9999; gap: 10px; flex-direction: column; }
+    /* ADMIN PANEL: INITIALLY HIDDEN. VISIBLE ONLY IF ?m=a */
+    .admin-panel { display: none; position: fixed; bottom: 20px; right: 20px; z-index: 9999; gap: 10px; flex-direction: column; }
     .admin-btn { padding: 10px 20px; border-radius: 30px; cursor: pointer; font-weight: bold; border: 2px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.3); transition: all 0.3s; }
     .btn-live { background: #333; color: white; } 
-    /* KILL SWITCH: INITIALLY HIDDEN UNTIL LIVE */
     .btn-kill { background: #ff0000; color: white; display: none; }
 
     /* REPLY OVERLAY: NOW INSIDE THE CHAT CONTAINER */
@@ -188,7 +187,7 @@
 </head>
 <body>
 
-<!-- ADMIN CONTROLS (ALWAYS VISIBLE) -->
+<!-- ADMIN CONTROLS (INITIALLY HIDDEN) -->
 <div class="admin-panel" id="adminPanel">
   <button class="admin-btn btn-live" id="liveToggle">🔴 GO LIVE</button>
   <button class="admin-btn btn-kill" id="killSwitch">⚠️ END STREAM</button>
@@ -373,11 +372,17 @@ let s; try{s=io()}catch(e){console.warn("OFFLINE");s={emit:(e,d)=>{},on:(e,c)=>{
 s.emit('r', Intl.DateTimeFormat().resolvedOptions().timeZone);
 
 let myName="", myCountry="", currentTab="chat", rawChatData=[], rawQaData=[];
+const isAdmin = new URLSearchParams(window.location.search).get('m')==='a';
 
 // DOM Elements
 const hS=document.getElementById('heroStandard'), hL=document.getElementById('heroLive'), hB=document.getElementById('heroBg');
 const vC=document.getElementById('viewerCount'), cN=document.getElementById('countNum'), kS=document.getElementById('killSwitch'), lT=document.getElementById('liveToggle');
 const chatTab=document.getElementById('chatTab'), qaTab=document.getElementById('qaTab'), msgInput=document.getElementById('msgInput'), stackEl=document.getElementById('timeStack');
+
+// ADMIN MODE CHECK: SHOW PANEL IF ADMIN
+if(isAdmin && document.getElementById('adminPanel')) {
+    document.getElementById('adminPanel').style.display='flex';
+}
 
 // --- PLEDGE & REACTION PICKER ---
 const popupsHTML = `
@@ -437,18 +442,28 @@ s.on('qaReplyIncoming', d=>{
   addQaReplyUI(d.threadId, d.id, d.user, d.text, d.reactions);
 });
 
-// *** FIXED FUNCTION: SHOW KILL SWITCH ONLY WHEN LIVE ***
+// RESTORE HISTORY ON JOIN
+s.on('history', d => {
+    if(d.chat) d.chat.forEach(m => addMessage('chat', m.user, m.text, (m.user===myName), m.country, m.id, m.reactions, m.flags));
+    if(d.qa) d.qa.forEach(q => {
+        addQaThread(q.user, q.text, (q.user===myName), q.country, q.id, q.reactions, q.flags);
+        if(q.replies) q.replies.forEach(r => addQaReplyUI(q.id, r.id, r.user, r.text, r.reactions));
+    });
+});
+
+// *** FIXED FUNCTION: KILL SWITCH VISIBILITY & LIVE TOGGLING ***
 function toggleLiveUI(isLive){
   hS.style.display=isLive?'none':'block'; 
   hL.style.display=isLive?'block':'none';
   if(hB) hB.style.filter=isLive?'brightness(0.2)':'brightness(0.6)';
   vC.style.display=isLive?'flex':'none';
-  if(lT){
+  
+  if(isAdmin && lT){
     lT.innerHTML=isLive?'🟢 LIVE':'🔴 GO LIVE'; 
     lT.style.background=isLive?'#00cc00':'#333';
   }
-  // SHOW KILL SWITCH IF LIVE
-  if(kS) kS.style.display = isLive ? 'block' : 'none';
+  // SHOW KILL SWITCH ONLY IF LIVE AND ADMIN
+  if(kS) kS.style.display = (isLive && isAdmin) ? 'block' : 'none';
 }
 
 function killStreamUI(){ if(hL) hL.innerHTML=`<div class="teams-backup"><h2>Stream Ended</h2><a href="#">Join Teams</a></div>`; }
