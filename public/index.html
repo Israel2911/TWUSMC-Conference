@@ -380,7 +380,10 @@ const popupsHTML = `
     <p style="font-size:1.1rem; line-height:1.6; margin-bottom:25px; color:#444;">We invite you to practice <strong>inclusive leadership</strong>.</p>
     <div style="background:#f1f9fc; border-left:5px solid #167690; padding:20px; text-align:left; margin-bottom:30px; border-radius:0 10px 10px 0;">
       <strong style="color:#0e4b5b; display:block; margin-bottom:10px; font-size:1.1rem;">❤️ Our Community Heart:</strong>
-      <ul style="margin:0; padding-left:20px; color:#555;"><li>Scholarly yet Casual</li><li>Collaboration over Debate</li></ul>
+      <ul style="margin:0; padding-left:20px; color:#555;">
+        <li>Scholarly yet Casual</li>
+        <li>Collaboration over Debate</li>
+      </ul>
     </div>
     <button onclick="acceptPledge()" style="background:linear-gradient(135deg, #167690, #0e4b5b); color:white; border:none; padding:15px 40px; font-size:1.2rem; border-radius:30px; cursor:pointer; font-weight:bold;">I Agree & Enter</button>
   </div>
@@ -396,15 +399,44 @@ const popupsHTML = `
 
 document.body.insertAdjacentHTML('beforeend', popupsHTML);
 
-const reactionBar = document.getElementById('reactionBar');
-if(reactionBar) {
-    reactionBar.style.display = 'flex';
-    reactionBar.innerHTML = `<button class="reaction-btn" onclick="sendReaction('👏')">👏</button><button class="reaction-btn" onclick="sendReaction('🔥')">🔥</button><button class="reaction-btn" onclick="sendReaction('❤️')">❤️</button><button class="reaction-btn" onclick="sendReaction('Thinking...')">🤔</button>`;
+// Scholarly + chat reaction bar
+const EMOJI_SETS = {
+  chat: [
+    { icon: '👏', label: 'Clap' },
+    { icon: '🔥', label: 'Fire' },
+    { icon: '❤️', label: 'Love' },
+    { icon: '😂', label: 'Haha' }
+  ],
+  qa: [
+    { icon: '🎓', label: 'Insightful' },
+    { icon: '💡', label: 'Great Idea' },
+    { icon: '🤝', label: 'Agreement' },
+    { icon: '⭐', label: 'Excellent' },
+    { icon: '📜', label: 'Scholarly' },
+    { icon: '🧠', label: 'Deep' }
+  ]
+};
+
+function updateReactionBar(type) {
+  const bar = document.getElementById('reactionBar');
+  if (!bar) return;
+  bar.style.display = 'flex';
+  bar.innerHTML = EMOJI_SETS[type].map(e =>
+    `<button class="reaction-btn"
+             onclick="sendReaction('${e.icon}')"
+             title="${e.label}"
+             aria-label="${e.label}">
+       <span role="img" aria-hidden="true">${e.icon}</span>
+     </button>`
+  ).join('');
 }
+updateReactionBar('chat');
 
 document.getElementById('expandBtn').addEventListener('click', function(){
-  const c=document.getElementById('synopsisExpanded'); c.classList.toggle('open');
-  this.classList.toggle('open'); this.querySelector('span').textContent=c.classList.contains('open')?'Read Less':'Read More';
+  const c=document.getElementById('synopsisExpanded');
+  c.classList.toggle('open');
+  this.classList.toggle('open');
+  this.querySelector('span').textContent=c.classList.contains('open')?'Read Less':'Read More';
 });
 
 if(lT) lT.onclick=()=>s.emit('x');
@@ -428,7 +460,6 @@ s.on('qaReplyIncoming', d=>{
 s.on('history', d => {
     if(d.chat) {
         d.chat.forEach(m => {
-            // Renders safely even if myName is "" (empty)
             addMessage('chat', m.user, m.text, (myName && m.user===myName), m.country, m.id, m.reactions, m.flags);
         });
     }
@@ -449,7 +480,6 @@ function toggleLiveUI(isLive){
     lT.innerHTML=isLive?'🟢 LIVE':'🔴 GO LIVE'; 
     lT.style.background=isLive?'#00cc00':'#333';
   }
-  // ADMIN ONLY CHECK FOR KILL SWITCH
   if(kS) kS.style.display = (isLive && isAdmin) ? 'block' : 'none';
 }
 
@@ -471,10 +501,34 @@ const countries = [
 ];
 
 if(stackEl && stackEl.innerHTML.trim()==="") countries.forEach((c,i)=>{
-  stackEl.innerHTML+=`<div class="globe-time-item" style="border-left-color:${c.color}"><div class="card-identity"><span class="globe-flag">${c.flag}</span><span class="globe-name">${c.name}</span></div><div class="card-stats"><div class="stat-pill"><span class="material-icons-round">visibility</span><span id="count-${i}">0</span></div><div class="stat-pill"><span class="material-icons-round" id="w-icon-${i}">wb_sunny</span><span id="weather-${i}" style="margin-left:5px;">--°C</span></div></div><div class="globe-time" id="stack-time-${i}">--:--</div></div>`;
+  stackEl.innerHTML+=`<div class="globe-time-item" style="border-left-color:${c.color}">
+    <div class="card-identity">
+      <span class="globe-flag">${c.flag}</span>
+      <span class="globe-name">${c.name}</span>
+    </div>
+    <div class="card-stats">
+      <div class="stat-pill">
+        <span class="material-icons-round">visibility</span>
+        <span id="count-${i}">0</span>
+      </div>
+      <div class="stat-pill">
+        <span class="material-icons-round" id="w-icon-${i}">wb_sunny</span>
+        <span id="weather-${i}" style="margin-left:5px;">--°C</span>
+      </div>
+    </div>
+    <div class="globe-time" id="stack-time-${i}">--:--</div>
+  </div>`;
 });
 
-function updateStackTimes(){const n=new Date();countries.forEach((c,i)=>{try{const e=document.getElementById(`stack-time-${i}`);if(e)e.innerText=n.toLocaleTimeString('en-GB',{timeZone:c.tz,hour:'2-digit',minute:'2-digit'});}catch(e){}});}
+function updateStackTimes(){
+  const n=new Date();
+  countries.forEach((c,i)=>{
+    try{
+      const e=document.getElementById(`stack-time-${i}`);
+      if(e)e.innerText=n.toLocaleTimeString('en-GB',{timeZone:c.tz,hour:'2-digit',minute:'2-digit'});
+    }catch(e){}
+  });
+}
 setInterval(updateStackTimes,1000); updateStackTimes();
 
 async function fetchRealWeather() {
@@ -500,30 +554,6 @@ async function fetchRealWeather() {
 }
 fetchRealWeather(); setInterval(fetchRealWeather, 900000);
 
-const EMOJI_SETS = {
-    chat: [
-        { icon: '👏', label: 'Clap' },
-        { icon: '🔥', label: 'Fire' },
-        { icon: '❤️', label: 'Love' },
-        { icon: '😂', label: 'Haha' }
-    ],
-    qa: [
-        { icon: '💡', label: 'Insight' },
-        { icon: '🧠', label: 'Deep' },
-        { icon: '🤝', label: 'Agree' },
-        { icon: '🙋', label: 'Me Too' }
-    ]
-};
-
-function updateReactionBar(type) {
-    const bar = document.getElementById('reactionBar');
-    if(!bar) return;
-    bar.style.display = 'flex'; 
-    bar.innerHTML = EMOJI_SETS[type].map(e => 
-        `<button class="reaction-btn" onclick="sendReaction('${e.icon}')" title="${e.label}">${e.icon}</button>`
-    ).join('');
-}
-
 function switchTab(name) {
   currentTab = name; 
   document.querySelectorAll('.hs-tab').forEach(b => b.classList.remove('active')); 
@@ -532,7 +562,6 @@ function switchTab(name) {
   qaTab.style.display = name==='qa'?'flex':'none';
   updateReactionBar(name); 
 }
-updateReactionBar('chat');
 
 function joinChat(){ 
     if(!document.getElementById('chatName').value)return alert('Name?'); 
@@ -613,18 +642,39 @@ function openReplyUI(id){ targetQaId=id; document.getElementById('replyOverlay')
 function closeReply(){ document.getElementById('replyOverlay').style.display='none'; }
 function submitReply(){ const t=document.getElementById('replyInput').value; if(t)s.emit('qaReply',{threadId:targetQaId,user:myName,text:t}); closeReply(); document.getElementById('replyInput').value=''; }
 
-const EMOJI_DEF = { '🎓': 'Insightful', '💡': 'Great Idea', '🤝': 'Agreement', '⭐': 'Excellent', '📜': 'Source?' };
+// Scholarly meanings (threads + replies)
+const EMOJI_DEF = {
+  '🎓': 'Insightful',
+  '💡': 'Great Idea',
+  '🤝': 'Agreement',
+  '⭐': 'Excellent',
+  '📜': 'Scholarly',
+  '🧠': 'Deep'
+};
+
 function renderReactionButtons(id, r) {
-  const emojis = ['🎓', '💡', '🤝', '⭐', '📜'];
+  const emojis = Object.keys(EMOJI_DEF);
   return emojis.map(e => {
     const list = (r && Array.isArray(r[e])) ? r[e] : []; 
     const count = list.length;
     const iVoted = myName && list.includes(myName);
-    const activeStyle = iVoted ? 'border:1px solid #38bdf8; background:rgba(56,189,248,0.2);' : 'border:1px solid #333; background:rgba(255,255,255,0.05);';
-    return `<span onclick="emitReact('${id}', '${e}')" title="${EMOJI_DEF[e]}" style="cursor:pointer; padding:4px 8px; border-radius:15px; font-size:0.9rem; transition:all 0.2s; ${activeStyle}">${e} ${count}</span>`;
+    const activeStyle = iVoted
+      ? 'border:1px solid #38bdf8; background:rgba(56,189,248,0.2);'
+      : 'border:1px solid #333; background:rgba(255,255,255,0.05);';
+    return `<span onclick="emitReact('${id}', '${e}')"
+                 title="${EMOJI_DEF[e]}"
+                 aria-label="${EMOJI_DEF[e]}"
+                 style="cursor:pointer; padding:4px 8px; border-radius:15px;
+                        font-size:0.9rem; transition:all 0.2s; ${activeStyle}">
+              <span role="img" aria-hidden="true">${e}</span> ${count}
+            </span>`;
   }).join('');
 }
-function emitReact(id, emoji) { if(!myName) return alert("Please Join first to react."); s.emit('qaReact', { threadId: id, emoji: emoji, user: myName }); }
+
+function emitReact(id, emoji) {
+  if(!myName) return alert("Please Join first to react.");
+  s.emit('qaReact', { threadId: id, emoji: emoji, user: myName });
+}
 function flagQa(id, isMe){ if(isMe) s.emit('deleteQa', id); else s.emit('flagQa', id); }
 
 function addQaThread(user, text, isMe, country, serverId, reactions, flags) {
@@ -635,7 +685,7 @@ function addQaThread(user, text, isMe, country, serverId, reactions, flags) {
   const isAi = (user === "🤖 Session Facilitator");
   const userDisplay = isAi ? `<span style="color:#ffcc00;font-weight:bold;">${user}</span>` : user;
   const bgStyle = isAi ? 'background:rgba(255,215,0,0.1); border-left:3px solid #ffcc00;' : '';
-  const safeReactions = reactions || { '🎓':[], '💡':[], '🤝':[], '⭐':[], '📜':[] };
+  const safeReactions = reactions || { '🎓':[], '💡':[], '🤝':[], '⭐':[], '📜':[], '🧠':[] };
   const actionIcon = isMe ? '🗑️' : '⚑';
   const hasFlagged = flags && flags.includes(myName);
   const flagColor = hasFlagged ? 'red' : 'inherit';
@@ -646,29 +696,47 @@ function addQaThread(user, text, isMe, country, serverId, reactions, flags) {
   div.innerHTML = `
     <div style="display:flex; justify-content:space-between;">
       <span class="qa-question">Q: ${text}</span>
-      <span id="qa-flag-btn-${serverId}" onclick="${hasFlagged ? '' : `flagQa('${serverId}', ${isMe})`}" style="cursor:${flagPointer}; opacity:${flagOpacity}; color:${flagColor};" title="${isMe?'Delete':'Flag'}">${actionIcon}</span>
+      <span id="qa-flag-btn-${serverId}"
+            onclick="${hasFlagged ? '' : `flagQa('${serverId}', ${isMe})`}"
+            style="cursor:${flagPointer}; opacity:${flagOpacity}; color:${flagColor};"
+            title="${isMe?'Delete':'Flag'}">${actionIcon}</span>
     </div>
     <div class="msg-meta">Asked by ${userDisplay} • ${country||'Global'}</div>
-    <div class="qa-reactions" id="react-box-${serverId}" style="margin:5px 0; display:flex; gap:8px;">${renderReactionButtons(serverId, safeReactions)}</div>
+    <div class="qa-reactions" id="react-box-${serverId}"
+         style="margin:5px 0; display:flex; gap:8px;">
+      ${renderReactionButtons(serverId, safeReactions)}
+    </div>
     <div class="qa-replies" id="replies-${serverId}"></div>
     <div style="margin-top:8px; padding-top:5px; border-top:1px solid #eee;">
-      <span style="cursor:pointer; color:#167690; font-weight:800; font-size:0.8rem;" onclick="openReplyUI('${serverId}')">💬 REPLY</span>
+      <span style="cursor:pointer; color:#167690; font-weight:800; font-size:0.8rem;"
+            onclick="openReplyUI('${serverId}')">💬 REPLY</span>
     </div>`;
   qaTab.appendChild(div); qaTab.scrollTop = qaTab.scrollHeight;
 }
 
 function renderReplyReactionButtons(threadId, replyId, r) {
-  const emojis = ['🎓', '💡', '🤝', '⭐', '📜'];
+  const emojis = Object.keys(EMOJI_DEF);
   return emojis.map(e => {
     const list = (r && Array.isArray(r[e])) ? r[e] : [];
     const count = list.length;
     const iVoted = myName && list.includes(myName);
     const activeStyle = iVoted ? 'opacity:1; background:rgba(22,118,144,0.1);' : 'opacity:0.6;';
     const border = iVoted ? '1px solid #167690' : '1px solid transparent';
-    return `<span onclick="emitReplyReact('${threadId}', '${replyId}', '${e}')" style="cursor:pointer; font-size:0.75rem; padding:2px 6px; border-radius:10px; ${activeStyle} border:${border}; transition:0.2s;">${e} ${count > 0 ? count : ''}</span>`;
+    return `<span onclick="emitReplyReact('${threadId}', '${replyId}', '${e}')"
+                 title="${EMOJI_DEF[e]}"
+                 aria-label="${EMOJI_DEF[e]}"
+                 style="cursor:pointer; font-size:0.75rem; padding:2px 6px;
+                        border-radius:10px; ${activeStyle} border:${border};
+                        transition:0.2s;">
+              <span role="img" aria-hidden="true">${e}</span> ${count > 0 ? count : ''}
+            </span>`;
   }).join('');
 }
-function emitReplyReact(threadId, replyId, emoji) { if(!myName) return alert("Join to react!"); s.emit('qaReplyReact', { threadId, replyId, emoji, user: myName }); }
+
+function emitReplyReact(threadId, replyId, emoji) {
+  if(!myName) return alert("Join to react!");
+  s.emit('qaReplyReact', { threadId, replyId, emoji, user: myName });
+}
 
 function addQaReplyUI(threadId, replyId, user, text, reactions) {
   const box = document.getElementById(`replies-${threadId}`);
@@ -676,15 +744,18 @@ function addQaReplyUI(threadId, replyId, user, text, reactions) {
     if(document.getElementById(`reply-${replyId}`)) return;
     const div = document.createElement('div');
     div.className = 'qa-reply-item'; div.id = `reply-${replyId}`;
-    const safeReacts = reactions || { '🎓':[], '💡':[], '🤝':[], '⭐':[], '📜':[] };
+    const safeReacts = reactions || { '🎓':[], '💡':[], '🤝':[], '⭐':[], '📜':[], '🧠':[] };
     div.innerHTML = `
       <div><strong style="color:#167690">${user}:</strong> ${text}</div>
-      <div id="reply-reacts-${replyId}" style="margin-top:5px; display:flex; gap:5px;">${renderReplyReactionButtons(threadId, replyId, safeReacts)}</div>
+      <div id="reply-reacts-${replyId}" style="margin-top:5px; display:flex; gap:5px;">
+        ${renderReplyReactionButtons(threadId, replyId, safeReacts)}
+      </div>
     `;
     box.appendChild(div);
   }
 }
 
+// Globe + book init unchanged
 (function initGlobe() {
   const container = document.getElementById('heroGlobeContainer');
   if (!container) return;
@@ -778,7 +849,14 @@ function addQaReplyUI(threadId, replyId, user, text, reactions) {
   scene.add(new THREE.AmbientLight(0xffffff, 0.7));
   const dirLight = new THREE.DirectionalLight(0xffffff, 1.0); dirLight.position.set(5, 10, 7); scene.add(dirLight);
   const geometry = new THREE.BoxGeometry(3.2, 4.6, 0.5);
-  const materials = [ new THREE.MeshLambertMaterial({ color: 0xfdfdfd }), new THREE.MeshLambertMaterial({ color: 0x111111 }), new THREE.MeshLambertMaterial({ color: 0xfdfdfd }), new THREE.MeshLambertMaterial({ color: 0xfdfdfd }), new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('bookfront.jpg'), color: 0xffffff }), new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('bookcoverback.jpg'), color: 0xffffff }) ];
+  const materials = [
+    new THREE.MeshLambertMaterial({ color: 0xfdfdfd }),
+    new THREE.MeshLambertMaterial({ color: 0x111111 }),
+    new THREE.MeshLambertMaterial({ color: 0xfdfdfd }),
+    new THREE.MeshLambertMaterial({ color: 0xfdfdfd }),
+    new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('bookfront.jpg'), color: 0xffffff }),
+    new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('bookcoverback.jpg'), color: 0xffffff })
+  ];
   const book = new THREE.Mesh(geometry, materials);
   scene.add(book); book.rotation.x = 0.15;
   const controls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -786,8 +864,14 @@ function addQaReplyUI(threadId, replyId, user, text, reactions) {
   const clock = new THREE.Clock();
   function animate() { requestAnimationFrame(animate); book.position.y = Math.sin(clock.getElapsedTime() * 1.5) * 0.1; controls.update(); renderer.render(scene, camera); }
   animate();
-  window.addEventListener('resize', () => { renderer.setSize(container.clientWidth, container.clientHeight); camera.aspect = container.clientWidth / container.clientHeight; camera.updateProjectionMatrix(); camera.position.z = window.innerWidth < 768 ? 9 : 7; });
+  window.addEventListener('resize', () => {
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    camera.aspect = container.clientWidth / container.clientHeight;
+    camera.updateProjectionMatrix();
+    camera.position.z = window.innerWidth < 768 ? 9 : 7;
+  });
 })();
 </script>
+
 </body>
 </html>
