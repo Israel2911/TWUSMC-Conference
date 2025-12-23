@@ -1,10 +1,10 @@
-const express = require('express'); 
+const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
-const helmet = require('helmet'); 
-const cors = require('cors');     
-const rateLimit = require('express-rate-limit'); 
+const helmet = require('helmet');
+const cors = require('cors');
+const rateLimit = require('express-rate-limit');
 
 const app = express();
 const server = http.createServer(app);
@@ -25,22 +25,23 @@ app.use(express.static(path.join(__dirname, 'public'), { acceptRanges: false }))
 
 const io = new Server(server, { cors: { origin: "*", methods: ["GET", "POST"] } });
 
-// --- GLOBAL STATE ---
-let K = false;                // killed flag
-let T = 0;                    // total connections
-let R = {};                   // timezone counts
-let A = {};                   // socketId -> tz
-let userLiveStates = {};      // per‑viewer live unlock
-const ADMIN_PASS = "TWU2025"; 
+// GLOBAL STATE
+let K = false;
+let T = 0;
+let R = {};
+let A = {};
+let userLiveStates = {};
+const ADMIN_PASS = "TWU2025";
 
 const MAX_HISTORY = 60;
-let chatHistory = []; 
+let chatHistory = [];
 let qaHistory = [];
 
 const lastMsgTime = {};
 const RATE_LIMIT_MS = 800;
 const MAX_MSG_LENGTH = 500;
 
+// AI facilitator
 const AI_NAME = "🤖 Session Facilitator";
 const AI_QUESTIONS = [
   "How do you see AI influencing moral decision-making in your field?",
@@ -53,12 +54,10 @@ const AI_QUESTIONS = [
 ];
 let aiIndex = 0;
 
-// Helper: scholarly reaction map (includes 🧠)
 function emptyReactions() {
   return { '🎓': [], '💡': [], '🤝': [], '⭐': [], '📜': [], '🧠': [] };
 }
 
-// AI facilitator question every 60 seconds
 setInterval(() => {
   if (K) return;
   const qText = AI_QUESTIONS[aiIndex];
@@ -104,7 +103,7 @@ io.on('connection', (socket) => {
     io.emit('r', R);
   });
 
-  // per‑viewer GO LIVE toggle
+  // per-viewer GO LIVE
   socket.on('x', () => {
     userLiveStates[socket.id] = !userLiveStates[socket.id];
     socket.emit('z', { isLive: userLiveStates[socket.id], isKilled: K });
@@ -122,7 +121,7 @@ io.on('connection', (socket) => {
       id: 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
       user: escapeHtml(payload.user),
       text: escapeHtml(payload.text),
-      country: escapeHtml(payload.country),
+      country: escapeHtml(payload.country || ''),
       type: 'chat',
       flags: [],
       reactions: {}
@@ -143,11 +142,11 @@ io.on('connection', (socket) => {
     io.emit('chatReactionUpdate', { id, reactions: msg.reactions });
   });
 
-  // red‑flag with community notice
   socket.on('chatFlag', ({ id, user }) => {
     const msg = chatHistory.find(m => m.id === id);
     if (!msg) return;
 
+    if (!msg.flags) msg.flags = [];
     if (!msg.flags.includes(user)) msg.flags.push(user);
 
     const shouldDelete = msg.flags.length >= 3 || msg.user === user;
@@ -158,7 +157,7 @@ io.on('connection', (socket) => {
       const notice = {
         id: 'sys-' + Date.now(),
         user: '🛡 Community Notice',
-        text: "A message was removed after being red‑flagged by our community. Disagreement is welcome, but posts must remain respectful. Please flag harmful or inappropriate content so we can keep this space safe.",
+        text: "A message was removed after being red-flagged by our community. Disagreement is welcome, but posts must remain respectful. Please flag harmful or inappropriate content so we can keep this space safe.",
         country: 'System',
         type: 'chat',
         flags: [],
@@ -167,6 +166,8 @@ io.on('connection', (socket) => {
       chatHistory.push(notice);
       if (chatHistory.length > MAX_HISTORY) chatHistory.shift();
       io.emit('chatIncoming', notice);
+    } else {
+      io.emit('chatFlagUpdate', { id, flags: msg.flags });
     }
   });
 
@@ -177,7 +178,7 @@ io.on('connection', (socket) => {
       id: 'qa-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
       user: escapeHtml(payload.user),
       text: escapeHtml(payload.text),
-      country: escapeHtml(payload.country),
+      country: escapeHtml(payload.country || ''),
       replies: [],
       reactions: emptyReactions(),
       flags: []
@@ -189,10 +190,16 @@ io.on('connection', (socket) => {
   socket.on('qaFlag', ({ id, user }) => {
     const thread = qaHistory.find(t => t.id === id);
     if (!thread) return;
+
+    if (!thread.flags) thread.flags = [];
     if (!thread.flags.includes(user)) thread.flags.push(user);
-    if (thread.flags.length >= 3 || thread.user === user) {
+
+    const shouldDelete = thread.flags.length >= 3 || thread.user === user;
+    if (shouldDelete) {
       qaHistory = qaHistory.filter(t => t.id !== id);
       io.emit('qaDeleted', id);
+    } else {
+      io.emit('qaFlagUpdate', { id, flags: thread.flags });
     }
   });
 
@@ -202,10 +209,14 @@ io.on('connection', (socket) => {
       id: 'rep-' + Date.now(),
       user: escapeHtml(payload.user),
       text: escapeHtml(payload.text),
-      reactions: emptyReactions()
+      reactions: emptyReactions(),
+      flags: []
     };
     const thread = qaHistory.find(t => t.id === payload.threadId);
-    if (thread) thread.replies.push(replyData);
+    if (thread) {
+      if (!thread.replies) thread.replies = [];
+      thread.replies.push(replyData);
+    }
     io.emit('qaReplyIncoming', { threadId: payload.threadId, ...replyData });
   });
 
@@ -235,6 +246,24 @@ io.on('connection', (socket) => {
     const idx = list.indexOf(user);
     if (idx === -1) list.push(user); else list.splice(idx, 1);
     io.emit('qaReplyReactionUpdate', { threadId, replyId, reactions: reply.reactions });
+  });
+
+  socket.on('qaReplyFlag', ({ threadId, replyId, user }) => {
+    const thread = qaHistory.find(t => t.id === threadId);
+    if (!thread || !thread.replies) return;
+    const reply = thread.replies.find(r => r.id === replyId);
+    if (!reply) return;
+
+    if (!reply.flags) reply.flags = [];
+    if (!reply.flags.includes(user)) reply.flags.push(user);
+
+    const shouldDelete = reply.flags.length >= 3 || reply.user === user;
+    if (shouldDelete) {
+      thread.replies = thread.replies.filter(r => r.id !== replyId);
+      io.emit('qaReplyDeleted', { threadId, replyId });
+    } else {
+      io.emit('qaReplyFlagUpdate', { threadId, replyId, flags: reply.flags });
+    }
   });
 
   // Admin kill
