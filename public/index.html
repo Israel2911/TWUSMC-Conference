@@ -643,6 +643,7 @@ function closeReply(){ document.getElementById('replyOverlay').style.display='no
 function submitReply(){ const t=document.getElementById('replyInput').value; if(t)s.emit('qaReply',{threadId:targetQaId,user:myName,text:t}); closeReply(); document.getElementById('replyInput').value=''; }
 
 // Scholarly meanings (threads + replies)
+// Scholarly meanings
 const EMOJI_DEF = {
   '🎓': 'Insightful',
   '💡': 'Great Idea',
@@ -652,29 +653,34 @@ const EMOJI_DEF = {
   '🧠': 'Deep'
 };
 
-function renderReactionButtons(id, r) {
+function renderReplyReactionButtons(threadId, replyId, r) {
   const emojis = Object.keys(EMOJI_DEF);
   return emojis.map(e => {
-    const list = (r && Array.isArray(r[e])) ? r[e] : []; 
+    const list  = (r && Array.isArray(r[e])) ? r[e] : [];
     const count = list.length;
     const iVoted = myName && list.includes(myName);
     const activeStyle = iVoted
-      ? 'border:1px solid #38bdf8; background:rgba(56,189,248,0.2);'
-      : 'border:1px solid #333; background:rgba(255,255,255,0.05);';
-    return `<span onclick="emitReact('${id}', '${e}')"
-                 title="${EMOJI_DEF[e]}"
-                 aria-label="${EMOJI_DEF[e]}"
-                 style="cursor:pointer; padding:4px 8px; border-radius:15px;
-                        font-size:0.9rem; transition:all 0.2s; ${activeStyle}">
-              <span role="img" aria-hidden="true">${e}</span> ${count}
-            </span>`;
+      ? 'opacity:1; background:rgba(22,118,144,0.1);'
+      : 'opacity:0.6;';
+    const border = iVoted ? '1px solid #167690' : '1px solid transparent';
+
+    return `
+      <span onclick="emitReplyReact('${threadId}', '${replyId}', '${e}')"
+            title="${EMOJI_DEF[e]}"
+            aria-label="${EMOJI_DEF[e]}"
+            style="cursor:pointer; font-size:0.75rem; padding:2px 6px;
+                   border-radius:10px; ${activeStyle} border:${border};
+                   transition:0.2s;">
+        <span role="img" aria-hidden="true">${e}</span> ${count || ''}
+      </span>`;
   }).join('');
 }
 
-function emitReact(id, emoji) {
-  if(!myName) return alert("Please Join first to react.");
-  s.emit('qaReact', { threadId: id, emoji: emoji, user: myName });
+function emitReplyReact(threadId, replyId, emoji) {
+  if (!myName) return alert("Join to react!");
+  s.emit('qaReplyReact', { threadId, replyId, emoji, user: myName });
 }
+
 function flagQa(id, isMe){ if(isMe) s.emit('deleteQa', id); else s.emit('flagQa', id); }
 
 function addQaThread(user, text, isMe, country, serverId, reactions, flags) {
