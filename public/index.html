@@ -358,7 +358,13 @@
 </section>
 
 <script>
-let s; try{s=io()}catch(e){console.warn("OFFLINE");s={emit:(e,d)=>{},on:(e,c)=>{}};}
+let s; 
+try { 
+  s = io(); 
+} catch(e) {
+  console.warn("OFFLINE");
+  s = { emit: () => {}, on: () => {} };
+}
 
 // Initial requests
 s.emit('r', Intl.DateTimeFormat().resolvedOptions().timeZone);
@@ -368,16 +374,16 @@ let myName = "", myCountry = "", currentTab = "chat", rawChatData = [], rawQaDat
 const isAdmin = new URLSearchParams(window.location.search).get('m') === 'a';
 
 // DOM
-const hS = document.getElementById('heroStandard'),
-      hL = document.getElementById('heroLive'),
-      hB = document.getElementById('heroBg'),
-      vC = document.getElementById('viewerCount'),
-      cN = document.getElementById('countNum'),
-      kS = document.getElementById('killSwitch'),
-      lT = document.getElementById('liveToggle'),
+const hS      = document.getElementById('heroStandard'),
+      hL      = document.getElementById('heroLive'),
+      hB      = document.getElementById('heroBg'),
+      vC      = document.getElementById('viewerCount'),
+      cN      = document.getElementById('countNum'),
+      kS      = document.getElementById('killSwitch'),
+      lT      = document.getElementById('liveToggle'),
       chatTab = document.getElementById('chatTab'),
       qaTab   = document.getElementById('qaTab'),
-      msgInput = document.getElementById('msgInput'),
+      msgInput= document.getElementById('msgInput'),
       stackEl = document.getElementById('timeStack');
 
 // Popups
@@ -440,7 +446,7 @@ function updateReactionBar(type) {
 }
 updateReactionBar('chat');
 
-// Synopsis
+// Synopsis toggle
 document.getElementById('expandBtn').addEventListener('click', function () {
   const c = document.getElementById('synopsisExpanded');
   c.classList.toggle('open');
@@ -456,7 +462,12 @@ if (kS) kS.onclick = () => {
 };
 
 // Socket listeners
-s.on('z', st => { toggleLiveUI(st.isLive || st); if (st.isKilled) killStreamUI(); });
+s.on('z', st => {
+  const live = st && typeof st.isLive === 'boolean' ? st.isLive : false;
+  toggleLiveUI(live);
+  if (st && st.isKilled) killStreamUI();
+});
+
 s.on('t', c => { if (cN) cN.innerText = c; });
 s.on('r', d => { countries.forEach((c, i) => { const el = document.getElementById(`count-${i}`); if (el) el.innerText = d[c.tz] || 0; }); });
 
@@ -474,7 +485,7 @@ s.on('qaReplyIncoming', d => {
   addQaReplyUI(d.threadId, d.id, d.user, d.text, d.reactions);
 });
 
-// *** NEW: reaction update listeners ***
+// reaction updates from server
 s.on('qaReactionUpdate', d => {
   const thread = rawQaData.find(t => t.id === d.threadId);
   if (thread) thread.reactions = d.reactions;
@@ -491,7 +502,6 @@ s.on('qaReplyReactionUpdate', d => {
   const box = document.getElementById('reply-reacts-' + d.replyId);
   if (box) box.innerHTML = renderReplyReactionButtons(d.threadId, d.replyId, d.reactions);
 });
-// *** END NEW ***
 
 // History
 s.on('history', d => {
@@ -524,7 +534,7 @@ function killStreamUI() {
   if (hL) hL.innerHTML = `<div class="teams-backup"><h2>Stream Ended</h2><a href="#">Join Teams</a></div>`;
 }
 
-// World stack
+// World stack + weather (unchanged)
 const countries = [
   { name: 'India',     flag: '🇮🇳', tz: 'Asia/Kolkata',       lat: 13.0827, lng: 80.2707,  color: '#FF9933' },
   { name: 'Canada',    flag: '🇨🇦', tz: 'America/Vancouver',  lat: 49.2827, lng: -123.1207, color: '#ff0000' },
@@ -567,7 +577,7 @@ function updateStackTimes() {
     try {
       const e = document.getElementById(`stack-time-${i}`);
       if (e) e.innerText = n.toLocaleTimeString('en-GB', { timeZone: c.tz, hour: '2-digit', minute: '2-digit' });
-    } catch (e) { }
+    } catch(e) {}
   });
 }
 setInterval(updateStackTimes, 1000); updateStackTimes();
@@ -590,7 +600,7 @@ async function fetchRealWeather() {
         if (elTemp) elTemp.innerText = `${Math.round(data.current_weather.temperature)}°C`;
         if (elIcon) elIcon.innerText = icon;
       }
-    } catch (err) { }
+    } catch(err) {}
   });
 }
 fetchRealWeather();
@@ -743,12 +753,92 @@ function renderReactionButtons(id, r) {
 }
 function emitReact(id, emoji) {
   if (!myName) return alert("Please Join first to react.");
-  s.emit('qaReact', { threadId: id, emoji: emoji, user: myName });
+  s.emit('qaReact', { threadId: id, emoji, user: myName });
 }
-function flagQa(id, isMe) { if (isMe) s.emit('flagQa', { id, user: myName }); }
+function flagQa(id, isMe) { if (isMe) s.emit('qaFlag', { id, user: myName }); }
 
-// (rest of Q&A and Three.js code unchanged)
+function addQaThread(user, text, isMe, country, serverId, reactions, flags) {
+  if (!qaTab) return;
+  if (serverId && document.getElementById(serverId)) return;
+  const div = document.createElement('div');
+  div.className = 'qa-thread'; div.id = serverId;
+  const isAi = (user === "🤖 Session Facilitator");
+  const userDisplay = isAi ? `<span style="color:#ffcc00;font-weight:bold;">${user}</span>` : user;
+  const bgStyle = isAi ? 'background:rgba(255,215,0,0.1); border-left:3px solid #ffcc00;' : '';
+  const safeReactions = reactions || { '🎓':[], '💡':[], '🤝':[], '⭐':[], '📜':[], '🧠':[] };
+  const actionIcon = isMe ? '🗑️' : '⚑';
+  const hasFlagged = flags && flags.includes(myName);
+  const flagColor = hasFlagged ? 'red' : 'inherit';
+  const flagOpacity = hasFlagged || isMe ? '1' : '0.3';
+  const flagPointer = hasFlagged ? 'default' : 'pointer';
+
+  div.style.cssText = bgStyle;
+  div.innerHTML = `
+    <div style="display:flex; justify-content:space-between;">
+      <span class="qa-question">Q: ${text}</span>
+      <span id="qa-flag-btn-${serverId}"
+            onclick="${hasFlagged ? '' : `flagQa('${serverId}', ${isMe})`}"
+            style="cursor:${flagPointer}; opacity:${flagOpacity}; color:${flagColor};"
+            title="${isMe ? 'Delete' : 'Flag'}">${actionIcon}</span>
+    </div>
+    <div class="msg-meta">Asked by ${userDisplay} • ${country || 'Global'}</div>
+    <div class="qa-reactions" id="react-box-${serverId}"
+         style="margin:5px 0; display:flex; gap:8px;">
+      ${renderReactionButtons(serverId, safeReactions)}
+    </div>
+    <div class="qa-replies" id="replies-${serverId}"></div>
+    <div style="margin-top:8px; padding-top:5px; border-top:1px solid #eee;">
+      <span style="cursor:pointer; color:#167690; font-weight:800; font-size:0.8rem;"
+            onclick="openReplyUI('${serverId}')">💬 REPLY</span>
+    </div>`;
+  qaTab.appendChild(div);
+  qaTab.scrollTop = qaTab.scrollHeight;
+}
+
+function renderReplyReactionButtons(threadId, replyId, r) {
+  const emojis = Object.keys(EMOJI_DEF);
+  return emojis.map(e => {
+    const list = (r && Array.isArray(r[e])) ? r[e] : [];
+    const count = list.length;
+    const iVoted = myName && list.includes(myName);
+    const activeStyle = iVoted ? 'opacity:1; background:rgba(22,118,144,0.1);' : 'opacity:0.6;';
+    const border = iVoted ? '1px solid #167690' : '1px solid transparent';
+    return `<span onclick="emitReplyReact('${threadId}', '${replyId}', '${e}')"
+                 title="${EMOJI_DEF[e]}"
+                 aria-label="${EMOJI_DEF[e]}"
+                 style="cursor:pointer; font-size:0.75rem; padding:2px 6px;
+                        border-radius:10px; ${activeStyle} border:${border};
+                        transition:0.2s;">
+              <span role="img" aria-hidden="true">${e}</span> ${count || ''}
+            </span>`;
+  }).join('');
+}
+
+function emitReplyReact(threadId, replyId, emoji) {
+  if (!myName) return alert("Join to react!");
+  s.emit('qaReplyReact', { threadId, replyId, emoji, user: myName });
+}
+
+function addQaReplyUI(threadId, replyId, user, text, reactions) {
+  const box = document.getElementById(`replies-${threadId}`);
+  if (box) {
+    if (document.getElementById(`reply-${replyId}`)) return;
+    const div = document.createElement('div');
+    div.className = 'qa-reply-item'; div.id = `reply-${replyId}`;
+    const safeReacts = reactions || { '🎓':[], '💡':[], '🤝':[], '⭐':[], '📜':[], '🧠':[] };
+    div.innerHTML = `
+      <div><strong style="color:#167690">${user}:</strong> ${text}</div>
+      <div id="reply-reacts-${replyId}" style="margin-top:5px; display:flex; gap:5px;">
+        ${renderReplyReactionButtons(threadId, replyId, safeReacts)}
+      </div>`;
+    box.appendChild(div);
+  }
+}
+
+// Globe + Book initializers unchanged...
+// (keep your existing initGlobe() and initBook() blocks here)
 </script>
+
 
 
 </body>
