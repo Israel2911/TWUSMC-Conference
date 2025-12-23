@@ -9,7 +9,6 @@ const rateLimit = require('express-rate-limit');
 const app = express();
 const server = http.createServer(app);
 
-// --- SECURITY CONFIGURATION ---
 app.use(
   helmet({
     contentSecurityPolicy: false,
@@ -17,7 +16,6 @@ app.use(
     referrerPolicy: { policy: "strict-origin-when-cross-origin" }
   })
 );
-
 app.use(cors({ origin: "*", methods: ["GET", "POST"] }));
 
 const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100 });
@@ -28,11 +26,11 @@ app.use(express.static(path.join(__dirname, 'public'), { acceptRanges: false }))
 const io = new Server(server, { cors: { origin: "*", methods: ["GET", "POST"] } });
 
 // --- GLOBAL STATE ---
-let K = false;          // killed flag
-let T = 0;              // total connections
-let R = {};             // timezone counts
-let A = {};             // socketId -> tz
-let userLiveStates = {}; 
+let K = false;                // killed flag
+let T = 0;                    // total connections
+let R = {};                   // timezone counts
+let A = {};                   // socketId -> tz
+let userLiveStates = {};      // per‑viewer live unlock
 const ADMIN_PASS = "TWU2025"; 
 
 const MAX_HISTORY = 60;
@@ -40,7 +38,6 @@ let chatHistory = [];
 let qaHistory = [];
 
 const lastMsgTime = {};
-const spamCount = {};
 const RATE_LIMIT_MS = 800;
 const MAX_MSG_LENGTH = 500;
 
@@ -56,12 +53,12 @@ const AI_QUESTIONS = [
 ];
 let aiIndex = 0;
 
-// Helper: empty scholarly reaction map
+// Helper: scholarly reaction map (includes 🧠)
 function emptyReactions() {
   return { '🎓': [], '💡': [], '🤝': [], '⭐': [], '📜': [], '🧠': [] };
 }
 
-// *** AI TIMER: every 15 seconds ***
+// AI facilitator question every 60 seconds
 setInterval(() => {
   if (K) return;
   const qText = AI_QUESTIONS[aiIndex];
@@ -78,7 +75,7 @@ setInterval(() => {
   };
   qaHistory.push(threadData);
   io.emit('qaIncoming', threadData);
-}, 15000); // 15s [web:249]
+}, 60000); // 1 minute
 
 function escapeHtml(text) {
   if (!text) return "";
@@ -92,9 +89,8 @@ function escapeHtml(text) {
 
 io.on('connection', (socket) => {
   T++;
-  userLiveStates[socket.id] = false; 
-  
-  // send initial state (you are using 'history' on client now, keep both if needed)
+  userLiveStates[socket.id] = false;
+
   socket.emit('history', { chat: chatHistory, qa: qaHistory });
   socket.emit('z', { isLive: userLiveStates[socket.id], isKilled: K });
 
@@ -108,12 +104,13 @@ io.on('connection', (socket) => {
     io.emit('r', R);
   });
 
+  // per‑viewer GO LIVE toggle
   socket.on('x', () => {
     userLiveStates[socket.id] = !userLiveStates[socket.id];
     socket.emit('z', { isLive: userLiveStates[socket.id], isKilled: K });
   });
 
-  // CHAT LOGIC
+  // CHAT
   socket.on('chatMsg', (payload) => {
     const now = Date.now();
     if (lastMsgTime[socket.id] && now - lastMsgTime[socket.id] < RATE_LIMIT_MS) return;
@@ -135,32 +132,45 @@ io.on('connection', (socket) => {
     io.emit('chatIncoming', msgData);
   });
 
-  socket.on('chatReact', (payload) => {
-    const { id, emoji, user } = payload;
+  socket.on('chatReact', ({ id, emoji, user }) => {
     const msg = chatHistory.find(m => m.id === id);
-    if (msg) {
-      if (!msg.reactions) msg.reactions = {};
-      if (!msg.reactions[emoji]) msg.reactions[emoji] = [];
-      const list = msg.reactions[emoji];
-      const idx = list.indexOf(user);
-      if (idx === -1) list.push(user); else list.splice(idx, 1);
-      io.emit('chatReactionUpdate', { id, reactions: msg.reactions });
+    if (!msg) return;
+    if (!msg.reactions) msg.reactions = {};
+    if (!msg.reactions[emoji]) msg.reactions[emoji] = [];
+    const list = msg.reactions[emoji];
+    const idx = list.indexOf(user);
+    if (idx === -1) list.push(user); else list.splice(idx, 1);
+    io.emit('chatReactionUpdate', { id, reactions: msg.reactions });
+  });
+
+  // red‑flag with community notice
+  socket.on('chatFlag', ({ id, user }) => {
+    const msg = chatHistory.find(m => m.id === id);
+    if (!msg) return;
+
+    if (!msg.flags.includes(user)) msg.flags.push(user);
+
+    const shouldDelete = msg.flags.length >= 3 || msg.user === user;
+    if (shouldDelete) {
+      chatHistory = chatHistory.filter(m => m.id !== id);
+      io.emit('chatDeleted', id);
+
+      const notice = {
+        id: 'sys-' + Date.now(),
+        user: '🛡 Community Notice',
+        text: "A message was removed after being red‑flagged by our community. Disagreement is welcome, but posts must remain respectful. Please flag harmful or inappropriate content so we can keep this space safe.",
+        country: 'System',
+        type: 'chat',
+        flags: [],
+        reactions: {}
+      };
+      chatHistory.push(notice);
+      if (chatHistory.length > MAX_HISTORY) chatHistory.shift();
+      io.emit('chatIncoming', notice);
     }
   });
 
-  socket.on('chatFlag', (payload) => {
-    const { id, user } = payload;
-    const msg = chatHistory.find(m => m.id === id);
-    if (msg) {
-      if (!msg.flags.includes(user)) msg.flags.push(user);
-      if (msg.flags.length >= 3 || msg.user === user) {
-        chatHistory = chatHistory.filter(m => m.id !== id);
-        io.emit('chatDeleted', id);
-      }
-    }
-  });
-
-  // QA LOGIC
+  // QA threads
   socket.on('qaAsk', (payload) => {
     if (!payload.text || payload.text.length > MAX_MSG_LENGTH) return;
     const threadData = {
@@ -176,21 +186,19 @@ io.on('connection', (socket) => {
     io.emit('qaIncoming', threadData);
   });
 
-  socket.on('qaFlag', (payload) => {
-    const { id, user } = payload;
+  socket.on('qaFlag', ({ id, user }) => {
     const thread = qaHistory.find(t => t.id === id);
-    if (thread) {
-      if (!thread.flags.includes(user)) thread.flags.push(user);
-      if (thread.flags.length >= 3 || thread.user === user) {
-        qaHistory = qaHistory.filter(t => t.id !== id);
-        io.emit('qaDeleted', id);
-      }
+    if (!thread) return;
+    if (!thread.flags.includes(user)) thread.flags.push(user);
+    if (thread.flags.length >= 3 || thread.user === user) {
+      qaHistory = qaHistory.filter(t => t.id !== id);
+      io.emit('qaDeleted', id);
     }
   });
 
   socket.on('qaReply', (payload) => {
     if (!payload.text || payload.text.length > MAX_MSG_LENGTH) return;
-    const replyData = { 
+    const replyData = {
       id: 'rep-' + Date.now(),
       user: escapeHtml(payload.user),
       text: escapeHtml(payload.text),
@@ -201,39 +209,32 @@ io.on('connection', (socket) => {
     io.emit('qaReplyIncoming', { threadId: payload.threadId, ...replyData });
   });
 
-  socket.on('qaReact', (payload) => {
-    const { threadId, emoji, user } = payload;
-    const allowed = ['🎓', '💡', '🤝', '⭐', '📜', '🧠'];  // allow 🧠
+  socket.on('qaReact', ({ threadId, emoji, user }) => {
+    const allowed = ['🎓', '💡', '🤝', '⭐', '📜', '🧠'];
     if (!allowed.includes(emoji)) return;
-
     const thread = qaHistory.find(t => t.id === threadId);
-    if (thread) {
-      if (!thread.reactions) thread.reactions = emptyReactions();
-      if (!Array.isArray(thread.reactions[emoji])) thread.reactions[emoji] = [];
-      const list = thread.reactions[emoji];
-      const idx = list.indexOf(user);
-      if (idx === -1) list.push(user); else list.splice(idx, 1);
-      io.emit('qaReactionUpdate', { threadId, reactions: thread.reactions });
-    }
+    if (!thread) return;
+    if (!thread.reactions) thread.reactions = emptyReactions();
+    if (!Array.isArray(thread.reactions[emoji])) thread.reactions[emoji] = [];
+    const list = thread.reactions[emoji];
+    const idx = list.indexOf(user);
+    if (idx === -1) list.push(user); else list.splice(idx, 1);
+    io.emit('qaReactionUpdate', { threadId, reactions: thread.reactions });
   });
 
-  socket.on('qaReplyReact', (payload) => {
-    const { threadId, replyId, emoji, user } = payload;
-    const allowed = ['🎓', '💡', '🤝', '⭐', '📜', '🧠']; 
+  socket.on('qaReplyReact', ({ threadId, replyId, emoji, user }) => {
+    const allowed = ['🎓', '💡', '🤝', '⭐', '📜', '🧠'];
     if (!allowed.includes(emoji)) return;
-
     const thread = qaHistory.find(t => t.id === threadId);
-    if (thread && thread.replies) {
-      const reply = thread.replies.find(r => r.id === replyId);
-      if (reply) {
-        if (!reply.reactions) reply.reactions = emptyReactions();
-        if (!reply.reactions[emoji]) reply.reactions[emoji] = [];
-        const list = reply.reactions[emoji];
-        const idx = list.indexOf(user);
-        if (idx === -1) list.push(user); else list.splice(idx, 1);
-        io.emit('qaReplyReactionUpdate', { threadId, replyId, reactions: reply.reactions });
-      }
-    }
+    if (!thread || !thread.replies) return;
+    const reply = thread.replies.find(r => r.id === replyId);
+    if (!reply) return;
+    if (!reply.reactions) reply.reactions = emptyReactions();
+    if (!reply.reactions[emoji]) reply.reactions[emoji] = [];
+    const list = reply.reactions[emoji];
+    const idx = list.indexOf(user);
+    if (idx === -1) list.push(user); else list.splice(idx, 1);
+    io.emit('qaReplyReactionUpdate', { threadId, replyId, reactions: reply.reactions });
   });
 
   // Admin kill
