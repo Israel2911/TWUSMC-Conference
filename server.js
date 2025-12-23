@@ -1,4 +1,4 @@
-const express = require('express');
+const express = require('express'); 
 const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
@@ -12,9 +12,9 @@ const server = http.createServer(app);
 // --- SECURITY CONFIGURATION ---
 app.use(
   helmet({
-    contentSecurityPolicy: false, 
-    crossOriginEmbedderPolicy: false, 
-    referrerPolicy: { policy: "strict-origin-when-cross-origin" } 
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false,
+    referrerPolicy: { policy: "strict-origin-when-cross-origin" }
   })
 );
 
@@ -28,10 +28,10 @@ app.use(express.static(path.join(__dirname, 'public'), { acceptRanges: false }))
 const io = new Server(server, { cors: { origin: "*", methods: ["GET", "POST"] } });
 
 // --- GLOBAL STATE ---
-let K = false; 
-let T = 0;     
-let R = {};    
-let A = {};    
+let K = false;          // killed flag
+let T = 0;              // total connections
+let R = {};             // timezone counts
+let A = {};             // socketId -> tz
 let userLiveStates = {}; 
 const ADMIN_PASS = "TWU2025"; 
 
@@ -56,7 +56,12 @@ const AI_QUESTIONS = [
 ];
 let aiIndex = 0;
 
-// *** CHANGED: AI TIMER SET TO 15 SECONDS ***
+// Helper: empty scholarly reaction map
+function emptyReactions() {
+  return { '🎓': [], '💡': [], '🤝': [], '⭐': [], '📜': [], '🧠': [] };
+}
+
+// *** AI TIMER: every 15 seconds ***
 setInterval(() => {
   if (K) return;
   const qText = AI_QUESTIONS[aiIndex];
@@ -68,28 +73,31 @@ setInterval(() => {
     country: 'System',
     isAi: true,
     replies: [],
-    reactions: { '🎓':[], '💡':[], '🤝':[], '⭐':[], '📜':[] },
-    flags: [] 
+    reactions: emptyReactions(),
+    flags: []
   };
   qaHistory.push(threadData);
   io.emit('qaIncoming', threadData);
-}, 15000); // <--- UPDATED TO 15000ms (15 Seconds)
+}, 15000); // 15s [web:249]
 
 function escapeHtml(text) {
   if (!text) return "";
-  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "'");
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
 
 io.on('connection', (socket) => {
   T++;
   userLiveStates[socket.id] = false; 
   
-  socket.emit('initialLoad', { 
-    chat: chatHistory, 
-    qa: qaHistory,
-    state: { isLive: userLiveStates[socket.id], isKilled: K }
-  });
-  
+  // send initial state (you are using 'history' on client now, keep both if needed)
+  socket.emit('history', { chat: chatHistory, qa: qaHistory });
+  socket.emit('z', { isLive: userLiveStates[socket.id], isKilled: K });
+
   io.emit('t', T);
   io.emit('r', R);
 
@@ -120,7 +128,7 @@ io.on('connection', (socket) => {
       country: escapeHtml(payload.country),
       type: 'chat',
       flags: [],
-      reactions: {} 
+      reactions: {}
     };
     chatHistory.push(msgData);
     if (chatHistory.length > MAX_HISTORY) chatHistory.shift();
@@ -128,27 +136,27 @@ io.on('connection', (socket) => {
   });
 
   socket.on('chatReact', (payload) => {
-     const { id, emoji, user } = payload;
-     const msg = chatHistory.find(m => m.id === id);
-     if(msg) {
-         if(!msg.reactions) msg.reactions = {};
-         if(!msg.reactions[emoji]) msg.reactions[emoji] = [];
-         const list = msg.reactions[emoji];
-         const idx = list.indexOf(user);
-         if(idx === -1) list.push(user); else list.splice(idx, 1); 
-         io.emit('chatReactionUpdate', { id, reactions: msg.reactions });
-     }
+    const { id, emoji, user } = payload;
+    const msg = chatHistory.find(m => m.id === id);
+    if (msg) {
+      if (!msg.reactions) msg.reactions = {};
+      if (!msg.reactions[emoji]) msg.reactions[emoji] = [];
+      const list = msg.reactions[emoji];
+      const idx = list.indexOf(user);
+      if (idx === -1) list.push(user); else list.splice(idx, 1);
+      io.emit('chatReactionUpdate', { id, reactions: msg.reactions });
+    }
   });
 
   socket.on('chatFlag', (payload) => {
     const { id, user } = payload;
     const msg = chatHistory.find(m => m.id === id);
     if (msg) {
-       if (!msg.flags.includes(user)) msg.flags.push(user);
-       if (msg.flags.length >= 3 || msg.user === user) {
-           chatHistory = chatHistory.filter(m => m.id !== id);
-           io.emit('chatDeleted', id);
-       }
+      if (!msg.flags.includes(user)) msg.flags.push(user);
+      if (msg.flags.length >= 3 || msg.user === user) {
+        chatHistory = chatHistory.filter(m => m.id !== id);
+        io.emit('chatDeleted', id);
+      }
     }
   });
 
@@ -161,7 +169,7 @@ io.on('connection', (socket) => {
       text: escapeHtml(payload.text),
       country: escapeHtml(payload.country),
       replies: [],
-      reactions: { '🎓':[], '💡':[], '🤝':[], '⭐':[], '📜':[] },
+      reactions: emptyReactions(),
       flags: []
     };
     qaHistory.push(threadData);
@@ -172,21 +180,21 @@ io.on('connection', (socket) => {
     const { id, user } = payload;
     const thread = qaHistory.find(t => t.id === id);
     if (thread) {
-       if (!thread.flags.includes(user)) thread.flags.push(user);
-       if (thread.flags.length >= 3 || thread.user === user) {
-           qaHistory = qaHistory.filter(t => t.id !== id);
-           io.emit('qaDeleted', id);
-       }
+      if (!thread.flags.includes(user)) thread.flags.push(user);
+      if (thread.flags.length >= 3 || thread.user === user) {
+        qaHistory = qaHistory.filter(t => t.id !== id);
+        io.emit('qaDeleted', id);
+      }
     }
   });
 
   socket.on('qaReply', (payload) => {
+    if (!payload.text || payload.text.length > MAX_MSG_LENGTH) return;
     const replyData = { 
-      id: 'rep-' + Date.now(), 
-      user: escapeHtml(payload.user), 
+      id: 'rep-' + Date.now(),
+      user: escapeHtml(payload.user),
       text: escapeHtml(payload.text),
-      // *** CHANGED: Initialize SCHOLARLY emojis for REPLY ***
-      reactions: { '🎓':[], '💡':[], '🤝':[], '⭐':[], '📜':[] } 
+      reactions: emptyReactions()
     };
     const thread = qaHistory.find(t => t.id === payload.threadId);
     if (thread) thread.replies.push(replyData);
@@ -195,10 +203,12 @@ io.on('connection', (socket) => {
 
   socket.on('qaReact', (payload) => {
     const { threadId, emoji, user } = payload;
-    const allowed = ['🎓', '💡', '🤝', '⭐', '📜'];
+    const allowed = ['🎓', '💡', '🤝', '⭐', '📜', '🧠'];  // allow 🧠
     if (!allowed.includes(emoji)) return;
+
     const thread = qaHistory.find(t => t.id === threadId);
     if (thread) {
+      if (!thread.reactions) thread.reactions = emptyReactions();
       if (!Array.isArray(thread.reactions[emoji])) thread.reactions[emoji] = [];
       const list = thread.reactions[emoji];
       const idx = list.indexOf(user);
@@ -207,36 +217,32 @@ io.on('connection', (socket) => {
     }
   });
 
-  // *** QA REPLY REACTION HANDLER (UPDATED FOR SCHOLARLY EMOJIS) ***
   socket.on('qaReplyReact', (payload) => {
     const { threadId, replyId, emoji, user } = payload;
-    // *** CHANGED: Allowed emojis match the main question styles ***
-    const allowed = ['🎓', '💡', '🤝', '⭐', '📜']; 
+    const allowed = ['🎓', '💡', '🤝', '⭐', '📜', '🧠']; 
     if (!allowed.includes(emoji)) return;
 
     const thread = qaHistory.find(t => t.id === threadId);
     if (thread && thread.replies) {
-       const reply = thread.replies.find(r => r.id === replyId);
-       if(reply) {
-          if(!reply.reactions) reply.reactions = { '🎓':[], '💡':[], '🤝':[], '⭐':[], '📜':[] };
-          if(!reply.reactions[emoji]) reply.reactions[emoji] = [];
-          
-          const list = reply.reactions[emoji];
-          const idx = list.indexOf(user);
-          if(idx === -1) list.push(user); else list.splice(idx, 1); // Toggle
-
-          // Broadcast specific reply update
-          io.emit('qaReplyReactionUpdate', { threadId, replyId, reactions: reply.reactions });
-       }
+      const reply = thread.replies.find(r => r.id === replyId);
+      if (reply) {
+        if (!reply.reactions) reply.reactions = emptyReactions();
+        if (!reply.reactions[emoji]) reply.reactions[emoji] = [];
+        const list = reply.reactions[emoji];
+        const idx = list.indexOf(user);
+        if (idx === -1) list.push(user); else list.splice(idx, 1);
+        io.emit('qaReplyReactionUpdate', { threadId, replyId, reactions: reply.reactions });
+      }
     }
   });
 
+  // Admin kill
   socket.on('k', (password) => {
     if (password !== ADMIN_PASS) return;
     K = true;
-    for (let id in userLiveStates) userLiveStates[id] = false; 
+    for (let id in userLiveStates) userLiveStates[id] = false;
     io.emit('z', { isLive: false, isKilled: true });
-    io.emit('d'); 
+    io.emit('d');
   });
 
   socket.on('disconnect', () => {
@@ -251,4 +257,6 @@ io.on('connection', (socket) => {
 });
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => { console.log(`🚀 Secure Server running on port ${PORT}`); });
+server.listen(PORT, () => {
+  console.log(`🚀 Secure Server running on port ${PORT}`);
+});
