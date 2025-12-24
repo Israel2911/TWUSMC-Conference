@@ -460,7 +460,10 @@ if (kS) kS.onclick = () => {
   if (p) s.emit('k', p);
 };
 
-// Socket listeners
+// =====================
+// SOCKET LISTENERS
+// =====================
+
 s.on('z', st => {
   const live = st && typeof st.isLive === 'boolean' ? st.isLive : false;
   toggleLiveUI(live);
@@ -468,6 +471,7 @@ s.on('z', st => {
 });
 
 s.on('t', c => { if (cN) cN.innerText = c; });
+
 s.on('r', d => {
   countries.forEach((c, i) => {
     const el = document.getElementById(`count-${i}`);
@@ -479,10 +483,12 @@ s.on('chatIncoming', d => {
   rawChatData.push(d);
   addMessage('chat', d.user, d.text, (d.user === myName), d.country, d.id, d.reactions, d.flags);
 });
+
 s.on('qaIncoming', d => {
   rawQaData.push(d);
   addQaThread(d.user, d.text, (d.user === myName), d.country, d.id, d.reactions, d.flags);
 });
+
 s.on('qaReplyIncoming', d => {
   const t = rawQaData.find(x => x.id === d.threadId);
   if (t) { if (!t.replies) t.replies = []; t.replies.push(d); }
@@ -522,7 +528,46 @@ s.on('history', d => {
   }
 });
 
-// Live UI
+// =====================
+// NEW: DELETE HANDLERS
+// matches server's chatDeleted, qaDeleted, qaReplyDeleted
+// =====================
+
+// Chat message deleted (by flags or owner)
+s.on('chatDeleted', function (id) {
+  const el = document.getElementById(id);
+  if (el && el.parentNode) el.parentNode.removeChild(el);
+  if (Array.isArray(rawChatData)) {
+    rawChatData = rawChatData.filter(m => m.id !== id);
+  }
+});
+
+// Q&A thread deleted
+s.on('qaDeleted', function (id) {
+  const el = document.getElementById(id);
+  if (el && el.parentNode) el.parentNode.removeChild(el);
+  if (Array.isArray(rawQaData)) {
+    rawQaData = rawQaData.filter(t => t.id !== id);
+  }
+});
+
+// Q&A reply deleted
+s.on('qaReplyDeleted', function ({ threadId, replyId }) {
+  const replyEl = document.getElementById('reply-' + replyId);
+  if (replyEl && replyEl.parentNode) replyEl.parentNode.removeChild(replyEl);
+
+  const thread = Array.isArray(rawQaData)
+    ? rawQaData.find(t => t.id === threadId)
+    : null;
+  if (thread && Array.isArray(thread.replies)) {
+    thread.replies = thread.replies.filter(r => r.id !== replyId);
+  }
+});
+
+// =====================
+// LIVE UI
+// =====================
+
 function toggleLiveUI(isLive) {
   hS.style.display = isLive ? 'none' : 'block';
   hL.style.display = isLive ? 'block' : 'none';
@@ -587,6 +632,7 @@ function updateStackTimes() {
 setInterval(updateStackTimes, 1000);
 updateStackTimes();
 
+// WEATHER
 async function fetchRealWeather() {
   countries.forEach(async (c, i) => {
     try {
@@ -696,6 +742,7 @@ function flagMsg(id, isMe) {
   if (!myName) return alert("Join first to flag messages.");
   if (isMe) {
     if (!confirm("Delete your own message from the chat?")) return;
+    // server already deletes on owner flag and emits chatDeleted
     s.emit('chatFlag', { id, user: myName });
   } else {
     const ok = confirm(
@@ -1075,6 +1122,7 @@ function addQaReplyUI(threadId, replyId, user, text, reactions) {
   });
 })();
 </script>
+
 
 
 </body>
