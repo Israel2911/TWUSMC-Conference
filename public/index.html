@@ -413,7 +413,7 @@ const popupsHTML = `
 </div>`;
 document.body.insertAdjacentHTML('beforeend', popupsHTML);
 
-// Top reaction bar – SHOULD send standalone emoji posts
+// ===== Bottom reaction bar (standalone emoji posts) =====
 const EMOJI_SETS = {
   chat: [
     { icon: '👏', label: 'Clap' },
@@ -445,7 +445,6 @@ function updateReactionBar(type) {
 }
 updateReactionBar('chat');
 
-// Standalone emoji post
 function sendEmojiPost(emoji) {
   if (!myName) return alert("Join first to react.");
   s.emit('chatMsg', { user: myName, text: emoji });
@@ -466,7 +465,10 @@ if (kS) kS.onclick = () => {
   if (p) s.emit('k', p);
 };
 
+// =====================
 // SOCKET LISTENERS
+// =====================
+
 s.on('z', st => {
   const live = st && typeof st.isLive === 'boolean' ? st.isLive : false;
   toggleLiveUI(live);
@@ -516,7 +518,7 @@ s.on('qaReplyReactionUpdate', d => {
   if (box) box.innerHTML = renderReplyReactionButtons(d.threadId, d.replyId, d.reactions);
 });
 
-// NEW: chat reactions anchored to message
+// chat reactions anchored to message
 s.on('chatReactionUpdate', d => {
   const box = document.getElementById('chat-reacts-' + d.id);
   if (box) box.innerHTML = renderChatReactions(d.id, d.reactions);
@@ -537,7 +539,10 @@ s.on('history', d => {
   }
 });
 
+// =====================
 // DELETE HANDLERS
+// =====================
+
 s.on('chatDeleted', function (id) {
   const el = document.getElementById(id);
   if (el && el.parentNode) el.parentNode.removeChild(el);
@@ -566,7 +571,10 @@ s.on('qaReplyDeleted', function ({ threadId, replyId }) {
   }
 });
 
+// =====================
 // LIVE UI
+// =====================
+
 function toggleLiveUI(isLive) {
   hS.style.display = isLive ? 'none' : 'block';
   hL.style.display = isLive ? 'block' : 'none';
@@ -582,7 +590,7 @@ function killStreamUI() {
   if (hL) hL.innerHTML = `<div class="teams-backup"><h2>Stream Ended</h2><a href="#">Join Teams</a></div>`;
 }
 
-// World stack + weather (unchanged)
+// World stack + weather
 const countries = [
   { name: 'India',     flag: '🇮🇳', tz: 'Asia/Kolkata',       lat: 13.0827, lng: 80.2707,  color: '#FF9933' },
   { name: 'Canada',    flag: '🇨🇦', tz: 'America/Vancouver',  lat: 49.2827, lng: -123.1207, color: '#ff0000' },
@@ -631,6 +639,7 @@ function updateStackTimes() {
 setInterval(updateStackTimes, 1000);
 updateStackTimes();
 
+// WEATHER
 async function fetchRealWeather() {
   countries.forEach(async (c, i) => {
     try {
@@ -767,7 +776,7 @@ function addMessage(target, user, text, isMe, country, id, reactions, flags) {
   div.id = id;
 
   const isEmojiPost = isEmojiOnly(text);
-  const actionIcon = isSystemNotice ? '' : (isMe ? '🗑️' : '⚑';
+  const actionIcon = isSystemNotice ? '' : (isMe ? '🗑️' : '⚑');
   const hasFlagged = flags && flags.includes(myName);
   const flagColor = hasFlagged ? 'red' : 'inherit';
   const flagOpacity = hasFlagged || isMe ? '1' : '0.3';
@@ -800,7 +809,7 @@ function addMessage(target, user, text, isMe, country, id, reactions, flags) {
   chatTab.scrollTop = chatTab.scrollHeight;
 }
 
-// Q&A + Globe + Book init remain as in your baseline.
+// Q&A threads + replies, Globe init, and Book init remain unchanged below…
 </script>
 
 
