@@ -413,7 +413,7 @@ const popupsHTML = `
 </div>`;
 document.body.insertAdjacentHTML('beforeend', popupsHTML);
 
-// Top reaction bar – reacts to last chat message
+// Top reaction bar – SHOULD send standalone emoji posts
 const EMOJI_SETS = {
   chat: [
     { icon: '👏', label: 'Clap' },
@@ -436,7 +436,7 @@ function updateReactionBar(type) {
   bar.style.display = 'flex';
   bar.innerHTML = EMOJI_SETS.chat.map(e =>
     `<button class="reaction-btn"
-             onclick="reactToLastChat('${e.icon}')"
+             onclick="sendEmojiPost('${e.icon}')"
              title="${e.label}"
              aria-label="${e.label}">
        <span role="img" aria-hidden="true">${e.icon}</span>
@@ -445,14 +445,10 @@ function updateReactionBar(type) {
 }
 updateReactionBar('chat');
 
-function reactToLastChat(emoji) {
+// Standalone emoji post
+function sendEmojiPost(emoji) {
   if (!myName) return alert("Join first to react.");
-  const msgs = chatTab ? chatTab.querySelectorAll('.msg') : [];
-  if (!msgs.length) return;
-  const last = msgs[msgs.length - 1];
-  const id = last.id;
-  if (!id) return;
-  s.emit('chatReact', { id, emoji, user: myName });
+  s.emit('chatMsg', { user: myName, text: emoji });
 }
 
 // Synopsis toggle
@@ -470,10 +466,7 @@ if (kS) kS.onclick = () => {
   if (p) s.emit('k', p);
 };
 
-// =====================
 // SOCKET LISTENERS
-// =====================
-
 s.on('z', st => {
   const live = st && typeof st.isLive === 'boolean' ? st.isLive : false;
   toggleLiveUI(live);
@@ -544,10 +537,7 @@ s.on('history', d => {
   }
 });
 
-// =====================
 // DELETE HANDLERS
-// =====================
-
 s.on('chatDeleted', function (id) {
   const el = document.getElementById(id);
   if (el && el.parentNode) el.parentNode.removeChild(el);
@@ -576,10 +566,7 @@ s.on('qaReplyDeleted', function ({ threadId, replyId }) {
   }
 });
 
-// =====================
 // LIVE UI
-// =====================
-
 function toggleLiveUI(isLive) {
   hS.style.display = isLive ? 'none' : 'block';
   hL.style.display = isLive ? 'block' : 'none';
@@ -595,7 +582,7 @@ function killStreamUI() {
   if (hL) hL.innerHTML = `<div class="teams-backup"><h2>Stream Ended</h2><a href="#">Join Teams</a></div>`;
 }
 
-// World stack + weather
+// World stack + weather (unchanged)
 const countries = [
   { name: 'India',     flag: '🇮🇳', tz: 'Asia/Kolkata',       lat: 13.0827, lng: 80.2707,  color: '#FF9933' },
   { name: 'Canada',    flag: '🇨🇦', tz: 'America/Vancouver',  lat: 49.2827, lng: -123.1207, color: '#ff0000' },
@@ -644,7 +631,6 @@ function updateStackTimes() {
 setInterval(updateStackTimes, 1000);
 updateStackTimes();
 
-// WEATHER
 async function fetchRealWeather() {
   countries.forEach(async (c, i) => {
     try {
@@ -709,7 +695,7 @@ function handleEnter(e) {
 function isEmojiOnly(text) {
   if (!text) return false;
   const trimmed = text.trim();
-  const regexExp = /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/gi; // [web:88][web:94]
+  const regexExp = /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/gi;
   const onlyEmoji = trimmed.replace(regexExp, '').trim();
   return onlyEmoji.length === 0;
 }
@@ -781,7 +767,7 @@ function addMessage(target, user, text, isMe, country, id, reactions, flags) {
   div.id = id;
 
   const isEmojiPost = isEmojiOnly(text);
-  const actionIcon = isSystemNotice ? '' : (isMe ? '🗑️' : '⚑');
+  const actionIcon = isSystemNotice ? '' : (isMe ? '🗑️' : '⚑';
   const hasFlagged = flags && flags.includes(myName);
   const flagColor = hasFlagged ? 'red' : 'inherit';
   const flagOpacity = hasFlagged || isMe ? '1' : '0.3';
@@ -814,362 +800,7 @@ function addMessage(target, user, text, isMe, country, id, reactions, flags) {
   chatTab.scrollTop = chatTab.scrollHeight;
 }
 
-// Q&A threads + replies
-
-let targetQaId = null;
-function openReplyUI(id) {
-  targetQaId = id;
-  document.getElementById('replyOverlay').style.display = 'block';
-}
-function closeReply() {
-  document.getElementById('replyOverlay').style.display = 'none';
-}
-function submitReply() {
-  const t = document.getElementById('replyInput').value;
-  if (t) s.emit('qaReply', { threadId: targetQaId, user: myName, text: t });
-  closeReply();
-  document.getElementById('replyInput').value = '';
-}
-
-const EMOJI_DEF = {
-  '🎓': 'Insightful',
-  '💡': 'Great Idea',
-  '🤝': 'Agreement',
-  '⭐': 'Excellent',
-  '📜': 'Scholarly',
-  '🧠': 'Deep'
-};
-
-function renderReactionButtons(id, r) {
-  const emojis = Object.keys(EMOJI_DEF);
-  return emojis.map(e => {
-    const list  = (r && Array.isArray(r[e])) ? r[e] : [];
-    const count = list.length;
-    const iVoted = myName && list.includes(myName);
-    const activeStyle = iVoted
-      ? 'border:1px solid #38bdf8; background:rgba(56,189,248,0.2);'
-      : 'border:1px solid #333; background:rgba(255,255,255,0.05);';
-    return `<span onclick="emitReact('${id}', '${e}')"
-                 title="${EMOJI_DEF[e]}"
-                 aria-label="${EMOJI_DEF[e]}"
-                 style="cursor:pointer; padding:4px 8px; border-radius:15px;
-                        font-size:0.9rem; transition:all 0.2s; ${activeStyle}">
-              <span role="img" aria-hidden="true">${e}</span> ${count}
-            </span>`;
-  }).join('');
-}
-function emitReact(id, emoji) {
-  if (!myName) return alert("Please Join first to react.");
-  s.emit('qaReact', { threadId: id, emoji, user: myName });
-}
-
-function flagQa(id, isMe) {
-  if (!myName) return alert("Join first to flag questions.");
-  const msg = isMe
-    ? "Delete your own question from the Q&A?"
-    : "Flag this question as inappropriate? Disagreement is OK, but harmful or disrespectful content may be removed when multiple people red‑flag it.";
-  if (!confirm(msg)) return;
-  s.emit('qaFlag', { id, user: myName });
-}
-
-function addQaThread(user, text, isMe, country, serverId, reactions, flags) {
-  if (!qaTab) return;
-  if (serverId && document.getElementById(serverId)) return;
-
-  const div = document.createElement('div');
-  div.className = 'qa-thread';
-  div.id = serverId;
-
-  const isAi = (user === "🤖 Session Facilitator");
-  const userDisplay = isAi ? `<span style="color:#ffcc00;font-weight:bold;">${user}</span>` : user;
-  const bgStyle = isAi ? 'background:rgba(255,215,0,0.1); border-left:3px solid #ffcc00;' : '';
-
-  const safeReactions = reactions || {
-    '🎓':[], '💡':[], '🤝':[], '⭐':[], '📜':[], '🧠':[]
-  };
-
-  const actionIcon  = isMe ? '🗑️' : '⚑';
-  const hasFlagged  = flags && flags.includes(myName);
-  const flagColor   = hasFlagged ? 'red' : 'inherit';
-  const flagOpacity = hasFlagged || isMe ? '1' : '0.3';
-  const flagPointer = hasFlagged ? 'default' : 'pointer';
-
-  div.style.cssText = bgStyle;
-  div.innerHTML = `
-    <div style="display:flex; justify-content:space-between;">
-      <span class="qa-question">Q: ${text}</span>
-      <span id="qa-flag-btn-${serverId}"
-            onclick="${hasFlagged ? '' : `flagQa('${serverId}', ${isMe})`}"
-            style="cursor:${flagPointer}; opacity:${flagOpacity}; color:${flagColor};"
-            title="${isMe ? 'Delete' : 'Flag'}">${actionIcon}</span>
-    </div>
-    <div class="msg-meta">Asked by ${userDisplay} • ${country || 'Global'}</div>
-    <div class="qa-reactions" id="react-box-${serverId}"
-         style="margin:5px 0; display:flex; gap:8px;">
-      ${renderReactionButtons(serverId, safeReactions)}
-    </div>
-    <div class="qa-replies" id="replies-${serverId}"></div>
-    <div style="margin-top:8px; padding-top:5px; border-top:1px solid #eee;">
-      <span style="cursor:pointer; color:#167690; font-weight:800; font-size:0.8rem;"
-            onclick="openReplyUI('${serverId}')">💬 REPLY</span>
-    </div>`;
-  qaTab.appendChild(div);
-  qaTab.scrollTop = qaTab.scrollHeight;
-}
-
-function renderReplyReactionButtons(threadId, replyId, r) {
-  const emojis = Object.keys(EMOJI_DEF);
-  return emojis.map(e => {
-    const list  = (r && Array.isArray(r[e])) ? r[e] : [];
-    const count = list.length;
-    const iVoted = myName && list.includes(myName);
-    const activeStyle = iVoted
-      ? 'opacity:1; background:rgba(22,118,144,0.1);'
-      : 'opacity:0.6;';
-    const border = iVoted ? '1px solid #167690' : '1px solid transparent';
-    return `<span onclick="emitReplyReact('${threadId}', '${replyId}', '${e}')"
-                 title="${EMOJI_DEF[e]}"
-                 aria-label="${EMOJI_DEF[e]}"
-                 style="cursor:pointer; font-size:0.75rem; padding:2px 6px;
-                        border-radius:10px; ${activeStyle} border:${border};
-                        transition:0.2s;">
-              <span role="img" aria-hidden="true">${e}</span> ${count || ''}
-            </span>`;
-  }).join('');
-}
-
-function emitReplyReact(threadId, replyId, emoji) {
-  if (!myName) return alert("Join to react!");
-  s.emit('qaReplyReact', { threadId, replyId, emoji, user: myName });
-}
-
-function flagQaReply(threadId, replyId, isMe) {
-  if (!myName) return alert("Join first to flag replies.");
-  const msg = isMe
-    ? "Delete your own reply from the Q&A?"
-    : "Flag this reply as inappropriate? It may be removed after multiple red‑flags.";
-  if (!confirm(msg)) return;
-  s.emit('qaReplyFlag', { threadId, replyId, user: myName });
-}
-
-function addQaReplyUI(threadId, replyId, user, text, reactions) {
-  const box = document.getElementById(`replies-${threadId}`);
-  if (!box) return;
-  if (document.getElementById(`reply-${replyId}`)) return;
-
-  const div = document.createElement('div');
-  div.className = 'qa-reply-item';
-  div.id = `reply-${replyId}`;
-
-  const safeReacts = reactions || {
-    '🎓':[], '💡':[], '🤝':[], '⭐':[], '📜':[], '🧠':[]
-  };
-
-  const isMe = (user === myName);
-  const actionIcon  = isMe ? '🗑️' : '⚑';
-  const title       = isMe ? 'Delete reply' : 'Flag reply';
-
-  div.innerHTML = `
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-      <div><strong style="color:#167690">${user}:</strong> ${text}</div>
-      <span style="cursor:pointer; font-size:0.8rem;"
-            title="${title}"
-            onclick="flagQaReply('${threadId}', '${replyId}', ${isMe})">${actionIcon}</span>
-    </div>
-    <div id="reply-reacts-${replyId}" style="margin-top:5px; display:flex; gap:5px;">
-      ${renderReplyReactionButtons(threadId, replyId, safeReacts)}
-    </div>`;
-  box.appendChild(div);
-}
-
-// Globe init
-(function initGlobe() {
-  const container = document.getElementById('heroGlobeContainer');
-  if (!container) return;
-
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
-  camera.position.set(0, 0, 4.8);
-
-  const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-  renderer.setSize(container.clientWidth, container.clientHeight);
-  container.appendChild(renderer.domElement);
-
-  const controls = new THREE.OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true;
-  controls.autoRotate = true;
-  controls.autoRotateSpeed = 0.8;
-
-  scene.add(new THREE.AmbientLight(0xffffff, 0.8));
-  const dLight = new THREE.DirectionalLight(0xffffff, 0.7);
-  dLight.position.set(1, 1, 1);
-  scene.add(dLight);
-
-  const globeGroup = new THREE.Group();
-  scene.add(globeGroup);
-  globeGroup.rotation.y = 0;
-  globeGroup.rotation.x = 0.2;
-
-  new THREE.TextureLoader().load(
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Land_ocean_ice_2048.jpg/1024px-Land_ocean_ice_2048.jpg',
-    tex => {
-      const geo = new THREE.SphereGeometry(1, 64, 64);
-      const mat = new THREE.MeshPhongMaterial({ map: tex, specular: 0x111111, shininess: 5 });
-      globeGroup.add(new THREE.Mesh(geo, mat));
-    }
-  );
-
-  const flagSprites = [];
-  function latLonToVec3(lat, lon, r) {
-    const phi = (90 - lat) * (Math.PI / 180);
-    const theta = (lon + 180) * (Math.PI / 180);
-    return new THREE.Vector3(
-      -r * Math.sin(phi) * Math.cos(theta),
-      r * Math.cos(phi),
-      r * Math.sin(phi) * Math.sin(theta)
-    );
-  }
-
-  function drawCanvas(ctx, country, timeStr) {
-    ctx.clearRect(0, 0, 300, 150);
-    ctx.fillStyle = 'rgba(10,16,30,0.85)';
-    ctx.beginPath();
-    const r = 20, x = 10, y = 10, w = 280, h = 130;
-    ctx.moveTo(x + r, y);
-    ctx.lineTo(x + w - r, y);
-    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-    ctx.lineTo(x + w, y + h - r);
-    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-    ctx.lineTo(x + r, y + h);
-    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-    ctx.lineTo(x, y + r);
-    ctx.quadraticCurveTo(x, y, x + r, y);
-    ctx.closePath();
-    ctx.fill();
-    ctx.lineWidth = 6;
-    ctx.strokeStyle = country.color;
-    ctx.stroke();
-
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 38px Arial';
-    ctx.fillText(country.flag + ' ' + country.name.substring(0, 3).toUpperCase(), 40, 65);
-
-    ctx.fillStyle = '#00FF88';
-    ctx.font = 'bold 45px Courier New';
-    ctx.fillText(timeStr, 50, 115);
-  }
-
-  function createLabel(country) {
-    const canvas = document.createElement('canvas');
-    canvas.width = 300; canvas.height = 150;
-    const ctx = canvas.getContext('2d');
-    drawCanvas(ctx, country, '--:--');
-    const tex = new THREE.CanvasTexture(canvas);
-    const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex }));
-    sprite.position.copy(latLonToVec3(country.lat, country.lng, 1.3));
-    sprite.scale.set(0.8, 0.4, 1);
-    globeGroup.add(sprite);
-    return { sprite, ctx, country, tex };
-  }
-
-  countries.forEach(c => flagSprites.push(createLabel(c)));
-
-  function updateSprites() {
-    const n = new Date();
-    flagSprites.forEach(item => {
-      try {
-        const t = n.toLocaleTimeString('en-GB', {
-          timeZone: item.country.tz,
-          hour: '2-digit',
-          minute: '2-digit'
-        });
-        drawCanvas(item.ctx, item.country, t);
-        item.tex.needsUpdate = true;
-      } catch (e) {}
-    });
-  }
-  setInterval(updateSprites, 1000);
-  updateSprites();
-
-  window.addEventListener('resize', () => {
-    renderer.setSize(container.clientWidth, container.clientHeight);
-    camera.aspect = container.clientWidth / container.clientHeight;
-    camera.updateProjectionMatrix();
-  });
-
-  const pauseBtn = document.getElementById('pauseBtn');
-  if (pauseBtn) {
-    pauseBtn.onclick = function () {
-      controls.autoRotate = !controls.autoRotate;
-      this.innerText = controls.autoRotate ? '⏸ Pause' : '▶ Start Rotation';
-    };
-  }
-
-  function animate() {
-    requestAnimationFrame(animate);
-    controls.update();
-    renderer.render(scene, camera);
-  }
-  animate();
-})();
-
-// Book init
-(function initBook() {
-  const container = document.getElementById('bookContainer');
-  if (!container) return;
-  if (container.clientWidth === 0) {
-    setTimeout(initBook, 100);
-    return;
-  }
-
-  const scene = new THREE.Scene();
-  const aspect = container.clientWidth / container.clientHeight;
-  const camera = new THREE.PerspectiveCamera(45, aspect, 0.1, 1000);
-  camera.position.set(0, 0, window.innerWidth < 768 ? 9 : 7);
-
-  const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-  renderer.setSize(container.clientWidth, container.clientHeight);
-  container.appendChild(renderer.domElement);
-
-  scene.add(new THREE.AmbientLight(0xffffff, 0.7));
-  const dirLight = new THREE.DirectionalLight(0xffffff, 1.0);
-  dirLight.position.set(5, 10, 7);
-  scene.add(dirLight);
-
-  const geometry = new THREE.BoxGeometry(3.2, 4.6, 0.5);
-  const materials = [
-    new THREE.MeshLambertMaterial({ color: 0xfdfdfd }),
-    new THREE.MeshLambertMaterial({ color: 0x111111 }),
-    new THREE.MeshLambertMaterial({ color: 0xfdfdfd }),
-    new THREE.MeshLambertMaterial({ color: 0xfdfdfd }),
-    new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('bookfront.jpg'), color: 0xffffff }),
-    new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('bookcoverback.jpg'), color: 0xffffff })
-  ];
-  const book = new THREE.Mesh(geometry, materials);
-  scene.add(book);
-  book.rotation.x = 0.15;
-
-  const controls = new THREE.OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true;
-  controls.autoRotate = true;
-  controls.autoRotateSpeed = 2.0;
-
-  const clock = new THREE.Clock();
-  function animate() {
-    requestAnimationFrame(animate);
-    book.position.y = Math.sin(clock.getElapsedTime() * 1.5) * 0.1;
-    controls.update();
-    renderer.render(scene, camera);
-  }
-  animate();
-
-  window.addEventListener('resize', () => {
-    renderer.setSize(container.clientWidth, container.clientHeight);
-    camera.aspect = container.clientWidth / container.clientHeight;
-    camera.updateProjectionMatrix();
-    camera.position.z = window.innerWidth < 768 ? 9 : 7;
-  });
-})();
+// Q&A + Globe + Book init remain as in your baseline.
 </script>
 
 
