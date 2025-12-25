@@ -54,12 +54,22 @@ const AI_QUESTIONS = [
 ];
 let aiIndex = 0;
 
+// NEW: facilitator drip control
+let lastAiPostAt = 0;
+const AI_COOLDOWN_MS = 30000; // 30 seconds
+
 function emptyReactions() {
   return { '🎓': [], '💡': [], '🤝': [], '⭐': [], '📜': [], '🧠': [] };
 }
 
+// Facilitator loop (checks often, posts at most every 30s)
 setInterval(() => {
-  if (K) return;
+  if (K) return; // killed
+
+  const now = Date.now();
+  if (now - lastAiPostAt < AI_COOLDOWN_MS) return; // enforce 30s gap
+  lastAiPostAt = now;
+
   const qText = AI_QUESTIONS[aiIndex];
   aiIndex = (aiIndex + 1) % AI_QUESTIONS.length;
   const threadData = {
@@ -74,7 +84,7 @@ setInterval(() => {
   };
   qaHistory.push(threadData);
   io.emit('qaIncoming', threadData);
-}, 60000); // 1 minute
+}, 5000); // check every 5s; real posts obey 30s cooldown
 
 function escapeHtml(text) {
   if (!text) return "";
@@ -83,7 +93,7 @@ function escapeHtml(text) {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+    .replace(/'/g, "'");
 }
 
 io.on('connection', (socket) => {
